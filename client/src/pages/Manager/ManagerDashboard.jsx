@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import "./ManagerDashboard.css";
 
-function ManagerDashboard({ user, onLogout }) {
+function ManagerDashboard({
+  user,
+  onLogout,
+  onOpenOrders,
+}) {
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
   const [kitchenOrders, setKitchenOrders] = useState([]);
@@ -266,17 +270,25 @@ const dateInputRef = useRef(null);
           </span>
 
           <button className="manager-nav-item active">
-            <span>▦</span>
-            Dashboard
-          </button>
+  <span>▦</span>
+  Dashboard
+</button>
 
-          <button
-            className="manager-nav-item"
-            onClick={loadDashboard}
-          >
-            <span>↻</span>
-            Refresh Data
-          </button>
+<button
+  className="manager-nav-item"
+  onClick={onOpenOrders}
+>
+  <span>▤</span>
+  Orders
+</button>
+
+<button
+  className="manager-nav-item"
+  onClick={loadDashboard}
+>
+  <span>↻</span>
+  Refresh Data
+</button>
 
         </div>
 
