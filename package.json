@@ -1,4 +1,11 @@
 {
+  "name": "restaurant-pos",
+  "version": "1.0.0",
+  "description": "Restaurant POS Desktop Application",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron electron/main.js"
+  },
   "devDependencies": {
     "electron": "^44.5.1"
   }
