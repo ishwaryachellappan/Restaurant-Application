@@ -1,0 +1,493 @@
+* {
+  box-sizing: border-box;
+}
+
+.waiter-dashboard {
+  min-height: 100vh;
+  background: #f4f5f7;
+  color: #111827;
+
+  /* Prevent accidental horizontal scrolling */
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.waiter-header {
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 20px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
+}
+
+.waiter-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.waiter-brand-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #111827;
+
+  font-size: 21px;
+}
+
+.waiter-brand h1 {
+  margin: 0;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.waiter-brand span {
+  display: block;
+
+  margin-top: 2px;
+
+  font-size: 11px;
+
+  color: #6b7280;
+}
+
+.waiter-user {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.waiter-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.waiter-user-info strong {
+  font-size: 13px;
+  color: #111827;
+}
+
+.waiter-user-info span {
+  margin-top: 2px;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  color: #6b7280;
+}
+
+.logout-button {
+  min-height: 42px;
+  min-width: 78px;
+
+  padding: 0 14px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  /* Better touch response */
+  touch-action: manipulation;
+}
+
+.logout-button:active {
+  background: #f3f4f6;
+}
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.waiter-main {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 24px 20px 90px;
+}
+
+.welcome-section {
+  margin-bottom: 22px;
+}
+
+.welcome-section h2 {
+  margin: 0;
+
+  font-size: 25px;
+  line-height: 1.25;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.welcome-section p {
+  margin: 7px 0 0;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color: #6b7280;
+}
+
+/* =========================================================
+   ACTION CARDS
+   ========================================================= */
+
+.waiter-cards {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 16px;
+}
+
+.waiter-card {
+  min-height: 190px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  /* Important for touch devices */
+  touch-action: manipulation;
+}
+
+.waiter-card:active {
+  transform: scale(0.98);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #f3f4f6;
+
+  font-size: 23px;
+}
+
+.card-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.card-content h3 {
+  margin: 14px 0 0;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.card-content p {
+  margin: 6px 0 16px;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  color: #6b7280;
+}
+
+.card-content button {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin-top: auto;
+
+  padding: 0 14px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+}
+
+.card-content button:active {
+  transform: scale(0.98);
+}
+
+/* =========================================================
+   TODAY'S STATUS
+   ========================================================= */
+
+.waiter-status {
+  margin-top: 20px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+}
+
+.waiter-status h3 {
+  margin: 0 0 16px;
+
+  font-size: 17px;
+
+  color: #111827;
+}
+
+.status-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px;
+}
+
+.status-item {
+  min-height: 90px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  background: #f8f9fa;
+
+  text-align: center;
+}
+
+.status-number {
+  display: block;
+
+  font-size: 25px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.status-label {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+
+  color: #6b7280;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .waiter-main {
+    padding: 22px 18px 90px;
+  }
+
+  .waiter-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+/* =========================================================
+   MOBILE / HANDHELD
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .waiter-header {
+    min-height: 60px;
+
+    padding: 8px 14px;
+  }
+
+  .waiter-brand-icon {
+    width: 40px;
+    height: 40px;
+
+    font-size: 20px;
+  }
+
+  .waiter-brand h1 {
+    font-size: 15px;
+  }
+
+  .waiter-brand span {
+    font-size: 10px;
+  }
+
+  .waiter-user-info {
+    display: none;
+  }
+
+  .logout-button {
+    min-height: 42px;
+
+    padding: 0 13px;
+  }
+
+  .waiter-main {
+    padding: 20px 14px 90px;
+  }
+
+  .welcome-section {
+    margin-bottom: 18px;
+  }
+
+  .welcome-section h2 {
+    font-size: 22px;
+  }
+
+  .welcome-section p {
+    font-size: 13px;
+  }
+
+  .waiter-cards {
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+  }
+
+  .waiter-card {
+    min-height: 175px;
+
+    padding: 15px;
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+
+    font-size: 20px;
+  }
+
+  .card-content h3 {
+    margin-top: 11px;
+
+    font-size: 15px;
+  }
+
+  .card-content p {
+    font-size: 11px;
+
+    margin-bottom: 12px;
+  }
+
+  .card-content button {
+    min-height: 46px;
+
+    font-size: 12px;
+  }
+
+  .waiter-status {
+    padding: 16px;
+  }
+
+  .status-grid {
+    gap: 8px;
+  }
+
+  .status-item {
+    min-height: 80px;
+
+    padding: 8px;
+  }
+
+  .status-number {
+    font-size: 22px;
+  }
+
+  .status-label {
+    font-size: 10px;
+  }
+
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .waiter-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .waiter-card {
+    min-height: 145px;
+  }
+
+}
