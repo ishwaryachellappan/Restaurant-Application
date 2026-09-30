@@ -1,169 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./ManagerSales.css";
 
-function ManagerStaff({
+function ManagerSales({
   user,
   onBack,
+  onOrders,
   onLogout,
-  onOpenOrders,
-  onOpenSales,
 }) {
-  const [staff, setStaff] = useState([]);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL");
-
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [updatingId, setUpdatingId] = useState(null);
 
-  // Add Staff
-  const [showAddStaff, setShowAddStaff] = useState(false);
+  const [dateFilter, setDateFilter] = useState("today");
+  const [customDate, setCustomDate] = useState("");
 
-  const [newStaff, setNewStaff] = useState({
-    name: "",
-    username: "",
-    password: "",
-    role: "WAITER",
-  });
+  const dateInputRef = useRef(null);
 
-  const [creatingStaff, setCreatingStaff] = useState(false);
-
-  // --------------------------------------------------
-  // LOAD STAFF
-  // --------------------------------------------------
-
-  const loadStaff = async () => {
+  const loadSales = async () => {
     try {
       setLoading(true);
       setError("");
 
       const response = await fetch(
-        "http://localhost:5000/api/staff"
-      );
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Unable to load staff."
-        );
-      }
-
-      setStaff(data.users || []);
-    } catch (error) {
-      console.error("Load staff error:", error);
-
-      setError("Unable to load staff members.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStaff();
-  }, []);
-
-  // --------------------------------------------------
-  // UPDATE STAFF STATUS
-  // --------------------------------------------------
-
-  const updateStatus = async (member) => {
-    // Prevent manager from changing their own account
-    if (member._id === user?._id) {
-      return;
-    }
-
-    const newStatus =
-      member.status === "ACTIVE"
-        ? "INACTIVE"
-        : "ACTIVE";
-
-    try {
-      setUpdatingId(member._id);
-
-      const response = await fetch(
-        `http://localhost:5000/api/staff/${member._id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: newStatus,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || "Unable to update status."
-        );
-      }
-
-      setStaff((currentStaff) =>
-        currentStaff.map((item) =>
-          item._id === member._id
-            ? {
-                ...item,
-                status: newStatus,
-              }
-            : item
-        )
-      );
-    } catch (error) {
-      console.error(
-        "Update staff status error:",
-        error
-      );
-
-      alert(
-        error.message ||
-          "Unable to update staff status."
-      );
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  // --------------------------------------------------
-  // CREATE STAFF
-  // --------------------------------------------------
-
-  const createStaff = async () => {
-    if (
-      !newStaff.name.trim() ||
-      !newStaff.username.trim() ||
-      !newStaff.password.trim()
-    ) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    if (newStaff.password.length < 4) {
-      alert("Password must be at least 4 characters.");
-      return;
-    }
-
-    try {
-      setCreatingStaff(true);
-
-      const response = await fetch(
-        "http://localhost:5000/api/staff",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: newStaff.name.trim(),
-            username: newStaff.username.trim(),
-            password: newStaff.password,
-            role: newStaff.role,
-          }),
-        }
+        "http://localhost:5000/api/orders"
       );
 
       const data = await response.json();
@@ -171,831 +30,976 @@ function ManagerStaff({
       if (!response.ok || !data.success) {
         throw new Error(
           data.message ||
-            "Unable to create staff member."
+            "Unable to load sales data."
         );
       }
 
-      // Add the newly created user immediately
-      setStaff((currentStaff) => [
-        ...currentStaff,
-        data.user,
-      ]);
-
-      // Reset form
-      setNewStaff({
-        name: "",
-        username: "",
-        password: "",
-        role: "WAITER",
-      });
-
-      // Close modal
-      setShowAddStaff(false);
-
-      alert("Staff member created successfully.");
+      setOrders(data.orders || []);
     } catch (error) {
       console.error(
-        "Create staff error:",
+        "Sales data error:",
         error
       );
 
-      alert(
-        error.message ||
-          "Unable to create staff member."
+      setError(
+        "Unable to load sales data. Please make sure the backend is running."
       );
     } finally {
-      setCreatingStaff(false);
+      setLoading(false);
     }
   };
 
-  // --------------------------------------------------
-  // FILTER STAFF
-  // --------------------------------------------------
+  useEffect(() => {
+    loadSales();
+  }, []);
 
-  const filteredStaff = useMemo(() => {
-    const searchValue = search
-      .trim()
-      .toLowerCase();
+  const getLocalDateString = (date) => {
+    const d = new Date(date);
 
-    return staff.filter((member) => {
-      const matchesSearch =
-        !searchValue ||
-        member.name
-          ?.toLowerCase()
-          .includes(searchValue) ||
-        member.username
-          ?.toLowerCase()
-          .includes(searchValue);
+    const year = d.getFullYear();
 
-      const matchesRole =
-        roleFilter === "ALL" ||
-        member.role === roleFilter;
+    const month = String(
+      d.getMonth() + 1
+    ).padStart(2, "0");
 
-      const matchesStatus =
-        statusFilter === "ALL" ||
-        member.status === statusFilter;
+    const day = String(
+      d.getDate()
+    ).padStart(2, "0");
 
-      return (
-        matchesSearch &&
-        matchesRole &&
-        matchesStatus
+    return `${year}-${month}-${day}`;
+  };
+
+  const today = new Date();
+
+  const todayString =
+    getLocalDateString(today);
+
+  const yesterday = new Date(today);
+
+  yesterday.setDate(
+    yesterday.getDate() - 1
+  );
+
+  const yesterdayString =
+    getLocalDateString(yesterday);
+
+  const selectedDate =
+    dateFilter === "today"
+      ? todayString
+      : dateFilter === "yesterday"
+      ? yesterdayString
+      : customDate;
+
+  /*
+   * Sales are based on payment date,
+   * not order creation date.
+   */
+  const paidOrders = useMemo(() => {
+    return orders
+      .filter(
+        (order) =>
+          order.status === "COMPLETED"
+      )
+      .filter((order) => {
+        const paymentDate =
+          order.paidAt ||
+          order.createdAt;
+
+        if (!selectedDate) {
+          return false;
+        }
+
+        return (
+          getLocalDateString(
+            paymentDate
+          ) === selectedDate
+        );
+      })
+      .sort(
+        (a, b) =>
+          new Date(
+            b.paidAt ||
+              b.createdAt
+          ) -
+          new Date(
+            a.paidAt ||
+              a.createdAt
+          )
       );
-    });
   }, [
-    staff,
-    search,
-    roleFilter,
-    statusFilter,
+    orders,
+    selectedDate,
   ]);
 
-  // --------------------------------------------------
-  // COUNTS
-  // --------------------------------------------------
+  const revenue = paidOrders.reduce(
+    (sum, order) =>
+      sum + Number(order.total || 0),
+    0
+  );
 
-  const activeCount = staff.filter(
-    (member) => member.status === "ACTIVE"
-  ).length;
+  const orderCount =
+    paidOrders.length;
 
-  const inactiveCount = staff.filter(
-    (member) => member.status === "INACTIVE"
-  ).length;
+  const averageOrder =
+    orderCount > 0
+      ? revenue / orderCount
+      : 0;
 
-  // --------------------------------------------------
-  // HELPERS
-  // --------------------------------------------------
+  const cashOrders =
+    paidOrders.filter(
+      (order) =>
+        order.paymentMethod === "CASH"
+    );
 
-  const getInitial = (name) =>
-    name?.charAt(0)?.toUpperCase() || "?";
+  const cardOrders =
+    paidOrders.filter(
+      (order) =>
+        order.paymentMethod === "CARD"
+    );
 
-  const getRoleLabel = (role) => {
-    switch (role) {
-      case "WAITER":
-        return "Waiter";
+  const upiOrders =
+    paidOrders.filter(
+      (order) =>
+        order.paymentMethod === "UPI"
+    );
 
-      case "KITCHEN":
-        return "Kitchen";
+  const cashTotal = cashOrders.reduce(
+    (sum, order) =>
+      sum + Number(order.total || 0),
+    0
+  );
 
-      case "CASHIER":
-        return "Cashier";
+  const cardTotal = cardOrders.reduce(
+    (sum, order) =>
+      sum + Number(order.total || 0),
+    0
+  );
 
-      case "MANAGER":
-        return "Manager";
+  const upiTotal = upiOrders.reduce(
+    (sum, order) =>
+      sum + Number(order.total || 0),
+    0
+  );
 
-      default:
-        return role;
-    }
+  const recordedPaymentTotal =
+    cashTotal +
+    cardTotal +
+    upiTotal;
+
+  const unrecordedPaymentTotal =
+    revenue - recordedPaymentTotal;
+
+  const formatMoney = (amount) =>
+    `₹${Number(amount || 0).toFixed(2)}`;
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
   };
 
-  // --------------------------------------------------
-  // RENDER
-  // --------------------------------------------------
+  const displaySelectedDate = () => {
+    if (dateFilter === "today") {
+      return "Today";
+    }
+
+    if (dateFilter === "yesterday") {
+      return "Yesterday";
+    }
+
+    if (customDate) {
+      return new Date(
+        `${customDate}T00:00:00`
+      ).toLocaleDateString(
+        "en-IN",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }
+      );
+    }
+
+    return "Select date";
+  };
+
+  const paymentPercentage = (amount) => {
+    if (revenue <= 0) return 0;
+
+    return Math.round(
+      (amount / revenue) * 100
+    );
+  };
 
   return (
-    <div className="staff-page">
+    <div className="manager-sales-app">
 
-      {/* ==========================================
-          SIDEBAR
-      ========================================== */}
+      {/* SIDEBAR */}
 
-      <aside className="staff-sidebar">
+      <aside className="manager-sales-sidebar">
 
-        <div className="staff-brand">
-          <div className="staff-brand-icon">
-            🍽️
+        <div className="manager-sales-brand">
+
+          <div className="manager-sales-brand-icon">
+            🍽
           </div>
 
           <div>
-            <h2>Restaurant</h2>
-            <span>POS SYSTEM</span>
+            <strong>
+              Restaurant
+            </strong>
+
+            <span>
+              POS SYSTEM
+            </span>
           </div>
+
         </div>
 
-        <div className="staff-sidebar-title">
-          MANAGEMENT
+        <div className="manager-sales-nav">
+
+          <span className="manager-sales-nav-title">
+            MANAGEMENT
+          </span>
+
+          <button
+            className="manager-sales-nav-item"
+            onClick={onBack}
+          >
+            <span>▦</span>
+            Dashboard
+          </button>
+
+          <button
+            className="manager-sales-nav-item"
+            onClick={onOrders}
+          >
+            <span>▤</span>
+            Orders
+          </button>
+
+          <button className="manager-sales-nav-item active">
+            <span>₹</span>
+            Sales & Reports
+          </button>
+
         </div>
 
-        {/* Dashboard */}
-        <button
-          className="staff-nav-item"
-          onClick={onBack}
-          type="button"
-        >
-          ▦
-          <span>Dashboard</span>
-        </button>
+        <div className="manager-sales-sidebar-bottom">
 
-        {/* Orders */}
-        <button
-          className="staff-nav-item"
-          onClick={onOpenOrders}
-          type="button"
-        >
-          📋
-          <span>Orders</span>
-        </button>
+          <div className="manager-sales-user">
 
-        {/* Sales */}
-        <button
-          className="staff-nav-item"
-          onClick={onOpenSales}
-          type="button"
-        >
-          ◉
-          <span>Sales & Reports</span>
-        </button>
-
-        {/* Staff */}
-        <button
-          className="staff-nav-item staff-nav-active"
-          type="button"
-        >
-          👥
-          <span>Staff</span>
-        </button>
-
-        {/* Sidebar footer */}
-        <div className="staff-sidebar-footer">
-
-          <div className="staff-user">
-
-            <div className="staff-user-avatar">
-              {getInitial(user?.name)}
+            <div className="manager-sales-avatar">
+              {user?.name
+                ?.charAt(0)
+                ?.toUpperCase() || "M"}
             </div>
 
-            <div className="staff-user-info">
+            <div>
               <strong>
-                {user?.name}
+                {user?.name ||
+                  "Restaurant Manager"}
               </strong>
 
-              <span>Manager</span>
+              <span>
+                Manager
+              </span>
             </div>
 
-            <div className="staff-online-dot" />
+            <i></i>
 
           </div>
 
           <button
-            className="staff-logout"
+            className="manager-sales-logout"
             onClick={onLogout}
-            type="button"
           >
             ↪ Logout
           </button>
 
         </div>
+
       </aside>
 
-      {/* ==========================================
-          MAIN CONTENT
-      ========================================== */}
+      {/* MAIN */}
 
-      <main className="staff-main">
+      <main className="manager-sales-main">
 
-        <div className="staff-content">
+        <header className="manager-sales-header">
 
-          {/* ======================================
-              HEADER
-          ====================================== */}
+          <div>
 
-          <div className="staff-top">
-
-            <div>
-
-              <div className="staff-breadcrumb">
-                POS / Management /{" "}
-                <strong>Staff</strong>
-              </div>
-
-              <h1>
-                Staff Management
-              </h1>
-
-              <p>
-                Manage restaurant employees
-                and access status.
-              </p>
-
+            <div className="manager-sales-breadcrumb">
+              POS / Management /{" "}
+              <strong>
+                Sales & Reports
+              </strong>
             </div>
 
-            <div className="staff-actions">
+            <h1>
+              Sales & Reports
+            </h1>
 
-              <div className="staff-online">
-                <span />
-                System Online
-              </div>
+            <p>
+              Review revenue and payment activity.
+            </p>
 
-              <button
-                className="staff-refresh"
-                onClick={loadStaff}
-                disabled={loading}
-                type="button"
-              >
-                ↻ Refresh
-              </button>
+          </div>
 
-              <button
-                className="staff-add-button"
-                onClick={() =>
-                  setShowAddStaff(true)
+          <div className="manager-sales-header-actions">
+
+            <div className="manager-sales-online">
+              <i></i>
+              System Online
+            </div>
+
+            <button
+              className="manager-sales-refresh"
+              onClick={loadSales}
+              disabled={loading}
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+        </header>
+
+        {/* DATE FILTER */}
+
+        <div className="manager-sales-date-filter">
+
+          <button
+            type="button"
+            className={
+              dateFilter === "today"
+                ? "active"
+                : ""
+            }
+            onClick={() => {
+              setDateFilter("today");
+              setCustomDate("");
+            }}
+          >
+            Today
+          </button>
+
+          <button
+            type="button"
+            className={
+              dateFilter === "yesterday"
+                ? "active"
+                : ""
+            }
+            onClick={() => {
+              setDateFilter(
+                "yesterday"
+              );
+              setCustomDate("");
+            }}
+          >
+            Yesterday
+          </button>
+
+          <button
+            type="button"
+            className={`manager-sales-custom-date ${
+              dateFilter === "custom"
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              if (
+                dateInputRef.current
+              ) {
+                if (
+                  typeof dateInputRef
+                    .current
+                    .showPicker ===
+                  "function"
+                ) {
+                  dateInputRef.current.showPicker();
+                } else {
+                  dateInputRef.current.click();
                 }
-                type="button"
-              >
-                + Add Staff
-              </button>
+              }
+            }}
+          >
+            <span>
+              📅
+            </span>
 
+            <span>
+              {customDate
+                ? new Date(
+                    `${customDate}T00:00:00`
+                  ).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )
+                : "Select date"}
+            </span>
+
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={customDate}
+              onChange={(event) => {
+                const value =
+                  event.target.value;
+
+                if (!value) return;
+
+                setCustomDate(value);
+                setDateFilter("custom");
+              }}
+              className="manager-sales-hidden-date"
+            />
+          </button>
+
+        </div>
+
+        {/* ERROR */}
+
+        {error && (
+          <div className="manager-sales-error">
+            {error}
+
+            <button onClick={loadSales}>
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* KPI CARDS */}
+
+        <section className="manager-sales-kpis">
+
+          <div className="manager-sales-kpi">
+
+            <div className="manager-sales-kpi-icon revenue">
+              ₹
+            </div>
+
+            <div>
+              <span>
+                REVENUE
+              </span>
+
+              <strong>
+                {formatMoney(revenue)}
+              </strong>
+
+              <small>
+                Completed payments
+              </small>
             </div>
 
           </div>
 
-          {/* ======================================
-              STAT CARDS
-          ====================================== */}
+          <div className="manager-sales-kpi">
 
-          <section className="staff-stats">
+            <div className="manager-sales-kpi-icon orders">
+              #
+            </div>
 
-            <div className="staff-stat-card">
+            <div>
+              <span>
+                PAID ORDERS
+              </span>
 
-              <div className="staff-stat-icon">
-                👥
+              <strong>
+                {orderCount}
+              </strong>
+
+              <small>
+                {displaySelectedDate()}
+              </small>
+            </div>
+
+          </div>
+
+          <div className="manager-sales-kpi">
+
+            <div className="manager-sales-kpi-icon average">
+              ₹
+            </div>
+
+            <div>
+              <span>
+                AVERAGE ORDER
+              </span>
+
+              <strong>
+                {formatMoney(
+                  averageOrder
+                )}
+              </strong>
+
+              <small>
+                Per paid order
+              </small>
+            </div>
+
+          </div>
+
+          <div className="manager-sales-kpi">
+
+            <div className="manager-sales-kpi-icon paid">
+              ✓
+            </div>
+
+            <div>
+              <span>
+                PAYMENT RECORDED
+              </span>
+
+              <strong>
+                {formatMoney(
+                  recordedPaymentTotal
+                )}
+              </strong>
+
+              <small>
+                Cash + Card + UPI
+              </small>
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* PAYMENT BREAKDOWN */}
+
+        <section className="manager-sales-content-grid">
+
+          <div className="manager-sales-card">
+
+            <div className="manager-sales-card-header">
+
+              <div>
+                <span>
+                  PAYMENTS
+                </span>
+
+                <h2>
+                  Payment Breakdown
+                </h2>
+              </div>
+
+              <strong>
+                {formatMoney(revenue)}
+              </strong>
+
+            </div>
+
+            <div className="manager-payment-list">
+
+              {/* CASH */}
+
+              <div className="manager-payment-row">
+
+                <div className="manager-payment-label">
+
+                  <div className="manager-payment-icon cash">
+                    ₹
+                  </div>
+
+                  <div>
+                    <strong>
+                      Cash
+                    </strong>
+
+                    <span>
+                      {cashOrders.length}{" "}
+                      orders
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="manager-payment-value">
+
+                  <strong>
+                    {formatMoney(
+                      cashTotal
+                    )}
+                  </strong>
+
+                  <span>
+                    {paymentPercentage(
+                      cashTotal
+                    )}
+                    %
+                  </span>
+
+                </div>
+
+                <div className="manager-payment-bar">
+                  <div
+                    style={{
+                      width: `${paymentPercentage(
+                        cashTotal
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+
+              </div>
+
+              {/* CARD */}
+
+              <div className="manager-payment-row">
+
+                <div className="manager-payment-label">
+
+                  <div className="manager-payment-icon card">
+                    ▣
+                  </div>
+
+                  <div>
+                    <strong>
+                      Card
+                    </strong>
+
+                    <span>
+                      {cardOrders.length}{" "}
+                      orders
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="manager-payment-value">
+
+                  <strong>
+                    {formatMoney(
+                      cardTotal
+                    )}
+                  </strong>
+
+                  <span>
+                    {paymentPercentage(
+                      cardTotal
+                    )}
+                    %
+                  </span>
+
+                </div>
+
+                <div className="manager-payment-bar">
+                  <div
+                    style={{
+                      width: `${paymentPercentage(
+                        cardTotal
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+
+              </div>
+
+              {/* UPI */}
+
+              <div className="manager-payment-row">
+
+                <div className="manager-payment-label">
+
+                  <div className="manager-payment-icon upi">
+                    U
+                  </div>
+
+                  <div>
+                    <strong>
+                      UPI
+                    </strong>
+
+                    <span>
+                      {upiOrders.length}{" "}
+                      orders
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="manager-payment-value">
+
+                  <strong>
+                    {formatMoney(
+                      upiTotal
+                    )}
+                  </strong>
+
+                  <span>
+                    {paymentPercentage(
+                      upiTotal
+                    )}
+                    %
+                  </span>
+
+                </div>
+
+                <div className="manager-payment-bar">
+                  <div
+                    style={{
+                      width: `${paymentPercentage(
+                        upiTotal
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {unrecordedPaymentTotal >
+              0 && (
+              <div className="manager-unrecorded-payment">
+                <span>
+                  ⚠
+                </span>
+
+                <div>
+                  <strong>
+                    {formatMoney(
+                      unrecordedPaymentTotal
+                    )}{" "}
+                    not assigned to a payment method
+                  </strong>
+
+                  <small>
+                    This can happen for payments recorded before payment-method tracking was added.
+                  </small>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* SALES SUMMARY */}
+
+          <div className="manager-sales-card">
+
+            <div className="manager-sales-card-header">
+
+              <div>
+                <span>
+                  SUMMARY
+                </span>
+
+                <h2>
+                  Sales Overview
+                </h2>
+              </div>
+
+            </div>
+
+            <div className="manager-sales-overview">
+
+              <div>
+                <span>
+                  Gross Sales
+                </span>
+
+                <strong>
+                  {formatMoney(
+                    revenue
+                  )}
+                </strong>
               </div>
 
               <div>
-                <span>Total Staff</span>
+                <span>
+                  Paid Orders
+                </span>
+
                 <strong>
-                  {staff.length}
+                  {orderCount}
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Average Bill
+                </span>
+
+                <strong>
+                  {formatMoney(
+                    averageOrder
+                  )}
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Recorded Methods
+                </span>
+
+                <strong>
+                  {
+                    cashOrders.length +
+                    cardOrders.length +
+                    upiOrders.length
+                  }
                 </strong>
               </div>
 
             </div>
 
-            <div className="staff-stat-card">
+          </div>
 
-              <div className="staff-stat-icon active">
+        </section>
+
+        {/* PAYMENT HISTORY */}
+
+        <section className="manager-sales-history">
+
+          <div className="manager-sales-history-header">
+
+            <div>
+              <span>
+                TRANSACTIONS
+              </span>
+
+              <h2>
+                Payment History
+              </h2>
+
+              <p>
+                Completed payments for{" "}
+                {displaySelectedDate()}.
+              </p>
+            </div>
+
+            <strong>
+              {paidOrders.length} payments
+            </strong>
+
+          </div>
+
+          {loading ? (
+            <div className="manager-sales-empty">
+              Loading sales...
+            </div>
+          ) : paidOrders.length === 0 ? (
+            <div className="manager-sales-empty">
+
+              <div className="manager-sales-empty-icon">
                 ✓
               </div>
 
-              <div>
-                <span>Active</span>
-                <strong>
-                  {activeCount}
-                </strong>
-              </div>
+              <strong>
+                No payments found
+              </strong>
+
+              <span>
+                There are no completed payments for this date.
+              </span>
 
             </div>
+          ) : (
+            <div className="manager-sales-table">
 
-            <div className="staff-stat-card">
+              <div className="manager-sales-table-row manager-sales-table-header">
 
-              <div className="staff-stat-icon inactive">
-                ○
-              </div>
-
-              <div>
-                <span>Inactive</span>
-                <strong>
-                  {inactiveCount}
-                </strong>
-              </div>
-
-            </div>
-
-          </section>
-
-          {/* ======================================
-              STAFF DIRECTORY
-          ====================================== */}
-
-          <section className="staff-panel">
-
-            <div className="staff-panel-header">
-
-              <div>
-
-                <span className="staff-section-label">
-                  STAFF DIRECTORY
+                <span>
+                  ORDER
                 </span>
 
-                <h2>
-                  Restaurant Staff
-                </h2>
+                <span>
+                  TABLE
+                </span>
 
-                <p>
-                  View and manage employee
-                  accounts.
-                </p>
+                <span>
+                  WAITER
+                </span>
+
+                <span>
+                  PAYMENT
+                </span>
+
+                <span>
+                  AMOUNT
+                </span>
+
+                <span>
+                  PAID AT
+                </span>
 
               </div>
 
-              <div className="staff-result-count">
-                {filteredStaff.length} members
-              </div>
+              {paidOrders.map(
+                (order) => (
+                  <div
+                    className="manager-sales-table-row"
+                    key={order._id}
+                  >
+
+                    <strong>
+                      {order.orderNumber}
+                    </strong>
+
+                    <span>
+                      Table{" "}
+                      {order.tableNumber}
+                    </span>
+
+                    <span>
+                      {order.waiterName ||
+                        "-"}
+                    </span>
+
+                    <span
+                      className={`manager-payment-method ${
+                        order.paymentMethod
+                          ?.toLowerCase() ||
+                        "unknown"
+                      }`}
+                    >
+                      {order.paymentMethod ||
+                        "Not recorded"}
+                    </span>
+
+                    <strong>
+                      {formatMoney(
+                        order.total
+                      )}
+                    </strong>
+
+                    <span>
+                      {formatDate(
+                        order.paidAt ||
+                          order.createdAt
+                      )}
+                    </span>
+
+                  </div>
+                )
+              )}
 
             </div>
+          )}
 
-            {/* Filters */}
-
-            <div className="staff-filters">
-
-              <div className="staff-search">
-
-                <span>⌕</span>
-
-                <input
-                  type="text"
-                  placeholder="Search by name or username..."
-                  value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                />
-
-              </div>
-
-              <select
-                value={roleFilter}
-                onChange={(event) =>
-                  setRoleFilter(
-                    event.target.value
-                  )
-                }
-              >
-                <option value="ALL">
-                  All Roles
-                </option>
-
-                <option value="MANAGER">
-                  Manager
-                </option>
-
-                <option value="WAITER">
-                  Waiter
-                </option>
-
-                <option value="KITCHEN">
-                  Kitchen
-                </option>
-
-                <option value="CASHIER">
-                  Cashier
-                </option>
-              </select>
-
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(
-                    event.target.value
-                  )
-                }
-              >
-                <option value="ALL">
-                  All Status
-                </option>
-
-                <option value="ACTIVE">
-                  Active
-                </option>
-
-                <option value="INACTIVE">
-                  Inactive
-                </option>
-              </select>
-
-              <button
-                className="staff-clear"
-                onClick={() => {
-                  setSearch("");
-                  setRoleFilter("ALL");
-                  setStatusFilter("ALL");
-                }}
-                type="button"
-              >
-                Clear
-              </button>
-
-            </div>
-
-            {/* ====================================
-                TABLE STATES
-            ==================================== */}
-
-            {loading ? (
-
-              <div className="staff-state">
-                Loading staff...
-              </div>
-
-            ) : error ? (
-
-              <div className="staff-state staff-error">
-                {error}
-              </div>
-
-            ) : filteredStaff.length === 0 ? (
-
-              <div className="staff-state">
-
-                <div className="staff-empty-icon">
-                  👥
-                </div>
-
-                <h3>
-                  No staff found
-                </h3>
-
-                <p>
-                  Try changing your
-                  search or filters.
-                </p>
-
-              </div>
-
-            ) : (
-
-              <div className="staff-table-wrapper">
-
-                <table className="staff-table">
-
-                  <thead>
-
-                    <tr>
-                      <th>STAFF MEMBER</th>
-                      <th>USERNAME</th>
-                      <th>ROLE</th>
-                      <th>STATUS</th>
-                      <th>ACTION</th>
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {filteredStaff.map(
-                      (member) => (
-
-                        <tr
-                          key={member._id}
-                        >
-
-                          <td>
-
-                            <div className="staff-member">
-
-                              <div className="staff-avatar">
-                                {getInitial(
-                                  member.name
-                                )}
-                              </div>
-
-                              <div>
-
-                                <strong>
-                                  {member.name}
-                                </strong>
-
-                                <span>
-                                  Restaurant POS
-                                  account
-                                </span>
-
-                              </div>
-
-                            </div>
-
-                          </td>
-
-                          <td>
-
-                            <span className="staff-username">
-                              {member.username}
-                            </span>
-
-                          </td>
-
-                          <td>
-
-                            <span
-                              className={`staff-role staff-role-${member.role.toLowerCase()}`}
-                            >
-                              {getRoleLabel(
-                                member.role
-                              )}
-                            </span>
-
-                          </td>
-
-                          <td>
-
-                            <span
-                              className={`staff-status ${
-                                member.status ===
-                                "ACTIVE"
-                                  ? "staff-status-active"
-                                  : "staff-status-inactive"
-                              }`}
-                            >
-                              <span />
-                              {member.status}
-                            </span>
-
-                          </td>
-
-                          <td>
-
-                            <button
-                              className={`staff-status-button ${
-                                member.status ===
-                                "ACTIVE"
-                                  ? "deactivate"
-                                  : "activate"
-                              }`}
-                              onClick={() =>
-                                updateStatus(
-                                  member
-                                )
-                              }
-                              disabled={
-                                updatingId ===
-                                  member._id ||
-                                member._id ===
-                                  user?._id
-                              }
-                              title={
-                                member._id ===
-                                user?._id
-                                  ? "You cannot deactivate your own account"
-                                  : ""
-                              }
-                              type="button"
-                            >
-                              {updatingId ===
-                              member._id
-                                ? "Updating..."
-                                : member._id ===
-                                  user?._id
-                                ? "Current Account"
-                                : member.status ===
-                                  "ACTIVE"
-                                ? "Deactivate"
-                                : "Activate"}
-                            </button>
-
-                          </td>
-
-                        </tr>
-
-                      )
-                    )}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            )}
-
-          </section>
-
-        </div>
+        </section>
 
       </main>
-
-      {/* ==========================================
-          ADD STAFF MODAL
-      ========================================== */}
-
-      {showAddStaff && (
-
-        <div
-          className="staff-modal-overlay"
-          onClick={() =>
-            !creatingStaff &&
-            setShowAddStaff(false)
-          }
-        >
-
-          <div
-            className="staff-modal"
-            onClick={(event) =>
-              event.stopPropagation()
-            }
-          >
-
-            <div className="staff-modal-header">
-
-              <div>
-
-                <span className="staff-section-label">
-                  STAFF MANAGEMENT
-                </span>
-
-                <h2>
-                  Add Staff Member
-                </h2>
-
-                <p>
-                  Create a new POS account.
-                </p>
-
-              </div>
-
-              <button
-                className="staff-modal-close"
-                onClick={() =>
-                  !creatingStaff &&
-                  setShowAddStaff(false)
-                }
-                type="button"
-              >
-                ×
-              </button>
-
-            </div>
-
-            <div className="staff-modal-body">
-
-              {/* Name */}
-
-              <div className="staff-form-group">
-
-                <label>
-                  Full Name
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="Enter full name"
-                  value={newStaff.name}
-                  onChange={(event) =>
-                    setNewStaff({
-                      ...newStaff,
-                      name: event.target.value,
-                    })
-                  }
-                  disabled={creatingStaff}
-                />
-
-              </div>
-
-              {/* Username */}
-
-              <div className="staff-form-group">
-
-                <label>
-                  Username
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="Enter login username"
-                  value={newStaff.username}
-                  onChange={(event) =>
-                    setNewStaff({
-                      ...newStaff,
-                      username:
-                        event.target.value,
-                    })
-                  }
-                  disabled={creatingStaff}
-                />
-
-              </div>
-
-              {/* Password */}
-
-              <div className="staff-form-group">
-
-                <label>
-                  Password
-                </label>
-
-                <input
-                  type="password"
-                  placeholder="Enter password"
-                  value={newStaff.password}
-                  onChange={(event) =>
-                    setNewStaff({
-                      ...newStaff,
-                      password:
-                        event.target.value,
-                    })
-                  }
-                  disabled={creatingStaff}
-                />
-
-              </div>
-
-              {/* Role */}
-
-              <div className="staff-form-group">
-
-                <label>
-                  Role
-                </label>
-
-                <select
-                  value={newStaff.role}
-                  onChange={(event) =>
-                    setNewStaff({
-                      ...newStaff,
-                      role: event.target.value,
-                    })
-                  }
-                  disabled={creatingStaff}
-                >
-
-                  <option value="WAITER">
-                    Waiter
-                  </option>
-
-                  <option value="KITCHEN">
-                    Kitchen
-                  </option>
-
-                  <option value="CASHIER">
-                    Cashier
-                  </option>
-
-                </select>
-
-              </div>
-
-            </div>
-
-            <div className="staff-modal-footer">
-
-              <button
-                className="staff-modal-cancel"
-                onClick={() =>
-                  setShowAddStaff(false)
-                }
-                disabled={creatingStaff}
-                type="button"
-              >
-                Cancel
-              </button>
-
-              <button
-                className="staff-modal-create"
-                onClick={createStaff}
-                disabled={creatingStaff}
-                type="button"
-              >
-                {creatingStaff
-                  ? "Creating..."
-                  : "Create Staff"}
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
 
     </div>
   );
 }
 
-export default ManagerStaff;
+export default ManagerSales;
