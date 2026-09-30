@@ -4,7 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const tableRoutes = require("./routes/tables");
 const orderRoutes = require("./routes/orders");
-
+const kitchenRoutes = require("./routes/kitchen");
 
 require("dotenv").config();
 
@@ -18,6 +18,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/tables", tableRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/kitchen", kitchenRoutes);
 
 // MongoDB connection
 mongoose
