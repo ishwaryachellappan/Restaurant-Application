@@ -4,7 +4,7 @@ import "./App.css";
 import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
 import Order from "./pages/Waiter/Order/Order";
-
+import KitchenDashboard from "./pages/Kitchen/KitchenDashboard";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -13,11 +13,15 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [selectedTable, setSelectedTable] = useState(null);
-const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ------------------------------------------
+  // LOGIN
+  // ------------------------------------------
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -53,13 +57,34 @@ const [selectedOrder, setSelectedOrder] = useState(null);
         return;
       }
 
-      if (data.user.role !== "WAITER") {
-        setError("This account does not have waiter access.");
+      // ------------------------------------------
+      // ROLE CHECK
+      // ------------------------------------------
+
+      const role = data.user.role?.toUpperCase();
+
+      if (role !== "WAITER" && role !== "KITCHEN") {
+        setError(
+          "This account does not have access to the current system."
+        );
         return;
       }
 
+      // Store logged-in user
       setUser(data.user);
-      setCurrentPage("dashboard");
+
+      // ------------------------------------------
+      // ROLE-BASED LANDING PAGE
+      // ------------------------------------------
+
+      if (role === "WAITER") {
+        setCurrentPage("dashboard");
+      }
+
+      if (role === "KITCHEN") {
+        setCurrentPage("kitchen");
+      }
+
     } catch (error) {
       console.error("Login error:", error);
 
@@ -71,12 +96,17 @@ const [selectedOrder, setSelectedOrder] = useState(null);
     }
   };
 
+  // ------------------------------------------
+  // LOGOUT
+  // ------------------------------------------
+
   const handleLogout = () => {
     setUser(null);
+
     setCurrentPage("dashboard");
+
     setSelectedTable(null);
     setSelectedOrder(null);
-    
 
     setUsername("");
     setPassword("");
@@ -87,59 +117,83 @@ const [selectedOrder, setSelectedOrder] = useState(null);
   // TABLE SELECTION
   // ------------------------------------------
 
- const handleTableSelect = async (table) => {
-  console.log("Selected table:", table);
+  const handleTableSelect = async (table) => {
+    console.log("Selected table:", table);
 
-  setSelectedTable(table);
+    setSelectedTable(table);
 
-  // AVAILABLE TABLE
-  // Open a fresh order
-  if (
-    !table.currentOrder ||
-    table.status?.toUpperCase() !== "OCCUPIED"
-  ) {
-    setSelectedOrder(null);
-    setCurrentPage("order");
-    return;
-  }
+    // ------------------------------------------
+    // AVAILABLE TABLE
+    // ------------------------------------------
+    // Open a fresh order
 
-  // OCCUPIED TABLE
-  // Load the existing order
-  try {
-    const response = await fetch(
-      `http://localhost:5000/api/orders/${table.currentOrder}`
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.message || "Unable to load existing order."
-      );
+    if (
+      !table.currentOrder ||
+      table.status?.toUpperCase() !== "OCCUPIED"
+    ) {
+      setSelectedOrder(null);
+      setCurrentPage("order");
+      return;
     }
 
-    console.log("Existing order:", data.order);
+    // ------------------------------------------
+    // OCCUPIED TABLE
+    // ------------------------------------------
+    // Load the existing order
 
-    setSelectedOrder(data.order);
-    setCurrentPage("order");
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/orders/${table.currentOrder}`
+      );
 
-  } catch (error) {
-    console.error(
-      "Load existing order error:",
-      error
-    );
+      const data = await response.json();
 
-    alert(
-      "Unable to load the existing order. Please try again."
-    );
-  }
-};
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Unable to load existing order."
+        );
+      }
+
+      console.log("Existing order:", data.order);
+
+      setSelectedOrder(data.order);
+      setCurrentPage("order");
+
+    } catch (error) {
+      console.error(
+        "Load existing order error:",
+        error
+      );
+
+      alert(
+        "Unable to load the existing order. Please try again."
+      );
+    }
+  };
 
   // ------------------------------------------
-  // Logged-in user
+  // LOGGED-IN USER
   // ------------------------------------------
 
   if (user) {
+
+    // ------------------------------------------
+    // KITCHEN
+    // ------------------------------------------
+
+    if (currentPage === "kitchen") {
+      return (
+        <KitchenDashboard
+          user={user}
+          onLogout={handleLogout}
+        />
+      );
+    }
+
+    // ------------------------------------------
+    // WAITER - TABLES
+    // ------------------------------------------
+
     if (currentPage === "tables") {
       return (
         <Tables
@@ -150,19 +204,27 @@ const [selectedOrder, setSelectedOrder] = useState(null);
       );
     }
 
-  if (currentPage === "order" && selectedTable) {
-  return (
-    <Order
-      table={selectedTable}
-      user={user}
-      existingOrder={selectedOrder}
-      onBack={() => {
-        setSelectedOrder(null);
-        setCurrentPage("tables");
-      }}
-    />
-  );
-}
+    // ------------------------------------------
+    // WAITER - ORDER
+    // ------------------------------------------
+
+    if (currentPage === "order" && selectedTable) {
+      return (
+        <Order
+          table={selectedTable}
+          user={user}
+          existingOrder={selectedOrder}
+          onBack={() => {
+            setSelectedOrder(null);
+            setCurrentPage("tables");
+          }}
+        />
+      );
+    }
+
+    // ------------------------------------------
+    // WAITER DASHBOARD
+    // ------------------------------------------
 
     return (
       <WaiterDashboard
@@ -174,7 +236,7 @@ const [selectedOrder, setSelectedOrder] = useState(null);
   }
 
   // ------------------------------------------
-  // Login Page
+  // LOGIN PAGE
   // ------------------------------------------
 
   return (
