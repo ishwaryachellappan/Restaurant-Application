@@ -193,6 +193,90 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+/*
+  UPDATE EXISTING ORDER
+  PATCH /api/orders/:id
+*/
+router.patch("/:id", async (req, res) => {
+  try {
+    const { items } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Order must contain at least one item.",
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const processedItems = items.map((item) => {
+      const quantity = Number(item.quantity);
+      const price = Number(item.price);
+
+      if (
+        !item.menuItemId ||
+        !item.name ||
+        !item.category ||
+        !Number.isFinite(price) ||
+        !Number.isFinite(quantity) ||
+        quantity < 1
+      ) {
+        throw new Error("Invalid order item.");
+      }
+
+      return {
+        menuItemId: item.menuItemId,
+        name: item.name,
+        category: item.category,
+        price,
+        quantity,
+        itemTotal: price * quantity,
+      };
+    });
+
+    const subtotal = processedItems.reduce(
+      (sum, item) => sum + item.itemTotal,
+      0
+    );
+
+    order.items = processedItems;
+    order.subtotal = subtotal;
+    order.total = subtotal;
+
+    // Keep the order in the kitchen workflow
+    if (
+      order.status === "NEW" ||
+      order.status === "SERVED"
+    ) {
+      order.status = "SENT_TO_KITCHEN";
+    }
+
+    await order.save();
+
+    return res.json({
+      success: true,
+      message: "Order updated successfully.",
+      order,
+    });
+
+  } catch (error) {
+    console.error("Update order error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        error.message || "Unable to update order.",
+    });
+  }
+});
 
 
 module.exports = router;

@@ -13,6 +13,7 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [selectedTable, setSelectedTable] = useState(null);
+const [selectedOrder, setSelectedOrder] = useState(null);
 
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -74,6 +75,8 @@ function App() {
     setUser(null);
     setCurrentPage("dashboard");
     setSelectedTable(null);
+    setSelectedOrder(null);
+    
 
     setUsername("");
     setPassword("");
@@ -84,11 +87,52 @@ function App() {
   // TABLE SELECTION
   // ------------------------------------------
 
- const handleTableSelect = (table) => {
+ const handleTableSelect = async (table) => {
   console.log("Selected table:", table);
 
   setSelectedTable(table);
-  setCurrentPage("order");
+
+  // AVAILABLE TABLE
+  // Open a fresh order
+  if (
+    !table.currentOrder ||
+    table.status?.toUpperCase() !== "OCCUPIED"
+  ) {
+    setSelectedOrder(null);
+    setCurrentPage("order");
+    return;
+  }
+
+  // OCCUPIED TABLE
+  // Load the existing order
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/orders/${table.currentOrder}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to load existing order."
+      );
+    }
+
+    console.log("Existing order:", data.order);
+
+    setSelectedOrder(data.order);
+    setCurrentPage("order");
+
+  } catch (error) {
+    console.error(
+      "Load existing order error:",
+      error
+    );
+
+    alert(
+      "Unable to load the existing order. Please try again."
+    );
+  }
 };
 
   // ------------------------------------------
@@ -106,13 +150,17 @@ function App() {
       );
     }
 
-    if (currentPage === "order" && selectedTable) {
+  if (currentPage === "order" && selectedTable) {
   return (
     <Order
-  table={selectedTable}
-  user={user}
-  onBack={() => setCurrentPage("tables")}
-/>
+      table={selectedTable}
+      user={user}
+      existingOrder={selectedOrder}
+      onBack={() => {
+        setSelectedOrder(null);
+        setCurrentPage("tables");
+      }}
+    />
   );
 }
 

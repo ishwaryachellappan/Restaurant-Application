@@ -82,11 +82,28 @@ const menuItems = [
   },
 ];
 
-function Order({ table, user, onBack }) {
+function Order({
+  table,
+  user,
+  existingOrder,
+  onBack,
+}) {
   const [selectedCategory, setSelectedCategory] =
     useState("Starters");
 
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    if (!existingOrder?.items) {
+      return [];
+    }
+
+    return existingOrder.items.map((item) => ({
+      id: item.menuItemId,
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+  });
 
   const categories = [
     "Starters",
@@ -109,9 +126,9 @@ function Order({ table, user, onBack }) {
         return currentCart.map((cartItem) =>
           cartItem.id === item.id
             ? {
-                ...cartItem,
-                quantity: cartItem.quantity + 1,
-              }
+              ...cartItem,
+              quantity: cartItem.quantity + 1,
+            }
             : cartItem
         );
       }
@@ -131,9 +148,9 @@ function Order({ table, user, onBack }) {
       currentCart.map((item) =>
         item.id === itemId
           ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
+            ...item,
+            quantity: item.quantity + 1,
+          }
           : item
       )
     );
@@ -145,9 +162,9 @@ function Order({ table, user, onBack }) {
         .map((item) =>
           item.id === itemId
             ? {
-                ...item,
-                quantity: item.quantity - 1,
-              }
+              ...item,
+              quantity: item.quantity - 1,
+            }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -172,57 +189,76 @@ function Order({ table, user, onBack }) {
   }
 
   try {
-    const response = await fetch(
-      "http://localhost:5000/api/orders",
-      {
-        method: "POST",
+    const url = existingOrder
+      ? `http://localhost:5000/api/orders/${existingOrder._id}`
+      : "http://localhost:5000/api/orders";
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const method = existingOrder
+      ? "PATCH"
+      : "POST";
 
-        body: JSON.stringify({
-          tableId: table._id,
-          tableNumber: table.tableNumber,
+    const response = await fetch(url, {
+      method,
 
-          waiterId: user.id,
-          waiterName: user.name,
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-          items: cart.map((item) => ({
-            menuItemId: item.id,
-            name: item.name,
-            category: item.category,
-            price: item.price,
-            quantity: item.quantity,
-          })),
-        }),
-      }
-    );
+      body: JSON.stringify(
+        existingOrder
+          ? {
+              items: cart.map((item) => ({
+                menuItemId: item.id,
+                name: item.name,
+                category: item.category,
+                price: item.price,
+                quantity: item.quantity,
+              })),
+            }
+          : {
+              tableId: table._id,
+              tableNumber: table.tableNumber,
+
+              waiterId: user.id,
+              waiterName: user.name,
+
+              items: cart.map((item) => ({
+                menuItemId: item.id,
+                name: item.name,
+                category: item.category,
+                price: item.price,
+                quantity: item.quantity,
+              })),
+            }
+      ),
+    });
 
     const data = await response.json();
 
     if (!response.ok || !data.success) {
       throw new Error(
-        data.message || "Unable to send order to kitchen."
+        data.message || "Unable to save order."
       );
     }
 
-    alert(
-      `Order ${data.order.orderNumber} sent to kitchen successfully.`
-    );
+    if (existingOrder) {
+      alert(
+        `${existingOrder.orderNumber} updated successfully.`
+      );
+    } else {
+      alert(
+        `Order ${data.order.orderNumber} sent to kitchen successfully.`
+      );
+    }
 
-    // Clear the current cart after successful submission
     setCart([]);
 
   } catch (error) {
-    console.error(
-      "Send order to kitchen error:",
-      error
-    );
+    console.error("Save order error:", error);
 
     alert(
       error.message ||
-        "Unable to send order to kitchen."
+        "Unable to save the order."
     );
   }
 };
@@ -245,20 +281,31 @@ function Order({ table, user, onBack }) {
           </button>
 
           <div>
+
             <h1>
               Table {table.tableNumber}
             </h1>
 
             <p>
-              {table.capacity} Seats · New Order
+              {table.capacity} Seats ·{" "}
+              {existingOrder
+                ? existingOrder.orderNumber
+                : "New Order"}
             </p>
+
           </div>
 
         </div>
 
-        <div className="order-table-status">
+        <div
+          className={`order-table-status ${existingOrder ? "occupied" : "available"
+            }`}
+        >
           <span></span>
-          {table.status || "AVAILABLE"}
+
+          {existingOrder
+            ? "OCCUPIED"
+            : "AVAILABLE"}
         </div>
 
       </header>
@@ -343,10 +390,21 @@ function Order({ table, user, onBack }) {
           <div className="cart-header">
 
             <div>
-              <h2>Current Order</h2>
+              <h2>
+                {existingOrder
+                  ? "Existing Order"
+                  : "Current Order"}
+              </h2>
 
               <p>
                 Table {table.tableNumber}
+
+                {existingOrder && (
+                  <>
+                    {" · "}
+                    {existingOrder.orderNumber}
+                  </>
+                )}
               </p>
             </div>
 
@@ -472,12 +530,14 @@ function Order({ table, user, onBack }) {
             </div>
 
             <button
-              type="button"
-              className="send-kitchen-button"
-              onClick={handleSendToKitchen}
-            >
-              Send to Kitchen
-            </button>
+  type="button"
+  className="send-kitchen-button"
+  onClick={handleSendToKitchen}
+>
+  {existingOrder
+    ? "Update Order"
+    : "Send to Kitchen"}
+</button>
 
           </div>
 
