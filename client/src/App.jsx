@@ -232,17 +232,23 @@ function App() {
       );
     }
 
-    if (currentPage === "manager-orders") {
-      return (
-        <ManagerOrders
-          user={user}
-          onBack={() =>
-            setCurrentPage("manager")
-          }
-          onLogout={handleLogout}
-        />
-      );
-    }
+   if (currentPage === "manager-orders") {
+  return (
+    <ManagerOrders
+      user={user}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
+      }
+      onOpenStaff={() =>
+        setCurrentPage("manager-staff")
+      }
+      onLogout={handleLogout}
+    />
+  );
+}
 
     if (currentPage === "manager") {
       return (

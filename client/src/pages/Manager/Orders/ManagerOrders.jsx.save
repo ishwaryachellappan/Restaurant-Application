@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./ManagerOrders.css";
 
-function ManagerOrders({
-  user,
-  onBack,
-  onOpenSales,
-  onOpenStaff,
-  onLogout,
-}) {
+
+
+function ManagerOrders({ user, onBack, onLogout }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -212,46 +208,24 @@ function ManagerOrders({
 
         <div className="manager-orders-nav-section">
 
-  <span className="manager-orders-nav-title">
-    MANAGEMENT
-  </span>
+          <span className="manager-orders-nav-title">
+            MANAGEMENT
+          </span>
 
-  <button
-    className="manager-orders-nav-item"
-    onClick={onBack}
-    type="button"
-  >
-    <span>▦</span>
-    Dashboard
-  </button>
+          <button
+            className="manager-orders-nav-item"
+            onClick={onBack}
+          >
+            <span>▦</span>
+            Dashboard
+          </button>
 
-  <button
-    className="manager-orders-nav-item active"
-    type="button"
-  >
-    <span>▤</span>
-    Orders
-  </button>
+          <button className="manager-orders-nav-item active">
+            <span>▤</span>
+            Orders
+          </button>
 
-  <button
-    className="manager-orders-nav-item"
-    onClick={onOpenSales}
-    type="button"
-  >
-    <span>₹</span>
-    Sales & Reports
-  </button>
-
-  <button
-    className="manager-orders-nav-item"
-    onClick={onOpenStaff}
-    type="button"
-  >
-    <span>👥</span>
-    Staff
-  </button>
-
-</div>
+        </div>
 
         <div className="manager-orders-sidebar-bottom">
 
