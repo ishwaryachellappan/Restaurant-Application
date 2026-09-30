@@ -9,6 +9,7 @@ import CashierDashboard from "./pages/Cashier/CashierDashboard";
 import ManagerDashboard from "./pages/Manager/ManagerDashboard";
 import ManagerOrders from "./pages/Manager/Orders/ManagerOrders";
 import ManagerSales from "./pages/Manager/Sales/ManagerSales";
+import ManagerStaff from "./pages/Manager/Staff/ManagerStaff";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -67,12 +68,12 @@ function App() {
 
       const role = data.user.role?.toUpperCase();
 
-   if (
-  role !== "WAITER" &&
-  role !== "KITCHEN" &&
-  role !== "CASHIER" &&
-  role !== "MANAGER"
-) {
+      if (
+        role !== "WAITER" &&
+        role !== "KITCHEN" &&
+        role !== "CASHIER" &&
+        role !== "MANAGER"
+      ) {
         setError(
           "This account does not have access to the current system."
         );
@@ -95,12 +96,12 @@ function App() {
       }
 
       if (role === "CASHIER") {
-  setCurrentPage("cashier");
-}
+        setCurrentPage("cashier");
+      }
 
-if (role === "MANAGER") {
-  setCurrentPage("manager");
-}
+      if (role === "MANAGER") {
+        setCurrentPage("manager");
+      }
 
     } catch (error) {
       console.error("Login error:", error);
@@ -208,52 +209,68 @@ if (role === "MANAGER") {
     }
 
     if (currentPage === "cashier") {
-  return (
-    <CashierDashboard
-      user={user}
-      onLogout={handleLogout}
-    />
-  );
+      return (
+        <CashierDashboard
+          user={user}
+          onLogout={handleLogout}
+        />
+      );
+    }
+
+    if (currentPage === "manager-sales") {
+      return (
+        <ManagerSales
+          user={user}
+          onBack={() =>
+            setCurrentPage("manager")
+          }
+          onOrders={() =>
+            setCurrentPage("manager-orders")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
+
+    if (currentPage === "manager-orders") {
+      return (
+        <ManagerOrders
+          user={user}
+          onBack={() =>
+            setCurrentPage("manager")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
+
+    if (currentPage === "manager") {
+      return (
+        <ManagerDashboard
+          user={user}
+          onLogout={handleLogout}
+          onOpenOrders={() =>
+            setCurrentPage("manager-orders")
+          }
+          onOpenSales={() =>
+            setCurrentPage("manager-sales")
+          }
+          onOpenStaff={() =>
+  setCurrentPage("manager-staff")
 }
 
-if (currentPage === "manager-sales") {
-  return (
-    <ManagerSales
-      user={user}
-      onBack={() =>
-        setCurrentPage("manager")
-      }
-      onOrders={() =>
-        setCurrentPage("manager-orders")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
 
-if (currentPage === "manager-orders") {
-  return (
-    <ManagerOrders
-      user={user}
-      onBack={() =>
-        setCurrentPage("manager")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+        />
+      );
+    }
 
-if (currentPage === "manager") {
+
+    if (currentPage === "manager-staff") {
   return (
-    <ManagerDashboard
+    <ManagerStaff
       user={user}
+      onBack={() => setCurrentPage("manager-dashboard")}
       onLogout={handleLogout}
-      onOpenOrders={() =>
-        setCurrentPage("manager-orders")
-      }
-      onOpenSales={() =>
-        setCurrentPage("manager-sales")
-      }
     />
   );
 }
