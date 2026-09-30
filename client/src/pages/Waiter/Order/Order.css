@@ -518,3 +518,276 @@
   }
 
 }
+
+
+/* ==========================================
+   ORDER SUCCESS POPUP
+========================================== */
+
+.order-success-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(6px);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 9999;
+
+  padding: 20px;
+}
+
+.order-success-modal {
+  width: 100%;
+
+  max-width: 530px;
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 38px 38px 32px;
+
+  text-align: center;
+
+  box-shadow:
+    0 25px 60px
+      rgba(15, 23, 42, 0.25);
+
+  animation:
+    orderSuccessPopupIn
+    0.25s ease-out;
+}
+
+@keyframes orderSuccessPopupIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(15px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* FOOD ICON */
+
+.order-success-icon-wrapper {
+  display: flex;
+
+  justify-content: center;
+
+  margin-bottom: 22px;
+}
+
+.order-success-icon {
+  width: 92px;
+
+  height: 92px;
+
+  border-radius: 50%;
+
+  background: #dcfce7;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  position: relative;
+
+  font-size: 42px;
+
+  box-shadow:
+    0 0 0 10px
+      rgba(220, 252, 231, 0.55);
+}
+
+/* CHECK MARK */
+
+.order-success-check {
+  position: absolute;
+
+  right: -3px;
+
+  bottom: -2px;
+
+  width: 31px;
+
+  height: 31px;
+
+  border-radius: 50%;
+
+  background: #16a34a;
+
+  color: #ffffff;
+
+  border: 3px solid #ffffff;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 17px;
+
+  font-weight: 800;
+}
+
+/* TITLE */
+
+.order-success-modal h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 27px;
+
+  font-weight: 750;
+}
+
+.order-success-subtitle {
+  margin: 9px 0 0;
+
+  color: #6b7280;
+
+  font-size: 15px;
+
+  line-height: 1.5;
+}
+
+/* ORDER NUMBER */
+
+.order-success-number {
+  margin-top: 20px;
+
+  color: #111827;
+
+  font-size: 24px;
+
+  font-weight: 750;
+}
+
+/* DETAILS */
+
+.order-success-details {
+  margin-top: 20px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  text-align: left;
+}
+
+.order-success-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 17px 18px;
+
+  border-bottom: 1px solid
+    #e5e7eb;
+
+  font-size: 14px;
+}
+
+.order-success-row:last-child {
+  border-bottom: none;
+}
+
+.order-success-row span {
+  color: #6b7280;
+}
+
+.order-success-row strong {
+  color: #111827;
+
+  font-size: 15px;
+}
+
+/* DONE BUTTON */
+
+.order-success-done {
+  width: 100%;
+
+  margin-top: 25px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  padding: 15px;
+
+  background: #16a34a;
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.order-success-done:hover {
+  background: #15803d;
+}
+
+.order-success-done:active {
+  transform: scale(0.99);
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .order-success-modal {
+    padding: 30px 22px 25px;
+
+    border-radius: 20px;
+  }
+
+  .order-success-icon {
+    width: 80px;
+
+    height: 80px;
+
+    font-size: 36px;
+  }
+
+  .order-success-modal h2 {
+    font-size: 23px;
+  }
+
+  .order-success-subtitle {
+    font-size: 14px;
+  }
+
+}

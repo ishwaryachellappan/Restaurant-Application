@@ -1,7 +1,12 @@
 import "./WaiterDashboard.css";
 
-function WaiterDashboard({ user, onLogout, onOpenTables }) {
-  return (
+function WaiterDashboard({
+  user,
+  onLogout,
+  onOpenTables,
+  onNewOrder,
+}) {
+   return (
     <div className="waiter-dashboard">
 
       <header className="waiter-header">
@@ -124,10 +129,12 @@ function WaiterDashboard({ user, onLogout, onOpenTables }) {
                 Start a new customer order.
               </p>
 
-              <button type="button">
-                Create Order
-              </button>
-
+             <button
+  type="button"
+  onClick={onNewOrder}
+>
+  Create Order
+</button>
             </div>
 
           </div>

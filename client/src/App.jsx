@@ -345,11 +345,16 @@ if (currentPage === "manager-staff") {
     // ------------------------------------------
 
     return (
-      <WaiterDashboard
-        user={user}
-        onLogout={handleLogout}
-        onOpenTables={() => setCurrentPage("tables")}
-      />
+     <WaiterDashboard
+  user={user}
+  onLogout={handleLogout}
+  onOpenTables={() =>
+    setCurrentPage("tables")
+  }
+  onNewOrder={() =>
+    setCurrentPage("tables")
+  }
+/>
     );
   }
 
