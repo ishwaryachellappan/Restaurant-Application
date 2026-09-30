@@ -107,6 +107,17 @@ const orderSchema = new mongoose.Schema(
 
 paymentMethod: {
   type: String,
+  enum: ["CASH", "CARD", "UPI", null],
+  default: null,
+},
+
+paidAt: {
+  type: Date,
+  default: null,
+},
+
+paymentMethod: {
+  type: String,
   enum: ["CASH", "CARD", "UPI"],
   default: null
 },

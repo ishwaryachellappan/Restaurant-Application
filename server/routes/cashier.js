@@ -39,28 +39,29 @@ router.patch("/orders/:id/pay", async (req, res) => {
   try {
     const { paymentMethod } = req.body;
 
-    if (!paymentMethod) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment method is required."
-      });
-    }
-
-    const allowedMethods = ["CASH", "CARD", "UPI"];
+    // Validate payment method
+    const allowedMethods = [
+      "CASH",
+      "CARD",
+      "UPI",
+    ];
 
     if (!allowedMethods.includes(paymentMethod)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid payment method."
+        message:
+          "Invalid payment method. Use CASH, CARD or UPI.",
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(
+      req.params.id
+    );
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found."
+        message: "Order not found.",
       });
     }
 
@@ -68,28 +69,38 @@ router.patch("/orders/:id/pay", async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          "Only READY orders can be paid."
+          "Only READY orders can be paid.",
       });
     }
 
+    // Complete payment
     order.status = "COMPLETED";
     order.paymentMethod = paymentMethod;
     order.paidAt = new Date();
 
     await order.save();
 
+    // Release the table
     await Table.findByIdAndUpdate(
       order.tableId,
       {
         status: "AVAILABLE",
-        currentOrder: null
+        currentOrder: null,
       }
     );
 
     res.json({
       success: true,
-      message: "Payment completed successfully.",
-      order
+      message:
+        `Payment completed successfully using ${paymentMethod}.`,
+      order: {
+        id: order._id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentMethod: order.paymentMethod,
+        paidAt: order.paidAt,
+        total: order.total,
+      },
     });
   } catch (error) {
     console.error(
@@ -99,7 +110,8 @@ router.patch("/orders/:id/pay", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Unable to complete payment."
+      message:
+        "Unable to complete payment.",
     });
   }
 });
