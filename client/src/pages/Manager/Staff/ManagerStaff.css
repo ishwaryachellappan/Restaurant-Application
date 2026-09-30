@@ -633,3 +633,548 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.staff-add-button {
+  border: none;
+  background: #172033;
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.staff-add-button:hover {
+  background: #0f1728;
+  transform: translateY(-1px);
+}
+
+.staff-add-button:active {
+  transform: translateY(0);
+}
+
+/* ==========================================
+   ADD STAFF BUTTON
+========================================== */
+
+.staff-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.staff-add-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 118px;
+  height: 42px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #172033;
+  color: #ffffff;
+
+  padding: 0 17px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.staff-add-button:hover {
+  background: #0f1728;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(23, 32, 51, 0.15);
+}
+
+.staff-add-button:active {
+  transform: translateY(0);
+}
+
+.staff-add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ==========================================
+   SIDEBAR NAVIGATION
+========================================== */
+
+.staff-nav-item {
+  width: 100%;
+}
+
+
+/* ==========================================
+   ADD STAFF MODAL
+========================================== */
+
+.staff-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 40, 0.48);
+
+  backdrop-filter: blur(3px);
+}
+
+.staff-modal {
+  width: 100%;
+  max-width: 500px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 25px 70px rgba(15, 23, 40, 0.22);
+
+  overflow: hidden;
+
+  animation: staffModalIn 0.18s ease-out;
+}
+
+@keyframes staffModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* Modal Header */
+
+.staff-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 26px 28px 20px;
+
+  border-bottom: 1px solid #edf0f5;
+}
+
+.staff-modal-header h2 {
+  margin: 6px 0 6px;
+
+  color: #1c2638;
+
+  font-size: 23px;
+  font-weight: 750;
+}
+
+.staff-modal-header p {
+  margin: 0;
+
+  color: #8995aa;
+
+  font-size: 13px;
+}
+
+.staff-modal-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #f5f6f8;
+
+  color: #657188;
+
+  font-size: 23px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.staff-modal-close:hover {
+  background: #eceef2;
+  color: #1c2638;
+}
+
+
+/* Modal Body */
+
+.staff-modal-body {
+  padding: 24px 28px 10px;
+}
+
+.staff-form-group {
+  margin-bottom: 18px;
+}
+
+.staff-form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #455168;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.staff-form-group input,
+.staff-form-group select {
+  width: 100%;
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 13px;
+
+  border: 1px solid #dce2eb;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #263247;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.staff-form-group input::placeholder {
+  color: #a5afbf;
+}
+
+.staff-form-group input:focus,
+.staff-form-group select:focus {
+  border-color: #7182a0;
+
+  box-shadow:
+    0 0 0 3px rgba(113, 130, 160, 0.1);
+}
+
+.staff-form-group input:disabled,
+.staff-form-group select:disabled {
+  background: #f6f7f9;
+  cursor: not-allowed;
+}
+
+
+/* Modal Footer */
+
+.staff-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 20px 28px 24px;
+
+  border-top: 1px solid #edf0f5;
+}
+
+.staff-modal-cancel,
+.staff-modal-create {
+  height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.staff-modal-cancel {
+  border: 1px solid #dce2eb;
+
+  background: #ffffff;
+
+  color: #59667b;
+}
+
+.staff-modal-cancel:hover {
+  background: #f6f7f9;
+}
+
+.staff-modal-create {
+  border: 1px solid #172033;
+
+  background: #172033;
+
+  color: #ffffff;
+}
+
+.staff-modal-create:hover {
+  background: #0f1728;
+  transform: translateY(-1px);
+}
+
+.staff-modal-cancel:disabled,
+.staff-modal-create:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+  .staff-actions {
+    flex-wrap: wrap;
+  }
+
+  .staff-add-button {
+    min-width: 110px;
+  }
+}
+
+@media (max-width: 600px) {
+  .staff-modal {
+    max-width: 100%;
+  }
+
+  .staff-modal-header,
+  .staff-modal-body,
+  .staff-modal-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .staff-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .staff-modal-cancel,
+  .staff-modal-create {
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   ADD STAFF MODAL
+========================================== */
+
+.staff-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.48);
+
+  backdrop-filter: blur(3px);
+}
+
+.staff-modal {
+  width: 100%;
+  max-width: 500px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 25px 70px rgba(15, 23, 42, 0.22);
+
+  overflow: hidden;
+}
+
+.staff-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 26px 28px 20px;
+
+  border-bottom: 1px solid #edf0f5;
+}
+
+.staff-modal-header h2 {
+  margin: 6px 0;
+
+  color: #1c2638;
+
+  font-size: 23px;
+  font-weight: 750;
+}
+
+.staff-modal-header p {
+  margin: 0;
+
+  color: #8995aa;
+
+  font-size: 13px;
+}
+
+.staff-modal-close {
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #f5f6f8;
+
+  color: #657188;
+
+  font-size: 23px;
+
+  cursor: pointer;
+}
+
+.staff-modal-close:hover {
+  background: #eceef2;
+}
+
+.staff-modal-body {
+  padding: 24px 28px 10px;
+}
+
+.staff-form-group {
+  margin-bottom: 18px;
+}
+
+.staff-form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #455168;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.staff-form-group input,
+.staff-form-group select {
+  width: 100%;
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 13px;
+
+  border: 1px solid #dce2eb;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #263247;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+}
+
+.staff-form-group input:focus,
+.staff-form-group select:focus {
+  border-color: #7182a0;
+
+  box-shadow:
+    0 0 0 3px rgba(113, 130, 160, 0.1);
+}
+
+.staff-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 20px 28px 24px;
+
+  border-top: 1px solid #edf0f5;
+}
+
+.staff-modal-cancel,
+.staff-modal-create {
+  height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.staff-modal-cancel {
+  border: 1px solid #dce2eb;
+
+  background: #ffffff;
+
+  color: #59667b;
+}
+
+.staff-modal-create {
+  border: 1px solid #172033;
+
+  background: #172033;
+
+  color: #ffffff;
+}
+
+.staff-modal-create:hover {
+  background: #0f1728;
+}
+
+.staff-modal-cancel:disabled,
+.staff-modal-create:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

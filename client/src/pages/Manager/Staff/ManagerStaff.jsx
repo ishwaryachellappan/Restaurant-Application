@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import "./ManagerStaff.css";
 
-function ManagerStaff({ user, onBack, onLogout }) {
+function ManagerStaff({
+  user,
+  onBack,
+  onLogout,
+  onOpenOrders,
+  onOpenSales,
+}) {
   const [staff, setStaff] = useState([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -9,6 +15,17 @@ function ManagerStaff({ user, onBack, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+
+  const [showAddStaff, setShowAddStaff] = useState(false);
+
+  const [newStaff, setNewStaff] = useState({
+    name: "",
+    username: "",
+    password: "",
+    role: "WAITER",
+  });
+
+  const [creatingStaff, setCreatingStaff] = useState(false);
 
   const loadStaff = async () => {
     try {
@@ -74,9 +91,9 @@ function ManagerStaff({ user, onBack, onLogout }) {
         currentStaff.map((item) =>
           item._id === member._id
             ? {
-                ...item,
-                status: newStatus,
-              }
+              ...item,
+              status: newStatus,
+            }
             : item
         )
       );
@@ -85,12 +102,82 @@ function ManagerStaff({ user, onBack, onLogout }) {
 
       alert(
         error.message ||
-          "Unable to update staff status."
+        "Unable to update staff status."
       );
     } finally {
       setUpdatingId(null);
     }
   };
+
+  const createStaff = async () => {
+    if (
+      !newStaff.name.trim() ||
+      !newStaff.username.trim() ||
+      !newStaff.password.trim()
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (newStaff.password.length < 4) {
+      alert("Password must be at least 4 characters.");
+      return;
+    }
+
+    try {
+      setCreatingStaff(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/staff",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: newStaff.name.trim(),
+            username: newStaff.username.trim(),
+            password: newStaff.password,
+            role: newStaff.role,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Unable to create staff member."
+        );
+      }
+
+      setStaff((currentStaff) => [
+        ...currentStaff,
+        data.user,
+      ]);
+
+      setNewStaff({
+        name: "",
+        username: "",
+        password: "",
+        role: "WAITER",
+      });
+
+      setShowAddStaff(false);
+
+      alert("Staff member created successfully.");
+    } catch (error) {
+      console.error("Create staff error:", error);
+
+      alert(
+        error.message ||
+        "Unable to create staff member."
+      );
+    } finally {
+      setCreatingStaff(false);
+    }
+  };
+
 
   const filteredStaff = useMemo(() => {
     const searchValue = search
@@ -173,20 +260,39 @@ function ManagerStaff({ user, onBack, onLogout }) {
         </div>
 
         <button
-          className="staff-nav-item"
-          onClick={onBack}
-        >
-          ▦
-          <span>Dashboard</span>
-        </button>
+  className="staff-nav-item"
+  onClick={onBack}
+  type="button"
+>
+  ▦
+  <span>Dashboard</span>
+</button>
 
-        <button
-          className="staff-nav-item staff-nav-active"
-          type="button"
-        >
-          👥
-          <span>Staff</span>
-        </button>
+<button
+  className="staff-nav-item"
+  onClick={onOpenOrders}
+  type="button"
+>
+  📋
+  <span>Orders</span>
+</button>
+
+<button
+  className="staff-nav-item"
+  onClick={onOpenSales}
+  type="button"
+>
+  ◉
+  <span>Sales & Reports</span>
+</button>
+
+<button
+  className="staff-nav-item staff-nav-active"
+  type="button"
+>
+  👥
+  <span>Staff</span>
+</button>
 
         <div className="staff-sidebar-footer">
           <div className="staff-user">
@@ -227,20 +333,27 @@ function ManagerStaff({ user, onBack, onLogout }) {
               </p>
             </div>
 
-            <div className="staff-actions">
-              <div className="staff-online">
-                <span />
-                System Online
-              </div>
+           <div className="staff-actions">
+  <div className="staff-online">
+    <span />
+    System Online
+  </div>
 
-              <button
-                className="staff-refresh"
-                onClick={loadStaff}
-                disabled={loading}
-              >
-                ↻ Refresh
-              </button>
-            </div>
+  <button
+    className="staff-refresh"
+    onClick={loadStaff}
+    disabled={loading}
+  >
+    ↻ Refresh
+  </button>
+
+  <button
+    className="staff-add-button"
+    onClick={() => setShowAddStaff(true)}
+  >
+    + Add Staff
+  </button>
+</div>
           </div>
 
           <section className="staff-stats">
@@ -441,12 +554,11 @@ function ManagerStaff({ user, onBack, onLogout }) {
 
                         <td>
                           <span
-                            className={`staff-status ${
-                              member.status ===
-                              "ACTIVE"
+                            className={`staff-status ${member.status ===
+                                "ACTIVE"
                                 ? "staff-status-active"
                                 : "staff-status-inactive"
-                            }`}
+                              }`}
                           >
                             <span />
                             {member.status}
@@ -454,31 +566,30 @@ function ManagerStaff({ user, onBack, onLogout }) {
                         </td>
 
                         <td>
-                        <button
-  className={`staff-status-button ${
-    member.status === "ACTIVE"
-      ? "deactivate"
-      : "activate"
-  }`}
-  onClick={() => updateStatus(member)}
-  disabled={
-    updatingId === member._id ||
-    member._id === user?._id
-  }
-  title={
-    member._id === user?._id
-      ? "You cannot deactivate your own account"
-      : ""
-  }
->
-  {updatingId === member._id
-    ? "Updating..."
-    : member._id === user?._id
-    ? "Current Account"
-    : member.status === "ACTIVE"
-    ? "Deactivate"
-    : "Activate"}
-</button>
+                          <button
+                            className={`staff-status-button ${member.status === "ACTIVE"
+                                ? "deactivate"
+                                : "activate"
+                              }`}
+                            onClick={() => updateStatus(member)}
+                            disabled={
+                              updatingId === member._id ||
+                              member._id === user?._id
+                            }
+                            title={
+                              member._id === user?._id
+                                ? "You cannot deactivate your own account"
+                                : ""
+                            }
+                          >
+                            {updatingId === member._id
+                              ? "Updating..."
+                              : member._id === user?._id
+                                ? "Current Account"
+                                : member.status === "ACTIVE"
+                                  ? "Deactivate"
+                                  : "Activate"}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -488,7 +599,171 @@ function ManagerStaff({ user, onBack, onLogout }) {
             )}
           </section>
         </div>
-      </main>
+           </main>
+
+      {/* ADD STAFF MODAL */}
+
+      {showAddStaff && (
+        <div
+          className="staff-modal-overlay"
+          onClick={() => {
+            if (!creatingStaff) {
+              setShowAddStaff(false);
+            }
+          }}
+        >
+          <div
+            className="staff-modal"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="staff-modal-header">
+              <div>
+                <span className="staff-section-label">
+                  STAFF MANAGEMENT
+                </span>
+
+                <h2>Add Staff Member</h2>
+
+                <p>
+                  Create a new POS account.
+                </p>
+              </div>
+
+              <button
+                className="staff-modal-close"
+                type="button"
+                onClick={() => {
+                  if (!creatingStaff) {
+                    setShowAddStaff(false);
+                  }
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="staff-modal-body">
+
+              {/* Full Name */}
+
+              <div className="staff-form-group">
+                <label>Full Name</label>
+
+                <input
+                  type="text"
+                  placeholder="Enter full name"
+                  value={newStaff.name}
+                  disabled={creatingStaff}
+                  onChange={(event) =>
+                    setNewStaff({
+                      ...newStaff,
+                      name: event.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* Username */}
+
+              <div className="staff-form-group">
+                <label>Username</label>
+
+                <input
+                  type="text"
+                  placeholder="Enter login username"
+                  value={newStaff.username}
+                  disabled={creatingStaff}
+                  onChange={(event) =>
+                    setNewStaff({
+                      ...newStaff,
+                      username:
+                        event.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* Password */}
+
+              <div className="staff-form-group">
+                <label>Password</label>
+
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={newStaff.password}
+                  disabled={creatingStaff}
+                  onChange={(event) =>
+                    setNewStaff({
+                      ...newStaff,
+                      password:
+                        event.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* Role */}
+
+              <div className="staff-form-group">
+                <label>Role</label>
+
+                <select
+                  value={newStaff.role}
+                  disabled={creatingStaff}
+                  onChange={(event) =>
+                    setNewStaff({
+                      ...newStaff,
+                      role: event.target.value,
+                    })
+                  }
+                >
+                  <option value="WAITER">
+                    Waiter
+                  </option>
+
+                  <option value="KITCHEN">
+                    Kitchen
+                  </option>
+
+                  <option value="CASHIER">
+                    Cashier
+                  </option>
+                </select>
+              </div>
+
+            </div>
+
+            <div className="staff-modal-footer">
+
+              <button
+                className="staff-modal-cancel"
+                type="button"
+                disabled={creatingStaff}
+                onClick={() =>
+                  setShowAddStaff(false)
+                }
+              >
+                Cancel
+              </button>
+
+              <button
+                className="staff-modal-create"
+                type="button"
+                disabled={creatingStaff}
+                onClick={createStaff}
+              >
+                {creatingStaff
+                  ? "Creating..."
+                  : "Create Staff"}
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

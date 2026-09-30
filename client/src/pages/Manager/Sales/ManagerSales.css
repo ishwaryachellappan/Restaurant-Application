@@ -776,3 +776,24 @@
     min-width: 780px;
   }
 }
+
+.staff-add-button {
+  border: none;
+  background: #172033;
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.staff-add-button:hover {
+  background: #0f1728;
+  transform: translateY(-1px);
+}
+
+.staff-add-button:active {
+  transform: translateY(0);
+}

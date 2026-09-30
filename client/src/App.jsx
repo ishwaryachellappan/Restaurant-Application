@@ -264,12 +264,19 @@ function App() {
       );
     }
 
-
-    if (currentPage === "manager-staff") {
+if (currentPage === "manager-staff") {
   return (
     <ManagerStaff
       user={user}
-      onBack={() => setCurrentPage("manager-dashboard")}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
+      onOpenOrders={() =>
+        setCurrentPage("manager-orders")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
+      }
       onLogout={handleLogout}
     />
   );
