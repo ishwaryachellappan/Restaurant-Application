@@ -10,6 +10,7 @@ import ManagerDashboard from "./pages/Manager/ManagerDashboard";
 import ManagerOrders from "./pages/Manager/Orders/ManagerOrders";
 import ManagerSales from "./pages/Manager/Sales/ManagerSales";
 import ManagerStaff from "./pages/Manager/Staff/ManagerStaff";
+import ManagerMenu from "./pages/Manager/Menu/ManagerMenu";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -250,25 +251,44 @@ function App() {
   );
 }
 
-    if (currentPage === "manager") {
-      return (
-        <ManagerDashboard
-          user={user}
-          onLogout={handleLogout}
-          onOpenOrders={() =>
-            setCurrentPage("manager-orders")
-          }
-          onOpenSales={() =>
-            setCurrentPage("manager-sales")
-          }
-          onOpenStaff={() =>
-  setCurrentPage("manager-staff")
+if (currentPage === "manager-menu") {
+  return (
+    <ManagerMenu
+      user={user}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
+      onOpenOrders={() =>
+        setCurrentPage("manager-orders")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
+      }
+      onOpenStaff={() =>
+        setCurrentPage("manager-staff")
+      }
+      onLogout={handleLogout}
+    />
+  );
 }
 
 
-        />
-      );
-    }
+
+
+
+    if (currentPage === "manager") {
+  return (
+    <ManagerDashboard
+      user={user}
+      onLogout={handleLogout}
+      onOpenOrders={() => setCurrentPage("manager-orders")}
+      onOpenSales={() => setCurrentPage("manager-sales")}
+      onOpenStaff={() => setCurrentPage("manager-staff")}
+      onOpenMenu={() => setCurrentPage("manager-menu")}
+    />
+  );
+}
+
 
 if (currentPage === "manager-staff") {
   return (

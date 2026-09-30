@@ -7,6 +7,7 @@ const orderRoutes = require("./routes/orders");
 const kitchenRoutes = require("./routes/kitchen");
 const cashierRoutes = require("./routes/cashier");
 const staffRoutes = require("./routes/staff");
+const menuRoutes = require("./routes/menu");
 
 require("dotenv").config();
 
@@ -23,6 +24,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/kitchen", kitchenRoutes);
 app.use("/api/cashier", cashierRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/menu", menuRoutes);
 
 // MongoDB connection
 mongoose

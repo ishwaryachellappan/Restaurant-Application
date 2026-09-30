@@ -6,7 +6,8 @@ function ManagerDashboard({
   onLogout,
   onOpenOrders,
   onOpenSales,
-   onOpenStaff,
+  onOpenStaff,
+  onOpenMenu,
 }) {
   
   const [orders, setOrders] = useState([]);
@@ -299,6 +300,18 @@ const dateInputRef = useRef(null);
 >
   👥
   <span>Staff</span>
+</button>
+
+<button
+  className="manager-nav-item"
+  onClick={() => {
+    console.log("MENU BUTTON CLICKED");
+    onOpenMenu();
+  }}
+  type="button"
+>
+  <span>🍽️</span>
+  Menu Management
 </button>
 
 <button
