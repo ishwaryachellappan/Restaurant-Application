@@ -5,6 +5,7 @@ import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
 import Order from "./pages/Waiter/Order/Order";
 import KitchenDashboard from "./pages/Kitchen/KitchenDashboard";
+import CashierDashboard from "./pages/Cashier/CashierDashboard";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -63,7 +64,11 @@ function App() {
 
       const role = data.user.role?.toUpperCase();
 
-      if (role !== "WAITER" && role !== "KITCHEN") {
+     if (
+  role !== "WAITER" &&
+  role !== "KITCHEN" &&
+  role !== "CASHIER"
+) {
         setError(
           "This account does not have access to the current system."
         );
@@ -84,6 +89,10 @@ function App() {
       if (role === "KITCHEN") {
         setCurrentPage("kitchen");
       }
+
+      if (role === "CASHIER") {
+  setCurrentPage("cashier");
+}
 
     } catch (error) {
       console.error("Login error:", error);
@@ -189,6 +198,15 @@ function App() {
         />
       );
     }
+
+    if (currentPage === "cashier") {
+  return (
+    <CashierDashboard
+      user={user}
+      onLogout={handleLogout}
+    />
+  );
+}
 
     // ------------------------------------------
     // WAITER - TABLES
