@@ -1,4 +1,4 @@
-const express = require("express");
+cconst express = require("express");
 const mongoose = require("mongoose");
 
 const Order = require("../models/Order");
@@ -143,24 +143,10 @@ router.post("/", async (req, res) => {
   GET ALL ORDERS
   GET /api/orders
 */
-/*
-  GET ORDERS FOR A WAITER
-  GET /api/orders/waiter/:waiterId
-*/
-router.get("/waiter/:waiterId", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { waiterId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(waiterId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid waiter ID.",
-      });
-    }
-
-    const orders = await Order.find({
-      waiterId,
-    }).sort({ createdAt: -1 });
+    const orders = await Order.find()
+      .sort({ createdAt: -1 });
 
     return res.json({
       success: true,
@@ -168,11 +154,11 @@ router.get("/waiter/:waiterId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Get waiter orders error:", error);
+    console.error("Get orders error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Unable to fetch waiter orders.",
+      message: "Unable to fetch orders.",
     });
   }
 });

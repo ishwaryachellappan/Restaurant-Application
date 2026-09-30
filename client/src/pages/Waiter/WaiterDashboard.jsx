@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import "./WaiterDashboard.css";
 
 function WaiterDashboard({
@@ -5,13 +6,125 @@ function WaiterDashboard({
   onLogout,
   onOpenTables,
   onNewOrder,
+  onOpenOrders,
 }) {
-   return (
+  const [status, setStatus] = useState({
+    activeTables: 0,
+    openOrders: 0,
+    completedOrders: 0,
+  });
+
+  const [loadingStatus, setLoadingStatus] = useState(true);
+
+  const loadTodayStatus = async () => {
+    try {
+      setLoadingStatus(true);
+
+      // ------------------------------------------
+      // LOAD TABLES
+      // ------------------------------------------
+
+      const tablesResponse = await fetch(
+        "http://localhost:5000/api/tables"
+      );
+
+      const tablesData = await tablesResponse.json();
+
+      const tables = tablesData.tables || [];
+
+      const activeTables = tables.filter(
+        (table) => table.status === "OCCUPIED"
+      ).length;
+
+      // ------------------------------------------
+      // LOAD THIS WAITER'S ORDERS
+      // ------------------------------------------
+
+      let openOrders = 0;
+      let completedOrders = 0;
+
+      if (user?.id) {
+        const ordersResponse = await fetch(
+          `http://localhost:5000/api/orders/waiter/${user.id}`
+        );
+
+        const ordersData = await ordersResponse.json();
+
+        const orders = ordersData.orders || [];
+
+        // ------------------------------------------
+        // OPEN ORDERS
+        // ------------------------------------------
+
+        openOrders = orders.filter(
+          (order) =>
+            order.status !== "COMPLETED" &&
+            order.status !== "CANCELLED"
+        ).length;
+
+        // ------------------------------------------
+        // COMPLETED ORDERS TODAY
+        // ------------------------------------------
+
+        const today = new Date();
+
+        const startOfToday = new Date(today);
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const endOfToday = new Date(today);
+        endOfToday.setHours(23, 59, 59, 999);
+
+        completedOrders = orders.filter((order) => {
+          if (order.status !== "COMPLETED") {
+            return false;
+          }
+
+          const completedDate = new Date(
+            order.updatedAt || order.createdAt
+          );
+
+          return (
+            completedDate >= startOfToday &&
+            completedDate <= endOfToday
+          );
+        }).length;
+      }
+
+      setStatus({
+        activeTables,
+        openOrders,
+        completedOrders,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load waiter dashboard status:",
+        error
+      );
+    } finally {
+      setLoadingStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTodayStatus();
+
+    // Refresh dashboard status periodically
+    const interval = setInterval(() => {
+      loadTodayStatus();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [user?.id]);
+
+  return (
     <div className="waiter-dashboard">
+
+      {/* HEADER */}
 
       <header className="waiter-header">
 
         <div className="waiter-brand">
+
           <div className="waiter-brand-icon">
             🍽️
           </div>
@@ -20,11 +133,13 @@ function WaiterDashboard({
             <h1>Restaurant POS</h1>
             <span>Waiter Dashboard</span>
           </div>
+
         </div>
 
         <div className="waiter-user">
 
           <div className="waiter-user-info">
+
             <strong>
               {user?.name || "Waiter"}
             </strong>
@@ -32,6 +147,7 @@ function WaiterDashboard({
             <span>
               {user?.role || "WAITER"}
             </span>
+
           </div>
 
           <button
@@ -46,7 +162,11 @@ function WaiterDashboard({
 
       </header>
 
+      {/* MAIN */}
+
       <main className="waiter-main">
+
+        {/* WELCOME */}
 
         <section className="welcome-section">
 
@@ -59,6 +179,8 @@ function WaiterDashboard({
           </p>
 
         </section>
+
+        {/* MAIN CARDS */}
 
         <section className="waiter-cards">
 
@@ -89,7 +211,7 @@ function WaiterDashboard({
 
           </div>
 
-          {/* ORDERS */}
+          {/* MY ORDERS */}
 
           <div className="waiter-card">
 
@@ -105,7 +227,10 @@ function WaiterDashboard({
                 View orders created by you.
               </p>
 
-              <button type="button">
+              <button
+                type="button"
+                onClick={onOpenOrders}
+              >
                 View Orders
               </button>
 
@@ -129,17 +254,20 @@ function WaiterDashboard({
                 Start a new customer order.
               </p>
 
-             <button
-  type="button"
-  onClick={onNewOrder}
->
-  Create Order
-</button>
+              <button
+                type="button"
+                onClick={onNewOrder}
+              >
+                Create Order
+              </button>
+
             </div>
 
           </div>
 
         </section>
+
+        {/* TODAY'S STATUS */}
 
         <section className="waiter-status">
 
@@ -149,34 +277,58 @@ function WaiterDashboard({
 
           <div className="status-grid">
 
+            {/* ACTIVE TABLES */}
+
             <div className="status-item">
+
               <span className="status-number">
-                0
+
+                {loadingStatus
+                  ? "..."
+                  : status.activeTables}
+
               </span>
 
               <span className="status-label">
                 Active Tables
               </span>
+
             </div>
 
+            {/* OPEN ORDERS */}
+
             <div className="status-item">
+
               <span className="status-number">
-                0
+
+                {loadingStatus
+                  ? "..."
+                  : status.openOrders}
+
               </span>
 
               <span className="status-label">
                 Open Orders
               </span>
+
             </div>
 
+            {/* COMPLETED ORDERS */}
+
             <div className="status-item">
+
               <span className="status-number">
-                0
+
+                {loadingStatus
+                  ? "..."
+                  : status.completedOrders}
+
               </span>
 
               <span className="status-label">
                 Completed Orders
               </span>
+
             </div>
 
           </div>

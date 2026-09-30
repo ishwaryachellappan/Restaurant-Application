@@ -11,6 +11,7 @@ import ManagerOrders from "./pages/Manager/Orders/ManagerOrders";
 import ManagerSales from "./pages/Manager/Sales/ManagerSales";
 import ManagerStaff from "./pages/Manager/Staff/ManagerStaff";
 import ManagerMenu from "./pages/Manager/Menu/ManagerMenu";
+import MyOrders from "./pages/Waiter/MyOrders/MyOrders";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -339,13 +340,26 @@ if (currentPage === "manager-staff") {
         />
       );
     }
+// ------------------------------------------
+// WAITER MY ORDERS
+// ------------------------------------------
+
+if (currentPage === "waiter-my-orders") {
+  return (
+    <MyOrders
+      user={user}
+      onBack={() => setCurrentPage("dashboard")}
+      onLogout={handleLogout}
+    />
+  );
+}
 
     // ------------------------------------------
     // WAITER DASHBOARD
     // ------------------------------------------
 
     return (
-     <WaiterDashboard
+ <WaiterDashboard
   user={user}
   onLogout={handleLogout}
   onOpenTables={() =>
@@ -353,6 +367,9 @@ if (currentPage === "manager-staff") {
   }
   onNewOrder={() =>
     setCurrentPage("tables")
+  }
+  onOpenOrders={() =>
+    setCurrentPage("waiter-my-orders")
   }
 />
     );
