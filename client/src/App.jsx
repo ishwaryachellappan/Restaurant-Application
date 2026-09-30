@@ -3,6 +3,8 @@ import "./App.css";
 
 import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
+import Order from "./pages/Waiter/Order/Order";
+
 
 function App() {
   const [username, setUsername] = useState("");
@@ -82,15 +84,12 @@ function App() {
   // TABLE SELECTION
   // ------------------------------------------
 
-  const handleTableSelect = (table) => {
-    console.log("Selected table:", table);
+ const handleTableSelect = (table) => {
+  console.log("Selected table:", table);
 
-    setSelectedTable(table);
-
-    // For now we will return to this later
-    // and open the Order screen here.
-    alert(`Table ${table.tableNumber} selected`);
-  };
+  setSelectedTable(table);
+  setCurrentPage("order");
+};
 
   // ------------------------------------------
   // Logged-in user
@@ -106,6 +105,16 @@ function App() {
         />
       );
     }
+
+    if (currentPage === "order" && selectedTable) {
+  return (
+    <Order
+  table={selectedTable}
+  user={user}
+  onBack={() => setCurrentPage("tables")}
+/>
+  );
+}
 
     return (
       <WaiterDashboard
