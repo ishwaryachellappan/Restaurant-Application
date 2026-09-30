@@ -34,14 +34,33 @@ router.get("/orders", async (req, res) => {
 // COMPLETE PAYMENT
 // ------------------------------------------
 
+
 router.patch("/orders/:id/pay", async (req, res) => {
   try {
+    const { paymentMethod } = req.body;
+
+    if (!paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment method is required."
+      });
+    }
+
+    const allowedMethods = ["CASH", "CARD", "UPI"];
+
+    if (!allowedMethods.includes(paymentMethod)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid payment method."
+      });
+    }
+
     const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found",
+        message: "Order not found."
       });
     }
 
@@ -49,36 +68,38 @@ router.patch("/orders/:id/pay", async (req, res) => {
       return res.status(400).json({
         success: false,
         message:
-          `Payment cannot be completed for order status ${order.status}`,
+          "Only READY orders can be paid."
       });
     }
 
-    // Complete the order
     order.status = "COMPLETED";
+    order.paymentMethod = paymentMethod;
+    order.paidAt = new Date();
 
     await order.save();
 
-    // Release the table
     await Table.findByIdAndUpdate(
       order.tableId,
       {
         status: "AVAILABLE",
-        currentOrder: null,
+        currentOrder: null
       }
     );
 
     res.json({
       success: true,
-      message: "Payment completed successfully",
-      order,
+      message: "Payment completed successfully.",
+      order
     });
-
   } catch (error) {
-    console.error("Payment error:", error);
+    console.error(
+      "Cashier payment error:",
+      error
+    );
 
     res.status(500).json({
       success: false,
-      message: "Failed to complete payment",
+      message: "Unable to complete payment."
     });
   }
 });

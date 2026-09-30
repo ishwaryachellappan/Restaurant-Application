@@ -91,19 +91,30 @@ const orderSchema = new mongoose.Schema(
       min: 0,
     },
 
-    status: {
-      type: String,
-      enum: [
-        "NEW",
-        "SENT_TO_KITCHEN",
-        "PREPARING",
-        "READY",
-        "SERVED",
-        "COMPLETED",
-        "CANCELLED",
-      ],
-      default: "NEW",
-    },
+   status: {
+  type: String,
+  enum: [
+    "NEW",
+    "SENT_TO_KITCHEN",
+    "PREPARING",
+    "READY",
+    "SERVED",
+    "COMPLETED",
+    "CANCELLED"
+  ],
+  default: "NEW"
+},
+
+paymentMethod: {
+  type: String,
+  enum: ["CASH", "CARD", "UPI"],
+  default: null
+},
+
+paidAt: {
+  type: Date,
+  default: null
+},
   },
   {
     timestamps: true,
