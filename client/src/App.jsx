@@ -8,6 +8,7 @@ import KitchenDashboard from "./pages/Kitchen/KitchenDashboard";
 import CashierDashboard from "./pages/Cashier/CashierDashboard";
 import ManagerDashboard from "./pages/Manager/ManagerDashboard";
 import ManagerOrders from "./pages/Manager/Orders/ManagerOrders";
+import ManagerSales from "./pages/Manager/Sales/ManagerSales";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -215,11 +216,28 @@ if (role === "MANAGER") {
   );
 }
 
+if (currentPage === "manager-sales") {
+  return (
+    <ManagerSales
+      user={user}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
+      onOrders={() =>
+        setCurrentPage("manager-orders")
+      }
+      onLogout={handleLogout}
+    />
+  );
+}
+
 if (currentPage === "manager-orders") {
   return (
     <ManagerOrders
       user={user}
-      onBack={() => setCurrentPage("manager")}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
       onLogout={handleLogout}
     />
   );
@@ -232,6 +250,9 @@ if (currentPage === "manager") {
       onLogout={handleLogout}
       onOpenOrders={() =>
         setCurrentPage("manager-orders")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
       }
     />
   );

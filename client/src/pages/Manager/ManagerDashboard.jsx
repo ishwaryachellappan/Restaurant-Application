@@ -5,7 +5,9 @@ function ManagerDashboard({
   user,
   onLogout,
   onOpenOrders,
+  onOpenSales,
 }) {
+  
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
   const [kitchenOrders, setKitchenOrders] = useState([]);
@@ -280,6 +282,14 @@ const dateInputRef = useRef(null);
 >
   <span>▤</span>
   Orders
+</button>
+
+<button
+  className="manager-nav-item"
+  onClick={onOpenSales}
+>
+  <span>₹</span>
+  Sales & Reports
 </button>
 
 <button
