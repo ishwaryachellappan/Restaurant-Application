@@ -6,6 +6,7 @@ import Tables from "./pages/Waiter/Tables";
 import Order from "./pages/Waiter/Order/Order";
 import KitchenDashboard from "./pages/Kitchen/KitchenDashboard";
 import CashierDashboard from "./pages/Cashier/CashierDashboard";
+import ManagerDashboard from "./pages/Manager/ManagerDashboard";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -64,10 +65,11 @@ function App() {
 
       const role = data.user.role?.toUpperCase();
 
-     if (
+   if (
   role !== "WAITER" &&
   role !== "KITCHEN" &&
-  role !== "CASHIER"
+  role !== "CASHIER" &&
+  role !== "MANAGER"
 ) {
         setError(
           "This account does not have access to the current system."
@@ -92,6 +94,10 @@ function App() {
 
       if (role === "CASHIER") {
   setCurrentPage("cashier");
+}
+
+if (role === "MANAGER") {
+  setCurrentPage("manager");
 }
 
     } catch (error) {
@@ -202,6 +208,15 @@ function App() {
     if (currentPage === "cashier") {
   return (
     <CashierDashboard
+      user={user}
+      onLogout={handleLogout}
+    />
+  );
+}
+
+if (currentPage === "manager") {
+  return (
+    <ManagerDashboard
       user={user}
       onLogout={handleLogout}
     />
