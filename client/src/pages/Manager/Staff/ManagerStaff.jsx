@@ -454,29 +454,31 @@ function ManagerStaff({ user, onBack, onLogout }) {
                         </td>
 
                         <td>
-                          <button
-                            className={`staff-status-button ${
-                              member.status ===
-                              "ACTIVE"
-                                ? "deactivate"
-                                : "activate"
-                            }`}
-                            onClick={() =>
-                              updateStatus(member)
-                            }
-                            disabled={
-                              updatingId ===
-                              member._id
-                            }
-                          >
-                            {updatingId ===
-                            member._id
-                              ? "Updating..."
-                              : member.status ===
-                                "ACTIVE"
-                              ? "Deactivate"
-                              : "Activate"}
-                          </button>
+                        <button
+  className={`staff-status-button ${
+    member.status === "ACTIVE"
+      ? "deactivate"
+      : "activate"
+  }`}
+  onClick={() => updateStatus(member)}
+  disabled={
+    updatingId === member._id ||
+    member._id === user?._id
+  }
+  title={
+    member._id === user?._id
+      ? "You cannot deactivate your own account"
+      : ""
+  }
+>
+  {updatingId === member._id
+    ? "Updating..."
+    : member._id === user?._id
+    ? "Current Account"
+    : member.status === "ACTIVE"
+    ? "Deactivate"
+    : "Activate"}
+</button>
                         </td>
                       </tr>
                     ))}
