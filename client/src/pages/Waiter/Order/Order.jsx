@@ -1,86 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Order.css";
-
-const menuItems = [
-  {
-    id: 1,
-    name: "Paneer Tikka",
-    category: "Starters",
-    price: 220,
-  },
-  {
-    id: 2,
-    name: "Chicken 65",
-    category: "Starters",
-    price: 280,
-  },
-  {
-    id: 3,
-    name: "Veg Manchurian",
-    category: "Starters",
-    price: 200,
-  },
-  {
-    id: 4,
-    name: "Butter Chicken",
-    category: "Main Course",
-    price: 320,
-  },
-  {
-    id: 5,
-    name: "Paneer Butter Masala",
-    category: "Main Course",
-    price: 280,
-  },
-  {
-    id: 6,
-    name: "Chicken Biryani",
-    category: "Main Course",
-    price: 300,
-  },
-  {
-    id: 7,
-    name: "Veg Biryani",
-    category: "Main Course",
-    price: 240,
-  },
-  {
-    id: 8,
-    name: "Butter Naan",
-    category: "Breads",
-    price: 60,
-  },
-  {
-    id: 9,
-    name: "Garlic Naan",
-    category: "Breads",
-    price: 80,
-  },
-  {
-    id: 10,
-    name: "Tandoori Roti",
-    category: "Breads",
-    price: 40,
-  },
-  {
-    id: 11,
-    name: "Fresh Lime Soda",
-    category: "Drinks",
-    price: 90,
-  },
-  {
-    id: 12,
-    name: "Fresh Lime Water",
-    category: "Drinks",
-    price: 70,
-  },
-  {
-    id: 13,
-    name: "Coke",
-    category: "Drinks",
-    price: 60,
-  },
-];
 
 function Order({
   table,
@@ -88,8 +7,12 @@ function Order({
   existingOrder,
   onBack,
 }) {
+  const [menuItems, setMenuItems] = useState([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [menuError, setMenuError] = useState("");
+
   const [selectedCategory, setSelectedCategory] =
-    useState("Starters");
+    useState("");
 
   const [cart, setCart] = useState(() => {
     if (!existingOrder?.items) {
@@ -105,12 +28,61 @@ function Order({
     }));
   });
 
+  // Load available menu items from MongoDB
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        setMenuLoading(true);
+        setMenuError("");
+
+        const response = await fetch(
+          "http://localhost:5000/api/menu/available"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || "Unable to load menu."
+          );
+        }
+
+        setMenuItems(
+          (data.items || []).map((item) => ({
+            ...item,
+            id: item._id,
+          }))
+        );
+      } catch (error) {
+        console.error("Load menu error:", error);
+
+        setMenuError(
+          error.message || "Unable to load menu."
+        );
+      } finally {
+        setMenuLoading(false);
+      }
+    };
+
+    loadMenu();
+  }, []);
+
+  // Build categories dynamically from available menu items
   const categories = [
-    "Starters",
-    "Main Course",
-    "Breads",
-    "Drinks",
+    ...new Set(
+      menuItems.map((item) => item.category)
+    ),
   ];
+
+  // Automatically select the first available category
+  useEffect(() => {
+    if (
+      categories.length > 0 &&
+      !categories.includes(selectedCategory)
+    ) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [categories, selectedCategory]);
 
   const filteredItems = menuItems.filter(
     (item) => item.category === selectedCategory
@@ -126,9 +98,9 @@ function Order({
         return currentCart.map((cartItem) =>
           cartItem.id === item.id
             ? {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-            }
+                ...cartItem,
+                quantity: cartItem.quantity + 1,
+              }
             : cartItem
         );
       }
@@ -148,9 +120,9 @@ function Order({
       currentCart.map((item) =>
         item.id === itemId
           ? {
-            ...item,
-            quantity: item.quantity + 1,
-          }
+              ...item,
+              quantity: item.quantity + 1,
+            }
           : item
       )
     );
@@ -162,9 +134,9 @@ function Order({
         .map((item) =>
           item.id === itemId
             ? {
-              ...item,
-              quantity: item.quantity - 1,
-            }
+                ...item,
+                quantity: item.quantity - 1,
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -173,95 +145,103 @@ function Order({
 
   const removeItem = (itemId) => {
     setCart((currentCart) =>
-      currentCart.filter((item) => item.id !== itemId)
+      currentCart.filter(
+        (item) => item.id !== itemId
+      )
     );
   };
 
   const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum + item.price * item.quantity,
     0
   );
 
   const handleSendToKitchen = async () => {
-  if (cart.length === 0) {
-    alert("Please add at least one item to the order.");
-    return;
-  }
-
-  try {
-    const url = existingOrder
-      ? `http://localhost:5000/api/orders/${existingOrder._id}`
-      : "http://localhost:5000/api/orders";
-
-    const method = existingOrder
-      ? "PATCH"
-      : "POST";
-
-    const response = await fetch(url, {
-      method,
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(
-        existingOrder
-          ? {
-              items: cart.map((item) => ({
-                menuItemId: item.id,
-                name: item.name,
-                category: item.category,
-                price: item.price,
-                quantity: item.quantity,
-              })),
-            }
-          : {
-              tableId: table._id,
-              tableNumber: table.tableNumber,
-
-              waiterId: user.id,
-              waiterName: user.name,
-
-              items: cart.map((item) => ({
-                menuItemId: item.id,
-                name: item.name,
-                category: item.category,
-                price: item.price,
-                quantity: item.quantity,
-              })),
-            }
-      ),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.message || "Unable to save order."
+    if (cart.length === 0) {
+      alert(
+        "Please add at least one item to the order."
       );
+      return;
     }
 
-    if (existingOrder) {
-      alert(
-        `${existingOrder.orderNumber} updated successfully.`
+    try {
+      const url = existingOrder
+        ? `http://localhost:5000/api/orders/${existingOrder._id}`
+        : "http://localhost:5000/api/orders";
+
+      const method = existingOrder
+        ? "PATCH"
+        : "POST";
+
+      const response = await fetch(url, {
+        method,
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(
+          existingOrder
+            ? {
+                items: cart.map((item) => ({
+                  menuItemId: item.id,
+                  name: item.name,
+                  category: item.category,
+                  price: item.price,
+                  quantity: item.quantity,
+                })),
+              }
+            : {
+                tableId: table._id,
+                tableNumber: table.tableNumber,
+
+                waiterId: user.id,
+                waiterName: user.name,
+
+                items: cart.map((item) => ({
+                  menuItemId: item.id,
+                  name: item.name,
+                  category: item.category,
+                  price: item.price,
+                  quantity: item.quantity,
+                })),
+              }
+        ),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to save order."
+        );
+      }
+
+      if (existingOrder) {
+        alert(
+          `${existingOrder.orderNumber} updated successfully.`
+        );
+      } else {
+        alert(
+          `Order ${data.order.orderNumber} sent to kitchen successfully.`
+        );
+      }
+
+      setCart([]);
+    } catch (error) {
+      console.error(
+        "Save order error:",
+        error
       );
-    } else {
+
       alert(
-        `Order ${data.order.orderNumber} sent to kitchen successfully.`
+        error.message ||
+          "Unable to save the order."
       );
     }
-
-    setCart([]);
-
-  } catch (error) {
-    console.error("Save order error:", error);
-
-    alert(
-      error.message ||
-        "Unable to save the order."
-    );
-  }
-};
+  };
 
   return (
     <div className="order-page">
@@ -298,8 +278,11 @@ function Order({
         </div>
 
         <div
-          className={`order-table-status ${existingOrder ? "occupied" : "available"
-            }`}
+          className={`order-table-status ${
+            existingOrder
+              ? "occupied"
+              : "available"
+          }`}
         >
           <span></span>
 
@@ -350,34 +333,63 @@ function Order({
 
           <div className="menu-grid">
 
-            {filteredItems.map((item) => (
-              <div
-                className="menu-item"
-                key={item.id}
-              >
+            {menuLoading ? (
+              <div className="empty-cart">
+                <h3>Loading menu...</h3>
+              </div>
+            ) : menuError ? (
+              <div className="empty-cart">
+                <h3>
+                  Unable to load menu
+                </h3>
 
-                <div className="menu-item-info">
+                <p>{menuError}</p>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="empty-cart">
+                <h3>
+                  No items available
+                </h3>
 
-                  <h3>
-                    {item.name}
-                  </h3>
+                <p>
+                  No available items in this
+                  category.
+                </p>
+              </div>
+            ) : (
+              filteredItems.map((item) => (
 
-                  <span>
-                    ₹{item.price.toFixed(2)}
-                  </span>
+                <div
+                  className="menu-item"
+                  key={item.id}
+                >
+
+                  <div className="menu-item-info">
+
+                    <h3>
+                      {item.name}
+                    </h3>
+
+                    <span>
+                      ₹{item.price.toFixed(2)}
+                    </span>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    className="add-item-button"
+                    onClick={() =>
+                      addToCart(item)
+                    }
+                  >
+                    + Add
+                  </button>
 
                 </div>
 
-                <button
-                  type="button"
-                  className="add-item-button"
-                  onClick={() => addToCart(item)}
-                >
-                  + Add
-                </button>
-
-              </div>
-            ))}
+              ))
+            )}
 
           </div>
 
@@ -390,6 +402,7 @@ function Order({
           <div className="cart-header">
 
             <div>
+
               <h2>
                 {existingOrder
                   ? "Existing Order"
@@ -406,14 +419,17 @@ function Order({
                   </>
                 )}
               </p>
+
             </div>
 
             <div className="cart-count">
+
               {cart.reduce(
                 (sum, item) =>
                   sum + item.quantity,
                 0
               )}
+
             </div>
 
           </div>
@@ -466,7 +482,9 @@ function Order({
                     <button
                       type="button"
                       onClick={() =>
-                        decreaseQuantity(item.id)
+                        decreaseQuantity(
+                          item.id
+                        )
                       }
                     >
                       −
@@ -479,7 +497,9 @@ function Order({
                     <button
                       type="button"
                       onClick={() =>
-                        increaseQuantity(item.id)
+                        increaseQuantity(
+                          item.id
+                        )
                       }
                     >
                       +
@@ -488,11 +508,13 @@ function Order({
                   </div>
 
                   <div className="cart-item-total">
+
                     ₹
                     {(
                       item.price *
                       item.quantity
                     ).toFixed(2)}
+
                   </div>
 
                   <button
@@ -530,14 +552,14 @@ function Order({
             </div>
 
             <button
-  type="button"
-  className="send-kitchen-button"
-  onClick={handleSendToKitchen}
->
-  {existingOrder
-    ? "Update Order"
-    : "Send to Kitchen"}
-</button>
+              type="button"
+              className="send-kitchen-button"
+              onClick={handleSendToKitchen}
+            >
+              {existingOrder
+                ? "Update Order"
+                : "Send to Kitchen"}
+            </button>
 
           </div>
 
