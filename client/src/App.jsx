@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+
 import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
 
@@ -7,7 +8,10 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-const [currentPage, setCurrentPage] = useState("dashboard");
+
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [selectedTable, setSelectedTable] = useState(null);
+
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,11 +33,9 @@ const [currentPage, setCurrentPage] = useState("dashboard");
         "http://localhost:5000/api/auth/login",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             username,
             password,
@@ -44,25 +46,17 @@ const [currentPage, setCurrentPage] = useState("dashboard");
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(
-          data.message || "Invalid username or password."
-        );
-
+        setError(data.message || "Invalid username or password.");
         return;
       }
 
-      // Only allow waiter access to the waiter dashboard
       if (data.user.role !== "WAITER") {
-        setError(
-          "This account does not have waiter access."
-        );
-
+        setError("This account does not have waiter access.");
         return;
       }
 
-      // Store authenticated user in React state
       setUser(data.user);
-
+      setCurrentPage("dashboard");
     } catch (error) {
       console.error("Login error:", error);
 
@@ -75,37 +69,52 @@ const [currentPage, setCurrentPage] = useState("dashboard");
   };
 
   const handleLogout = () => {
-  setUser(null);
+    setUser(null);
+    setCurrentPage("dashboard");
+    setSelectedTable(null);
 
-  setCurrentPage("dashboard");
+    setUsername("");
+    setPassword("");
+    setError("");
+  };
 
-  setUsername("");
-  setPassword("");
-  setError("");
-};
   // ------------------------------------------
-  // If logged in → show Waiter Dashboard
+  // TABLE SELECTION
+  // ------------------------------------------
+
+  const handleTableSelect = (table) => {
+    console.log("Selected table:", table);
+
+    setSelectedTable(table);
+
+    // For now we will return to this later
+    // and open the Order screen here.
+    alert(`Table ${table.tableNumber} selected`);
+  };
+
+  // ------------------------------------------
+  // Logged-in user
   // ------------------------------------------
 
   if (user) {
+    if (currentPage === "tables") {
+      return (
+        <Tables
+          user={user}
+          onBack={() => setCurrentPage("dashboard")}
+          onTableSelect={handleTableSelect}
+        />
+      );
+    }
 
-  if (currentPage === "tables") {
     return (
-      <Tables
+      <WaiterDashboard
         user={user}
-        onBack={() => setCurrentPage("dashboard")}
+        onLogout={handleLogout}
+        onOpenTables={() => setCurrentPage("tables")}
       />
     );
   }
-
-  return (
-    <WaiterDashboard
-      user={user}
-      onLogout={handleLogout}
-      onOpenTables={() => setCurrentPage("tables")}
-    />
-  );
-}
 
   // ------------------------------------------
   // Login Page
@@ -183,9 +192,7 @@ const [currentPage, setCurrentPage] = useState("dashboard");
                 type="button"
                 className="show-password"
                 onClick={() =>
-                  setShowPassword(
-                    !showPassword
-                  )
+                  setShowPassword(!showPassword)
                 }
               >
                 {showPassword

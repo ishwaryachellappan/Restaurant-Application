@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import "./Tables.css";
 
-function Tables({ user, onBack }) {
+function Tables({ user, onBack, onTableSelect }) {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    loadTables();
+  }, []);
 
   const loadTables = async () => {
     try {
@@ -17,227 +21,165 @@ function Tables({ user, onBack }) {
 
       const data = await response.json();
 
-      if (!response.ok || !data.success) {
+      if (!response.ok) {
         throw new Error(
-          data.message || "Failed to load tables."
+          data.message || "Unable to load tables."
         );
       }
 
-      setTables(data.tables);
+      setTables(data.tables || data || []);
     } catch (error) {
-      console.error("Tables error:", error);
+      console.error("Load tables error:", error);
 
       setError(
-        "Unable to load tables. Please try again."
+        "Unable to load restaurant tables. Please make sure the backend is running."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadTables();
-  }, []);
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "AVAILABLE":
-        return "table-available";
-
-      case "OCCUPIED":
-        return "table-occupied";
-
-      case "RESERVED":
-        return "table-reserved";
-
-      case "CLEANING":
-        return "table-cleaning";
-
-      default:
-        return "";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "AVAILABLE":
-        return "Available";
-
-      case "OCCUPIED":
-        return "Occupied";
-
-      case "RESERVED":
-        return "Reserved";
-
-      case "CLEANING":
-        return "Cleaning";
-
-      default:
-        return status;
-    }
-  };
-
-  const availableCount = tables.filter(
-    (table) => table.status === "AVAILABLE"
-  ).length;
-
-  const occupiedCount = tables.filter(
-    (table) => table.status === "OCCUPIED"
-  ).length;
-
-  const reservedCount = tables.filter(
-    (table) => table.status === "RESERVED"
-  ).length;
-
   return (
     <div className="tables-page">
 
-      {/* Header */}
+      {/* HEADER */}
 
       <header className="tables-header">
 
-        <button
-          type="button"
-          className="back-button"
-          onClick={onBack}
-        >
-          ←
-        </button>
-
-        <div className="tables-title">
-          <h1>Tables</h1>
-          <span>
-            {user?.name || "Waiter"}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className="refresh-button"
-          onClick={loadTables}
-          disabled={loading}
-        >
-          ↻
-        </button>
-
-      </header>
-
-      {/* Summary */}
-
-      <section className="table-summary">
-
-        <div className="summary-item">
-          <span className="summary-number">
-            {tables.length}
-          </span>
-
-          <span className="summary-label">
-            Total
-          </span>
-        </div>
-
-        <div className="summary-item available-summary">
-          <span className="summary-number">
-            {availableCount}
-          </span>
-
-          <span className="summary-label">
-            Available
-          </span>
-        </div>
-
-        <div className="summary-item occupied-summary">
-          <span className="summary-number">
-            {occupiedCount}
-          </span>
-
-          <span className="summary-label">
-            Occupied
-          </span>
-        </div>
-
-        <div className="summary-item reserved-summary">
-          <span className="summary-number">
-            {reservedCount}
-          </span>
-
-          <span className="summary-label">
-            Reserved
-          </span>
-        </div>
-
-      </section>
-
-      {/* Loading */}
-
-      {loading && (
-        <div className="tables-message">
-          Loading tables...
-        </div>
-      )}
-
-      {/* Error */}
-
-      {!loading && error && (
-        <div className="tables-error">
-
-          <p>{error}</p>
+        <div className="tables-header-left">
 
           <button
             type="button"
+            className="back-button"
+            onClick={onBack}
+          >
+            ← Back
+          </button>
+
+          <div>
+            <h1>Restaurant Tables</h1>
+
+            <p>
+              Select a table to start an order
+            </p>
+          </div>
+
+        </div>
+
+        <div className="tables-user">
+          <strong>
+            {user?.name || "Waiter"}
+          </strong>
+
+          <span>
+            {user?.role || "WAITER"}
+          </span>
+        </div>
+
+      </header>
+
+      {/* CONTENT */}
+
+      <main className="tables-content">
+
+        <div className="tables-title-row">
+
+          <div>
+            <h2>Tables</h2>
+
+            <p>
+              Choose a table for the customer order.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="refresh-button"
             onClick={loadTables}
           >
-            Try Again
+            ↻ Refresh
           </button>
 
         </div>
-      )}
 
-      {/* Tables */}
+        {/* LOADING */}
 
-      {!loading && !error && (
-        <main className="tables-grid">
+        {loading && (
+          <div className="tables-message">
+            Loading tables...
+          </div>
+        )}
 
-          {tables.map((table) => (
+        {/* ERROR */}
+
+        {!loading && error && (
+          <div className="tables-error">
+            {error}
 
             <button
-              key={table._id}
               type="button"
-              className={`table-card ${getStatusClass(
-                table.status
-              )}`}
+              onClick={loadTables}
             >
-
-              <div className="table-card-top">
-
-                <span className="table-icon">
-                  🪑
-                </span>
-
-                <span className="table-status">
-                  {getStatusLabel(table.status)}
-                </span>
-
-              </div>
-
-              <div className="table-number">
-                {table.tableNumber}
-              </div>
-
-              <div className="table-name">
-                {table.name}
-              </div>
-
-              <div className="table-capacity">
-                👥 {table.capacity} seats
-              </div>
-
+              Try Again
             </button>
+          </div>
+        )}
 
-          ))}
+        {/* TABLES */}
 
-        </main>
-      )}
+        {!loading && !error && (
+          <div className="tables-grid">
+
+            {tables.map((table) => {
+
+              const status =
+                table.status?.toUpperCase() ||
+                "AVAILABLE";
+
+              return (
+                <button
+                  key={table._id}
+                  type="button"
+                  className={`table-card ${status.toLowerCase()}`}
+                  onClick={() => onTableSelect(table)}
+                >
+
+                  <div className="table-icon">
+                    🪑
+                  </div>
+
+                  <div className="table-number">
+                    Table {table.tableNumber}
+                  </div>
+
+                  <div className="table-capacity">
+                    {table.capacity} Seats
+                  </div>
+
+                  <div
+                    className={`table-status ${status.toLowerCase()}`}
+                  >
+                    {status}
+                  </div>
+
+                </button>
+              );
+            })}
+
+          </div>
+        )}
+
+        {/* NO TABLES */}
+
+        {!loading &&
+          !error &&
+          tables.length === 0 && (
+            <div className="tables-message">
+              No restaurant tables found.
+            </div>
+          )}
+
+      </main>
 
     </div>
   );
