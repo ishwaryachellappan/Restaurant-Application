@@ -3,12 +3,21 @@ import "./KitchenDashboard.css";
 
 function KitchenDashboard({ user, onLogout }) {
   const [orders, setOrders] = useState([]);
+  const [completedOrders, setCompletedOrders] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [completedLoading, setCompletedLoading] =
+    useState(true);
+
   const [error, setError] = useState("");
-  const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [completedError, setCompletedError] =
+    useState("");
+
+  const [updatingOrderId, setUpdatingOrderId] =
+    useState(null);
 
   // ------------------------------------------
-  // LOAD KITCHEN ORDERS
+  // LOAD ACTIVE KITCHEN ORDERS
   // ------------------------------------------
 
   const loadOrders = async () => {
@@ -23,17 +32,21 @@ function KitchenDashboard({ user, onLogout }) {
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message || "Failed to load kitchen orders"
+          data.message ||
+            "Failed to load kitchen orders"
         );
       }
 
       setOrders(data.orders || []);
-
     } catch (err) {
-      console.error("Kitchen orders error:", err);
+      console.error(
+        "Kitchen orders error:",
+        err
+      );
 
       setError(
-        err.message || "Failed to load kitchen orders"
+        err.message ||
+          "Failed to load kitchen orders"
       );
     } finally {
       setLoading(false);
@@ -41,18 +54,72 @@ function KitchenDashboard({ user, onLogout }) {
   };
 
   // ------------------------------------------
+  // LOAD TODAY'S COMPLETED ORDERS
+  // ------------------------------------------
+
+  const loadCompletedOrders = async () => {
+    try {
+      setCompletedError("");
+
+      const response = await fetch(
+        "http://localhost:5000/api/kitchen/completed"
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Failed to load completed orders"
+        );
+      }
+
+      setCompletedOrders(data.orders || []);
+    } catch (err) {
+      console.error(
+        "Completed orders error:",
+        err
+      );
+
+      setCompletedError(
+        err.message ||
+          "Failed to load completed orders"
+      );
+    } finally {
+      setCompletedLoading(false);
+    }
+  };
+
+  // ------------------------------------------
+  // LOAD EVERYTHING
+  // ------------------------------------------
+
+  const loadKitchenData = async () => {
+    setLoading(true);
+    setCompletedLoading(true);
+
+    await Promise.all([
+      loadOrders(),
+      loadCompletedOrders(),
+    ]);
+  };
+
+  // ------------------------------------------
   // INITIAL LOAD
   // ------------------------------------------
 
   useEffect(() => {
-    loadOrders();
+    loadKitchenData();
   }, []);
 
   // ------------------------------------------
   // UPDATE ORDER STATUS
   // ------------------------------------------
 
-  const updateOrderStatus = async (orderId, action) => {
+  const updateOrderStatus = async (
+    orderId,
+    action
+  ) => {
     try {
       setUpdatingOrderId(orderId);
       setError("");
@@ -68,7 +135,8 @@ function KitchenDashboard({ user, onLogout }) {
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message || "Failed to update order"
+          data.message ||
+            "Failed to update order"
         );
       }
 
@@ -77,9 +145,8 @@ function KitchenDashboard({ user, onLogout }) {
         data.order
       );
 
-      // Refresh orders from backend
-      await loadOrders();
-
+      // Refresh both active and completed lists
+      await loadKitchenData();
     } catch (err) {
       console.error(
         "Kitchen status update error:",
@@ -87,7 +154,8 @@ function KitchenDashboard({ user, onLogout }) {
       );
 
       setError(
-        err.message || "Failed to update order"
+        err.message ||
+          "Failed to update order"
       );
     } finally {
       setUpdatingOrderId(null);
@@ -102,13 +170,15 @@ function KitchenDashboard({ user, onLogout }) {
     <div className="kitchen-page">
 
       {/* HEADER */}
+
       <header className="kitchen-header">
 
         <div>
           <h1>Kitchen Dashboard</h1>
 
           <p>
-            Welcome, {user?.name || "Kitchen Staff"}
+            Welcome,{" "}
+            {user?.name || "Kitchen Staff"}
           </p>
         </div>
 
@@ -122,45 +192,62 @@ function KitchenDashboard({ user, onLogout }) {
       </header>
 
       {/* CONTENT */}
+
       <main className="kitchen-content">
 
-        {/* TITLE */}
+        {/* ACTIVE ORDERS TITLE */}
+
         <div className="kitchen-title-row">
 
           <div>
-            <h2>Kitchen Orders</h2>
+
+            <h2>
+              Kitchen Orders
+            </h2>
 
             <p>
               {orders.length} active order
-              {orders.length !== 1 ? "s" : ""}
+              {orders.length !== 1
+                ? "s"
+                : ""}
             </p>
+
           </div>
 
           <button
             className="refresh-button"
-            onClick={loadOrders}
-            disabled={loading}
+            onClick={loadKitchenData}
+            disabled={
+              loading ||
+              completedLoading
+            }
           >
-            {loading ? "Loading..." : "Refresh"}
+            {loading ||
+            completedLoading
+              ? "Loading..."
+              : "Refresh"}
           </button>
 
         </div>
 
-        {/* ERROR */}
+        {/* ACTIVE ERROR */}
+
         {error && (
           <div className="kitchen-error">
             {error}
           </div>
         )}
 
-        {/* LOADING */}
+        {/* ACTIVE LOADING */}
+
         {loading && (
           <div className="kitchen-message">
             Loading kitchen orders...
           </div>
         )}
 
-        {/* EMPTY */}
+        {/* ACTIVE EMPTY */}
+
         {!loading &&
           !error &&
           orders.length === 0 && (
@@ -171,14 +258,16 @@ function KitchenDashboard({ user, onLogout }) {
               </h3>
 
               <p>
-                New orders sent by waiters
-                will appear here.
+                New orders sent by
+                waiters will appear
+                here.
               </p>
 
             </div>
           )}
 
-        {/* ORDERS */}
+        {/* ACTIVE ORDERS */}
+
         {!loading &&
           !error &&
           orders.length > 0 && (
@@ -188,7 +277,8 @@ function KitchenDashboard({ user, onLogout }) {
               {orders.map((order) => {
 
                 const isUpdating =
-                  updatingOrderId === order._id;
+                  updatingOrderId ===
+                  order._id;
 
                 return (
                   <div
@@ -197,12 +287,14 @@ function KitchenDashboard({ user, onLogout }) {
                   >
 
                     {/* ORDER HEADER */}
+
                     <div className="order-card-header">
 
                       <div>
 
                         <span className="table-label">
-                          TABLE {order.tableNumber}
+                          TABLE{" "}
+                          {order.tableNumber}
                         </span>
 
                         <h3>
@@ -223,6 +315,7 @@ function KitchenDashboard({ user, onLogout }) {
                     </div>
 
                     {/* ITEMS */}
+
                     <div className="order-items">
 
                       {order.items.map(
@@ -238,7 +331,8 @@ function KitchenDashboard({ user, onLogout }) {
                             </span>
 
                             <span className="item-quantity">
-                              × {item.quantity}
+                              ×{" "}
+                              {item.quantity}
                             </span>
 
                           </div>
@@ -249,10 +343,12 @@ function KitchenDashboard({ user, onLogout }) {
                     </div>
 
                     {/* FOOTER */}
+
                     <div className="order-card-footer">
 
                       <span>
-                        Waiter: {order.waiterName}
+                        Waiter:{" "}
+                        {order.waiterName}
                       </span>
 
                       <strong>
@@ -263,7 +359,8 @@ function KitchenDashboard({ user, onLogout }) {
 
                     {/* ACTIONS */}
 
-                    {order.status === "SENT_TO_KITCHEN" && (
+                    {order.status ===
+                      "SENT_TO_KITCHEN" && (
                       <button
                         className="kitchen-action-button start-button"
                         disabled={isUpdating}
@@ -280,7 +377,8 @@ function KitchenDashboard({ user, onLogout }) {
                       </button>
                     )}
 
-                    {order.status === "PREPARING" && (
+                    {order.status ===
+                      "PREPARING" && (
                       <button
                         className="kitchen-action-button ready-button"
                         disabled={isUpdating}
@@ -297,7 +395,8 @@ function KitchenDashboard({ user, onLogout }) {
                       </button>
                     )}
 
-                    {order.status === "READY" && (
+                    {order.status ===
+                      "READY" && (
                       <div className="ready-message">
                         ✓ Order Ready
                       </div>
@@ -310,7 +409,155 @@ function KitchenDashboard({ user, onLogout }) {
             </div>
           )}
 
+        {/* ---------------------------------- */}
+        {/* TODAY'S COMPLETED ORDERS */}
+        {/* ---------------------------------- */}
+
+        <section className="completed-orders-section">
+
+          <div className="completed-orders-header">
+
+            <div>
+
+              <h2>
+                Today's Completed Orders
+              </h2>
+
+              <p>
+                {completedOrders.length} completed
+                order
+                {completedOrders.length !==
+                1
+                  ? "s"
+                  : ""}
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* COMPLETED ERROR */}
+
+          {completedError && (
+            <div className="kitchen-error">
+              {completedError}
+            </div>
+          )}
+
+          {/* COMPLETED LOADING */}
+
+          {completedLoading && (
+            <div className="kitchen-message">
+              Loading completed orders...
+            </div>
+          )}
+
+          {/* COMPLETED EMPTY */}
+
+          {!completedLoading &&
+            !completedError &&
+            completedOrders.length ===
+              0 && (
+              <div className="kitchen-empty">
+
+                <h3>
+                  No completed orders today
+                </h3>
+
+                <p>
+                  Orders completed today
+                  will appear here.
+                </p>
+
+              </div>
+            )}
+
+          {/* COMPLETED ORDERS TABLE */}
+
+          {!completedLoading &&
+            !completedError &&
+            completedOrders.length >
+              0 && (
+              <div className="completed-orders-table">
+
+                <div className="completed-table-header">
+
+                  <span>
+                    ORDER
+                  </span>
+
+                  <span>
+                    TABLE
+                  </span>
+
+                  <span>
+                    WAITER
+                  </span>
+
+                  <span>
+                    ITEMS
+                  </span>
+
+                  <span>
+                    TOTAL
+                  </span>
+
+                  <span>
+                    STATUS
+                  </span>
+
+                </div>
+
+                {completedOrders.map(
+                  (order) => (
+
+                    <div
+                      className="completed-table-row"
+                      key={order._id}
+                    >
+
+                      <strong>
+                        {order.orderNumber}
+                      </strong>
+
+                      <span>
+                        Table{" "}
+                        {order.tableNumber}
+                      </span>
+
+                      <span>
+                        {order.waiterName}
+                      </span>
+
+                      <span>
+                        {order.items.reduce(
+                          (sum, item) =>
+                            sum +
+                            item.quantity,
+                          0
+                        )}
+                      </span>
+
+                      <strong>
+                        ₹{order.total}
+                      </strong>
+
+                      <span className="completed-status">
+                        COMPLETED
+                      </span>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+            )}
+
+        </section>
+
       </main>
+
     </div>
   );
 }

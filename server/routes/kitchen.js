@@ -27,6 +27,40 @@ router.get("/orders", async (req, res) => {
   }
 });
 
+// Get today's completed kitchen orders
+router.get("/completed", async (req, res) => {
+  try {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const orders = await Order.find({
+      status: "COMPLETED",
+      updatedAt: {
+        $gte: startOfToday,
+        $lte: endOfToday,
+      },
+    }).sort({ updatedAt: -1 });
+
+    res.json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error(
+      "Completed kitchen orders error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch completed orders",
+    });
+  }
+});
 
 // Start preparing an order
 router.patch("/orders/:id/start", async (req, res) => {
