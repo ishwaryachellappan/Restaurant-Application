@@ -14,6 +14,7 @@ function Order({
   const [menuItems, setMenuItems] = useState([]);
   const [menuLoading, setMenuLoading] = useState(true);
   const [menuError, setMenuError] = useState("");
+  
 
   // ------------------------------------------
   // SUCCESS POPUP
@@ -53,6 +54,12 @@ function Order({
       quantity: item.quantity,
     }));
   });
+
+  // ------------------------------------------
+  // TAX
+  // ------------------------------------------
+
+  const [taxRate, setTaxRate] = useState(0);
 
   // ------------------------------------------
   // LOAD AVAILABLE MENU
@@ -99,6 +106,35 @@ function Order({
 
     loadMenu();
   }, []);
+
+
+  useEffect(() => {
+  const loadTaxRate = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/tax/today"
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setTaxRate(
+          Number(data.taxRate || 0)
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Load tax rate error:",
+        error
+      );
+
+      setTaxRate(0);
+    }
+  };
+
+  loadTaxRate();
+}, []);
+
 
   // ------------------------------------------
   // CATEGORIES
@@ -233,22 +269,24 @@ function Order({
   // ------------------------------------------
 
   const subtotal = cart.reduce(
-  (sum, item) =>
-    sum + item.price * item.quantity,
-  0
-);
+    (sum, item) =>
+      sum + item.price * item.quantity,
+    0
+  );
 
-const discountType = "NONE";
-const discountValue = 0;
-const discountAmount = 0;
+  const discountType = "NONE";
+  const discountValue = 0;
+  const discountAmount = 0;
 
-const taxRate = 0;
-const taxAmount = 0;
+  const taxAmount =
+    (subtotal - discountAmount) *
+    taxRate /
+    100;
 
-const total =
-  subtotal -
-  discountAmount +
-  taxAmount;
+  const total =
+    subtotal -
+    discountAmount +
+    taxAmount;
 
   // ------------------------------------------
   // SEND TO KITCHEN

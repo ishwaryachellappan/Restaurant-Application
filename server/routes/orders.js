@@ -5,6 +5,7 @@ const Order = require("../models/Order");
 const Table = require("../models/Table");
 
 const router = express.Router();
+const TaxConfiguration = require("../models/TaxConfiguration");
 
 /*
   CREATE ORDER
@@ -96,17 +97,38 @@ router.post("/", async (req, res) => {
       0
     );
 
-    const discountType = "NONE";
-    const discountValue = 0;
-    const discountAmount = 0;
+   const discountType = "NONE";
+const discountValue = 0;
+const discountAmount = 0;
 
-    const taxRate = 0;
-    const taxAmount = 0;
+// Get today's cashier-configured tax
+const today = new Date();
 
-    const total =
-      subtotal -
-      discountAmount +
-      taxAmount;
+const effectiveDate =
+  `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(
+    today.getDate()
+  ).padStart(2, "0")}`;
+
+const taxConfiguration =
+  await TaxConfiguration.findOne({
+    effectiveDate,
+  });
+
+const taxRate = Number(
+  taxConfiguration?.taxRate || 0
+);
+
+// Tax is calculated after discount
+const taxableAmount =
+  subtotal - discountAmount;
+
+const taxAmount =
+  taxableAmount * taxRate / 100;
+
+const total =
+  taxableAmount + taxAmount;
 
 
     // Generate order number
