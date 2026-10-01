@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./MyOrders.css";
-
-function MyOrders({ user, onBack, onLogout }) {
+function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -217,6 +216,7 @@ function MyOrders({ user, onBack, onLogout }) {
 
                 <div
                   className="my-order-card"
+                  onClick={() => onOpenOrder(order)}
                   key={order._id}
                 >
 
@@ -295,6 +295,8 @@ function MyOrders({ user, onBack, onLogout }) {
 
                   <div className="my-order-items">
 
+                    
+
                     <h4>
                       Order Items
                     </h4>
@@ -320,16 +322,23 @@ function MyOrders({ user, onBack, onLogout }) {
                           ₹
                           {Number(
                             item.itemTotal ||
-                              item.price *
-                                item.quantity ||
-                              0
+                            item.price *
+                            item.quantity ||
+                            0
                           ).toFixed(2)}
                         </span>
+
+
+
 
                       </div>
 
                     ))}
 
+<div className="my-order-card-action">
+                      View Details →
+                    </div>
+                    
                   </div>
 
                 </div>

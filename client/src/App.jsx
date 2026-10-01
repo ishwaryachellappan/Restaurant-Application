@@ -12,6 +12,8 @@ import ManagerSales from "./pages/Manager/Sales/ManagerSales";
 import ManagerStaff from "./pages/Manager/Staff/ManagerStaff";
 import ManagerMenu from "./pages/Manager/Menu/ManagerMenu";
 import MyOrders from "./pages/Waiter/MyOrders/MyOrders";
+import WaiterOrderDetails from "./pages/Waiter/OrderDetails/WaiterOrderDetails";
+
 
 function App() {
   const [username, setUsername] = useState("");
@@ -349,6 +351,21 @@ if (currentPage === "waiter-my-orders") {
     <MyOrders
       user={user}
       onBack={() => setCurrentPage("dashboard")}
+      onLogout={handleLogout}
+      onOpenOrder={(order) => {
+        setSelectedOrder(order);
+        setCurrentPage("waiter-order-details");
+      }}
+    />
+  );
+}
+
+if (currentPage === "waiter-order-details") {
+  return (
+    <WaiterOrderDetails
+      order={selectedOrder}
+      user={user}
+      onBack={() => setCurrentPage("waiter-my-orders")}
       onLogout={handleLogout}
     />
   );

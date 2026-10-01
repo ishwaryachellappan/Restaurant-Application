@@ -473,3 +473,16 @@
     display: none;
   }
 }
+
+.my-order-card {
+  cursor: pointer;
+}
+
+.my-order-card-action {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+}

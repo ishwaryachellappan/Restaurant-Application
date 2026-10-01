@@ -143,6 +143,26 @@ router.post("/", async (req, res) => {
   GET ALL ORDERS
   GET /api/orders
 */
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      orders,
+    });
+
+  } catch (error) {
+    console.error("Get orders error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch orders.",
+    });
+  }
+});
+
 /*
   GET ORDERS FOR A WAITER
   GET /api/orders/waiter/:waiterId
