@@ -10,6 +10,7 @@ const router = express.Router();
   CREATE ORDER
   POST /api/orders
 */
+
 router.post("/", async (req, res) => {
   try {
     const {
@@ -95,7 +96,18 @@ router.post("/", async (req, res) => {
       0
     );
 
-    const total = subtotal;
+    const discountType = "NONE";
+    const discountValue = 0;
+    const discountAmount = 0;
+
+    const taxRate = 0;
+    const taxAmount = 0;
+
+    const total =
+      subtotal -
+      discountAmount +
+      taxAmount;
+
 
     // Generate order number
     const orderCount = await Order.countDocuments();
@@ -111,8 +123,18 @@ router.post("/", async (req, res) => {
       waiterId,
       waiterName,
       items: processedItems,
+
       subtotal,
+
+      discountType,
+      discountValue,
+      discountAmount,
+
+      taxRate,
+      taxAmount,
+
       total,
+
       status: "SENT_TO_KITCHEN",
     });
 
@@ -281,9 +303,30 @@ router.patch("/:id", async (req, res) => {
       0
     );
 
+    const discountType = "NONE";
+    const discountValue = 0;
+    const discountAmount = 0;
+
+    const taxRate = 0;
+    const taxAmount = 0;
+
+    const total =
+      subtotal -
+      discountAmount +
+      taxAmount;
+
     order.items = processedItems;
+
     order.subtotal = subtotal;
-    order.total = subtotal;
+
+    order.discountType = discountType;
+    order.discountValue = discountValue;
+    order.discountAmount = discountAmount;
+
+    order.taxRate = taxRate;
+    order.taxAmount = taxAmount;
+
+    order.total = total;
 
     // Keep the order in the kitchen workflow
     if (

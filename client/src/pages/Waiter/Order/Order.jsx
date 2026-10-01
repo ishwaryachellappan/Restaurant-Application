@@ -232,13 +232,23 @@ function Order({
   // TOTAL
   // ------------------------------------------
 
-  const total = cart.reduce(
-    (sum, item) =>
-      sum +
-      item.price *
-        item.quantity,
-    0
-  );
+  const subtotal = cart.reduce(
+  (sum, item) =>
+    sum + item.price * item.quantity,
+  0
+);
+
+const discountType = "NONE";
+const discountValue = 0;
+const discountAmount = 0;
+
+const taxRate = 0;
+const taxAmount = 0;
+
+const total =
+  subtotal -
+  discountAmount +
+  taxAmount;
 
   // ------------------------------------------
   // SEND TO KITCHEN
@@ -292,34 +302,30 @@ function Order({
                       ),
                   }
                 : {
-                    tableId:
-                      table._id,
+  tableId: table._id,
+  tableNumber: table.tableNumber,
 
-                    tableNumber:
-                      table.tableNumber,
+  waiterId: user.id,
+  waiterName: user.name,
 
-                    waiterId:
-                      user.id,
+    items: cart.map((item) => ({
+        menuItemId: item.id,
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        quantity: item.quantity,
+      })),
 
-                    waiterName:
-                      user.name,
+      discountType,
+      discountValue,
+      discountAmount,
 
-                    items:
-                      cart.map(
-                        (item) => ({
-                          menuItemId:
-                            item.id,
-                          name:
-                            item.name,
-                          category:
-                            item.category,
-                          price:
-                            item.price,
-                          quantity:
-                            item.quantity,
-                        })
-                      ),
-                  }
+      taxRate,
+      taxAmount,
+
+      subtotal,
+      total,
+    }
             ),
           });
 
@@ -757,34 +763,59 @@ function Order({
 
           {/* TOTAL */}
 
-          <div className="cart-footer">
+         <div className="cart-footer">
 
-            <div className="total-row">
+  <div className="order-price-summary">
 
-              <span>
-                Total
-              </span>
+    <div className="price-summary-row">
+      <span>Subtotal</span>
 
-              <strong>
-                ₹
-                {total.toFixed(2)}
-              </strong>
+      <strong>
+        ₹{subtotal.toFixed(2)}
+      </strong>
+    </div>
 
-            </div>
+    <div className="price-summary-row">
+      <span>Discount</span>
 
-            <button
-              type="button"
-              className="send-kitchen-button"
-              onClick={
-                handleSendToKitchen
-              }
-            >
-              {existingOrder
-                ? "Update Order"
-                : "Send to Kitchen"}
-            </button>
+      <strong>
+        - ₹{discountAmount.toFixed(2)}
+      </strong>
+    </div>
 
-          </div>
+    <div className="price-summary-row">
+      <span>
+        Tax {taxRate > 0 ? `(${taxRate}%)` : ""}
+      </span>
+
+      <strong>
+        ₹{taxAmount.toFixed(2)}
+      </strong>
+    </div>
+
+    <div className="price-summary-divider"></div>
+
+    <div className="price-summary-total">
+      <span>Grand Total</span>
+
+      <strong>
+        ₹{total.toFixed(2)}
+      </strong>
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    className="send-kitchen-button"
+    onClick={handleSendToKitchen}
+  >
+    {existingOrder
+      ? "Update Order"
+      : "Send to Kitchen"}
+  </button>
+
+</div>
 
         </aside>
 

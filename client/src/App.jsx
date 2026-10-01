@@ -14,6 +14,7 @@ import ManagerMenu from "./pages/Manager/Menu/ManagerMenu";
 import MyOrders from "./pages/Waiter/MyOrders/MyOrders";
 import WaiterOrderDetails from "./pages/Waiter/OrderDetails/WaiterOrderDetails";
 import PaymentHistory from "./pages/Cashier/PaymentHistory/PaymentHistory";
+import TaxConfiguration from "./pages/Cashier/TaxConfiguration/TaxConfiguration";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -212,13 +213,16 @@ function App() {
       );
     }
 
- if (currentPage === "cashier") {
+if (currentPage === "cashier") {
   return (
     <CashierDashboard
       user={user}
       onLogout={handleLogout}
       onPaymentHistory={() =>
         setCurrentPage("cashier-payment-history")
+      }
+      onTaxConfiguration={() =>
+        setCurrentPage("cashier-tax-configuration")
       }
     />
   );
@@ -227,6 +231,18 @@ function App() {
  if (currentPage === "cashier-payment-history") {
   return (
     <PaymentHistory
+      user={user}
+      onBack={() =>
+        setCurrentPage("cashier")
+      }
+      onLogout={handleLogout}
+    />
+  );
+}
+
+if (currentPage === "cashier-tax-configuration") {
+  return (
+    <TaxConfiguration
       user={user}
       onBack={() =>
         setCurrentPage("cashier")

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import "./CashierDashboard.css";
 import Receipt from "./Receipt/Receipt";
+import TaxConfiguration from "./TaxConfiguration/TaxConfiguration";
 
 function CashierDashboard({
   user,
   onLogout,
   onPaymentHistory,
+  onTaxConfiguration,
 }) {
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -230,6 +233,14 @@ function CashierDashboard({
             <span className="nav-icon">₹</span>
             Payment History
           </button>
+
+          <button
+  className="cashier-nav-item"
+  onClick={onTaxConfiguration}
+>
+  <span className="nav-icon">%</span>
+  Tax Configuration
+</button>
 
         </div>
 

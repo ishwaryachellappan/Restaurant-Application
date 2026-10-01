@@ -791,3 +791,49 @@
   }
 
 }
+
+.order-price-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.price-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.price-summary-row span {
+  color: #64748b;
+}
+
+.price-summary-row strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+.price-summary-divider {
+  border-top: 1px solid #e2e8f0;
+  margin: 4px 0;
+}
+
+.price-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-summary-total span {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.price-summary-total strong {
+  color: #0f172a;
+  font-size: 21px;
+  font-weight: 800;
+}
