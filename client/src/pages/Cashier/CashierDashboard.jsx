@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./CashierDashboard.css";
+import Receipt from "./Receipt/Receipt";
 
 function CashierDashboard({
   user,
@@ -17,6 +18,8 @@ function CashierDashboard({
 
   // Payment success popup
   const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [receiptData, setReceiptData] = useState(null);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   // ------------------------------------------
   // LOAD ORDERS
@@ -126,6 +129,20 @@ function CashierDashboard({
         tableNumber: selectedOrder.tableNumber,
       });
 
+      setReceiptData({
+        order: {
+          ...selectedOrder,
+        },
+        paymentMethod,
+        paidAt:
+          data.order?.paidAt ||
+          new Date().toISOString(),
+      });
+
+      setShowReceipt(false);
+
+      setReceiptData(null);
+
       // Close payment modal
       setSelectedOrder(null);
       setPaymentMethod("");
@@ -193,26 +210,26 @@ function CashierDashboard({
             CASHIER
           </span>
 
-         <button className="cashier-nav-item active">
-  <span className="nav-icon">▣</span>
-  Dashboard
-</button>
+          <button className="cashier-nav-item active">
+            <span className="nav-icon">▣</span>
+            Dashboard
+          </button>
 
-<button
-  className="cashier-nav-item"
-  onClick={loadOrders}
->
-  <span className="nav-icon">↻</span>
-  Refresh Orders
-</button>
+          <button
+            className="cashier-nav-item"
+            onClick={loadOrders}
+          >
+            <span className="nav-icon">↻</span>
+            Refresh Orders
+          </button>
 
-<button
-  className="cashier-nav-item"
-  onClick={onPaymentHistory}
->
-  <span className="nav-icon">₹</span>
-  Payment History
-</button>
+          <button
+            className="cashier-nav-item"
+            onClick={onPaymentHistory}
+          >
+            <span className="nav-icon">₹</span>
+            Payment History
+          </button>
 
         </div>
 
@@ -691,11 +708,10 @@ function CashierDashboard({
 
                 <button
                   type="button"
-                  className={`payment-method-card ${
-                    paymentMethod === "CASH"
-                      ? "selected"
-                      : ""
-                  }`}
+                  className={`payment-method-card ${paymentMethod === "CASH"
+                    ? "selected"
+                    : ""
+                    }`}
                   onClick={() =>
                     setPaymentMethod("CASH")
                   }
@@ -716,11 +732,10 @@ function CashierDashboard({
 
                 <button
                   type="button"
-                  className={`payment-method-card ${
-                    paymentMethod === "CARD"
-                      ? "selected"
-                      : ""
-                  }`}
+                  className={`payment-method-card ${paymentMethod === "CARD"
+                    ? "selected"
+                    : ""
+                    }`}
                   onClick={() =>
                     setPaymentMethod("CARD")
                   }
@@ -741,11 +756,10 @@ function CashierDashboard({
 
                 <button
                   type="button"
-                  className={`payment-method-card ${
-                    paymentMethod === "UPI"
-                      ? "selected"
-                      : ""
-                  }`}
+                  className={`payment-method-card ${paymentMethod === "UPI"
+                    ? "selected"
+                    : ""
+                    }`}
                   onClick={() =>
                     setPaymentMethod("UPI")
                   }
@@ -798,8 +812,8 @@ function CashierDashboard({
                 {paymentLoading
                   ? "Processing..."
                   : `COLLECT ₹${Number(
-                      selectedOrder.total || 0
-                    ).toFixed(2)}`}
+                    selectedOrder.total || 0
+                  ).toFixed(2)}`}
               </button>
 
             </div>
@@ -880,17 +894,60 @@ function CashierDashboard({
 
             {/* DONE */}
 
-            <button
-              type="button"
-              className="cashier-success-done"
-              onClick={handleCloseSuccess}
-            >
-              DONE
-            </button>
+            <div className="payment-success-actions">
+
+              <button
+                type="button"
+                className="payment-success-print"
+                onClick={() => {
+                  setPaymentSuccess(null);
+                  setShowReceipt(true);
+
+                  setTimeout(() => {
+                    window.print();
+                  }, 500);
+                }}
+              >
+                🖨 PRINT RECEIPT
+              </button>
+
+              <button
+                type="button"
+                className="payment-success-done"
+                onClick={() => {
+                  setPaymentSuccess(null);
+                  setShowReceipt(false);
+                  setReceiptData(null);
+                }}
+              >
+                DONE
+              </button>
+            </div>
 
           </div>
 
         </div>
+      )}
+
+      {receiptData && (
+        <Receipt
+          order={receiptData.order}
+          paymentMethod={receiptData.paymentMethod}
+          paidAt={receiptData.paidAt}
+          onClose={() => setReceiptData(null)}
+        />
+      )}
+
+      {showReceipt && receiptData && (
+        <Receipt
+          order={receiptData.order}
+          paymentMethod={receiptData.paymentMethod}
+          paidAt={receiptData.paidAt}
+          onClose={() => {
+            setShowReceipt(false);
+            setReceiptData(null);
+          }}
+        />
       )}
 
     </div>

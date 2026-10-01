@@ -1254,3 +1254,37 @@
 .cashier-success-done:active {
   transform: translateY(1px);
 }
+
+.payment-success-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.payment-success-actions button {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.payment-success-print {
+  background: #111827;
+  color: #ffffff;
+}
+
+.payment-success-print:hover {
+  background: #1f2937;
+}
+
+.payment-success-done {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.payment-success-done:hover {
+  background: #e2e8f0;
+}
