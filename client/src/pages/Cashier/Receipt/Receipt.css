@@ -312,58 +312,81 @@
 
 @media print {
 
-  body * {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Hide the normal application */
+  body > * {
     visibility: hidden !important;
   }
 
+  /* Make the complete receipt tree visible */
+  .receipt-overlay,
+  .receipt-overlay *,
+  .receipt-container,
   .receipt-page,
   .receipt-page * {
     visibility: visible !important;
   }
 
   .receipt-overlay {
-    position: absolute;
+    position: absolute !important;
 
-    inset: 0;
+    inset: 0 !important;
 
-    background: #ffffff;
+    width: 100% !important;
+    height: auto !important;
 
-    padding: 0;
+    display: block !important;
 
-    margin: 0;
+    background: #ffffff !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .receipt-container {
-    width: 80mm;
+    width: 80mm !important;
 
-    max-height: none;
+    max-width: 80mm !important;
+    max-height: none !important;
 
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 
-    margin: 0;
+    background: #ffffff !important;
 
-    box-shadow: none;
+    box-shadow: none !important;
+    border-radius: 0 !important;
 
-    border-radius: 0;
-
-    overflow: visible;
+    overflow: visible !important;
   }
 
   .receipt-page {
-    width: 80mm;
+    width: 80mm !important;
 
-    padding: 8mm;
+    max-width: 80mm !important;
 
-    box-sizing: border-box;
+    padding: 8mm !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #ffffff !important;
   }
 
+  /* Never print the buttons */
   .receipt-actions {
     display: none !important;
   }
 
   @page {
     size: 80mm auto;
-
     margin: 0;
   }
 }

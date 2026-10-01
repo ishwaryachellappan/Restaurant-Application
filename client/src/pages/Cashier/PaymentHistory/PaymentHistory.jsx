@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./PaymentHistory.css";
+import Receipt from "../Receipt/Receipt";
 
 function PaymentHistory({
   user,
@@ -19,11 +20,21 @@ function PaymentHistory({
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [receiptData, setReceiptData] = useState(null);
 
   // Default = today
   const [selectedDate, setSelectedDate] = useState(
     getLocalDateString(new Date())
   );
+
+
+  const handleReprint = (payment) => {
+  setReceiptData({
+    order: payment,
+    paymentMethod: payment.paymentMethod,
+    paidAt: payment.paidAt,
+  });
+};
 
   const loadPayments = async () => {
     try {
@@ -535,6 +546,7 @@ function PaymentHistory({
                     <th>AMOUNT</th>
                     <th>METHOD</th>
                     <th>PAID AT</th>
+                    <th>ACTION</th>
                   </tr>
 
                 </thead>
@@ -600,6 +612,15 @@ function PaymentHistory({
                           </span>
                         </td>
 
+                        <td>
+  <button
+    className="payment-history-reprint"
+    onClick={() => handleReprint(payment)}
+  >
+    🖨 Reprint
+  </button>
+</td>
+
                       </tr>
 
                     )
@@ -616,6 +637,15 @@ function PaymentHistory({
         )}
 
       </main>
+
+      {receiptData && (
+  <Receipt
+    order={receiptData.order}
+    paymentMethod={receiptData.paymentMethod}
+    paidAt={receiptData.paidAt}
+    onClose={() => setReceiptData(null)}
+  />
+)}
 
     </div>
   );
