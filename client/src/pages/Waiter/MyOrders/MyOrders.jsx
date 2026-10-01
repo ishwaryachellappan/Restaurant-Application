@@ -1,9 +1,30 @@
 import { useEffect, useState } from "react";
 import "./MyOrders.css";
-function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
+
+function MyOrders({
+  user,
+  onBack,
+  onLogout,
+  onOpenOrder,
+}) {
+  const getLocalDateString = (date) => {
+    const d = new Date(date);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Default to today's date
+  const [selectedDate, setSelectedDate] = useState(
+    getLocalDateString(new Date())
+  );
 
   const loadOrders = async () => {
     try {
@@ -30,7 +51,10 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
       setOrders(data.orders || []);
     } catch (error) {
       console.error("My Orders error:", error);
-      setError(error.message || "Unable to load orders.");
+
+      setError(
+        error.message || "Unable to load orders."
+      );
     } finally {
       setLoading(false);
     }
@@ -78,6 +102,28 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
     }
   };
 
+  // Only show orders for the selected date
+  const filteredOrders = orders.filter((order) => {
+    if (!order.createdAt) {
+      return false;
+    }
+
+    return (
+      getLocalDateString(order.createdAt) ===
+      selectedDate
+    );
+  });
+
+  const formattedSelectedDate = selectedDate
+    ? new Date(
+        `${selectedDate}T00:00:00`
+      ).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
   return (
     <div className="my-orders-page">
 
@@ -93,7 +139,10 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
 
           <div>
             <h1>Restaurant POS</h1>
-            <span>My Orders</span>
+
+            <span>
+              My Orders
+            </span>
           </div>
 
         </div>
@@ -101,6 +150,7 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
         <div className="my-orders-user">
 
           <div className="my-orders-user-info">
+
             <strong>
               {user?.name || "Waiter"}
             </strong>
@@ -108,6 +158,7 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
             <span>
               {user?.role || "WAITER"}
             </span>
+
           </div>
 
           <button
@@ -126,15 +177,54 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
 
       <main className="my-orders-main">
 
+        {/* TOOLBAR */}
+
         <div className="my-orders-toolbar">
 
-          <div>
-            <h2>My Orders</h2>
+          {/* TITLE */}
+
+          <div className="my-orders-title">
+
+            <h2>
+              My Orders
+            </h2>
 
             <p>
-              Orders created by {user?.name || "you"}
+              Orders created by{" "}
+              {user?.name || "you"}
             </p>
+
           </div>
+
+          {/* DATE FILTER */}
+
+         <div className="my-orders-date-picker">
+
+  <label htmlFor="order-date">
+    Order Date
+  </label>
+
+  <div className="my-orders-date-input">
+
+    <span className="my-orders-calendar-icon">
+      📅
+    </span>
+
+    <input
+      id="order-date"
+      type="date"
+      value={selectedDate}
+      max={getLocalDateString(new Date())}
+      onChange={(e) =>
+        setSelectedDate(e.target.value)
+      }
+    />
+
+  </div>
+
+</div>
+
+          {/* ACTIONS */}
 
           <div className="my-orders-actions">
 
@@ -159,6 +249,34 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
 
         </div>
 
+        {/* SELECTED DATE INFO */}
+
+        <div className="my-orders-selected-date">
+
+          <div>
+
+            <span>
+              ORDERS FOR
+            </span>
+
+            <strong>
+              {formattedSelectedDate}
+            </strong>
+
+          </div>
+
+          <div className="my-orders-count">
+
+            {filteredOrders.length}{" "}
+
+            {filteredOrders.length === 1
+              ? "Order"
+              : "Orders"}
+
+          </div>
+
+        </div>
+
         {/* ERROR */}
 
         {error && (
@@ -170,20 +288,27 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
         {/* LOADING */}
 
         {loading ? (
+
           <div className="my-orders-empty">
+
             <div className="my-orders-empty-icon">
               ⏳
             </div>
 
-            <h3>Loading orders...</h3>
+            <h3>
+              Loading orders...
+            </h3>
 
             <p>
-              Please wait while your orders are loaded.
+              Please wait while your orders
+              are loaded.
             </p>
-          </div>
-        ) : orders.length === 0 ? (
 
-          /* NO ORDERS */
+          </div>
+
+        ) : filteredOrders.length === 0 ? (
+
+          /* NO ORDERS FOR SELECTED DATE */
 
           <div className="my-orders-empty">
 
@@ -191,10 +316,13 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
               🧾
             </div>
 
-            <h3>No Orders Yet</h3>
+            <h3>
+              No Orders for This Date
+            </h3>
 
             <p>
-              Orders created by you will appear here.
+              There are no orders created on{" "}
+              {formattedSelectedDate}.
             </p>
 
           </div>
@@ -205,18 +333,15 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
 
           <section className="my-orders-section">
 
-            <div className="my-orders-count">
-              {orders.length}{" "}
-              {orders.length === 1 ? "Order" : "Orders"}
-            </div>
-
             <div className="my-orders-list">
 
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
 
                 <div
                   className="my-order-card"
-                  onClick={() => onOpenOrder(order)}
+                  onClick={() =>
+                    onOpenOrder(order)
+                  }
                   key={order._id}
                 >
 
@@ -225,6 +350,7 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
                   <div className="my-order-header">
 
                     <div>
+
                       <span className="my-order-label">
                         ORDER
                       </span>
@@ -232,6 +358,7 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
                       <h3>
                         {order.orderNumber}
                       </h3>
+
                     </div>
 
                     <span
@@ -239,7 +366,9 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
                         order.status
                       )}`}
                     >
-                      {getStatusText(order.status)}
+                      {getStatusText(
+                        order.status
+                      )}
                     </span>
 
                   </div>
@@ -270,7 +399,9 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
                         {order.items?.reduce(
                           (total, item) =>
                             total +
-                            Number(item.quantity || 0),
+                            Number(
+                              item.quantity || 0
+                            ),
                           0
                         )}
                       </strong>
@@ -284,7 +415,10 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
                       </span>
 
                       <strong className="my-order-total">
-                        ₹{Number(order.total || 0).toFixed(2)}
+                        ₹
+                        {Number(
+                          order.total || 0
+                        ).toFixed(2)}
                       </strong>
 
                     </div>
@@ -295,50 +429,51 @@ function MyOrders({ user, onBack, onLogout, onOpenOrder }) {
 
                   <div className="my-order-items">
 
-                    
-
                     <h4>
                       Order Items
                     </h4>
 
-                    {order.items?.map((item, index) => (
+                    {order.items?.map(
+                      (item, index) => (
 
-                      <div
-                        className="my-order-item"
-                        key={`${order._id}-${index}`}
-                      >
+                        <div
+                          className="my-order-item"
+                          key={`${order._id}-${index}`}
+                        >
 
-                        <div className="my-order-item-name">
+                          <div className="my-order-item-name">
+
+                            <span>
+                              {item.quantity} ×
+                            </span>
+
+                            <strong>
+                              {item.name}
+                            </strong>
+
+                          </div>
+
                           <span>
-                            {item.quantity} ×
+                            ₹
+                            {Number(
+                              item.itemTotal ||
+                              item.price *
+                                item.quantity ||
+                              0
+                            ).toFixed(2)}
                           </span>
 
-                          <strong>
-                            {item.name}
-                          </strong>
                         </div>
 
-                        <span>
-                          ₹
-                          {Number(
-                            item.itemTotal ||
-                            item.price *
-                            item.quantity ||
-                            0
-                          ).toFixed(2)}
-                        </span>
+                      )
+                    )}
 
+                    {/* VIEW DETAILS */}
 
-
-
-                      </div>
-
-                    ))}
-
-<div className="my-order-card-action">
+                    <div className="my-order-card-action">
                       View Details →
                     </div>
-                    
+
                   </div>
 
                 </div>

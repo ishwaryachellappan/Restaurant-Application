@@ -4,6 +4,14 @@
   color: #1f2937;
 }
 
+.waiter-order-details-page h1,
+.waiter-order-details-page h2,
+.waiter-order-details-page h3,
+.waiter-order-details-page h4,
+.waiter-order-details-page strong,
+.waiter-order-details-page button {
+  color: #1f2937;
+}
 .waiter-order-details-header {
   height: 72px;
   background: #ffffff;
@@ -35,6 +43,14 @@
   margin: 0;
   font-size: 17px;
   font-weight: 700;
+  color: #1f2937;
+}
+
+.waiter-order-details-brand span {
+  display: block;
+  margin-top: 2px;
+  color: #6b7280;
+  font-size: 12px;
 }
 
 .waiter-order-details-brand span {
@@ -57,6 +73,7 @@
 .waiter-order-details-user-info strong {
   display: block;
   font-size: 14px;
+  color: #1f2937;
 }
 
 .waiter-order-details-user-info span {
@@ -69,11 +86,17 @@
 .waiter-order-details-logout {
   border: 1px solid #d1d5db;
   background: #ffffff;
+  color: #1f2937;
   border-radius: 7px;
   padding: 8px 14px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.waiter-order-details-logout:hover {
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .waiter-order-details-main {
@@ -117,6 +140,8 @@
 .order-details-summary h2 {
   margin: 5px 0 4px;
   font-size: 24px;
+  font-weight: 700;
+  color: #111827;
 }
 
 .order-details-summary p {

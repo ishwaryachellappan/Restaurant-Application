@@ -486,3 +486,125 @@
   font-weight: 600;
   color: #2563eb;
 }
+
+/* ================================
+   DATE GROUPS
+================================ */
+
+.my-orders-date-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.my-orders-date-group {
+  width: 100%;
+}
+
+.my-orders-date-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.my-orders-date-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.my-orders-date-header span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.my-orders-date-count {
+  background: #eef2ff;
+  color: #4f46e5 !important;
+  padding: 6px 10px;
+  border-radius: 14px;
+  font-size: 11px !important;
+  font-weight: 700;
+}
+
+.my-orders-date-group .my-orders-list {
+  margin-top: 0;
+}
+
+/* ================================
+   ORDER DATE FILTER
+================================ */
+
+/* ================================
+   ORDER DATE FILTER
+================================ */
+
+.my-orders-date-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+.my-orders-date-picker label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.my-orders-date-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.my-orders-calendar-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.my-orders-date-picker input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.my-orders-date-picker input:focus {
+  outline: none;
+}
+
+/* Keep native calendar picker available */
+
+.my-orders-date-picker input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.my-orders-date-picker input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .my-orders-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .my-orders-date-picker {
+    order: 3;
+    width: 100%;
+  }
+}
