@@ -1,11 +1,62 @@
+import { useEffect, useState } from "react";
 import "./WaiterOrderDetails.css";
 
 function WaiterOrderDetails({
-  order,
+  order: initialOrder,
   user,
   onBack,
   onLogout,
 }) {
+
+
+    const [order, setOrder] = useState(initialOrder);
+
+  useEffect(() => {
+    if (!initialOrder?._id) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadLatestOrder = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/orders/${initialOrder._id}`
+        );
+
+        const data = await response.json();
+
+        if (
+          response.ok &&
+          data.success &&
+          data.order &&
+          isMounted
+        ) {
+          setOrder(data.order);
+        }
+      } catch (error) {
+        console.error(
+          "Live order status error:",
+          error
+        );
+      }
+    };
+
+    // Load latest status immediately
+    loadLatestOrder();
+
+    // Refresh every 5 seconds
+    const interval = setInterval(
+      loadLatestOrder,
+      5000
+    );
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [initialOrder?._id]);
+  
   if (!order) {
     return (
       <div className="waiter-order-details-page">

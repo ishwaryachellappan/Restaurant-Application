@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import "./CashierDashboard.css";
 
-function CashierDashboard({ user, onLogout }) {
+function CashierDashboard({
+  user,
+  onLogout,
+  onPaymentHistory,
+}) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -189,18 +193,26 @@ function CashierDashboard({ user, onLogout }) {
             CASHIER
           </span>
 
-          <button className="cashier-nav-item active">
-            <span className="nav-icon">▣</span>
-            Dashboard
-          </button>
+         <button className="cashier-nav-item active">
+  <span className="nav-icon">▣</span>
+  Dashboard
+</button>
 
-          <button
-            className="cashier-nav-item"
-            onClick={loadOrders}
-          >
-            <span className="nav-icon">↻</span>
-            Refresh Orders
-          </button>
+<button
+  className="cashier-nav-item"
+  onClick={loadOrders}
+>
+  <span className="nav-icon">↻</span>
+  Refresh Orders
+</button>
+
+<button
+  className="cashier-nav-item"
+  onClick={onPaymentHistory}
+>
+  <span className="nav-icon">₹</span>
+  Payment History
+</button>
 
         </div>
 

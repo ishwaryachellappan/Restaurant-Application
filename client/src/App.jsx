@@ -13,7 +13,7 @@ import ManagerStaff from "./pages/Manager/Staff/ManagerStaff";
 import ManagerMenu from "./pages/Manager/Menu/ManagerMenu";
 import MyOrders from "./pages/Waiter/MyOrders/MyOrders";
 import WaiterOrderDetails from "./pages/Waiter/OrderDetails/WaiterOrderDetails";
-
+import PaymentHistory from "./pages/Cashier/PaymentHistory/PaymentHistory";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -212,14 +212,29 @@ function App() {
       );
     }
 
-    if (currentPage === "cashier") {
-      return (
-        <CashierDashboard
-          user={user}
-          onLogout={handleLogout}
-        />
-      );
-    }
+ if (currentPage === "cashier") {
+  return (
+    <CashierDashboard
+      user={user}
+      onLogout={handleLogout}
+      onPaymentHistory={() =>
+        setCurrentPage("cashier-payment-history")
+      }
+    />
+  );
+}
+
+ if (currentPage === "cashier-payment-history") {
+  return (
+    <PaymentHistory
+      user={user}
+      onBack={() =>
+        setCurrentPage("cashier")
+      }
+      onLogout={handleLogout}
+    />
+  );
+}
 
     if (currentPage === "manager-sales") {
       return (
@@ -236,80 +251,80 @@ function App() {
       );
     }
 
-   if (currentPage === "manager-orders") {
-  return (
-    <ManagerOrders
-      user={user}
-      onBack={() =>
-        setCurrentPage("manager")
-      }
-      onOpenSales={() =>
-        setCurrentPage("manager-sales")
-      }
-      onOpenStaff={() =>
-        setCurrentPage("manager-staff")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "manager-orders") {
+      return (
+        <ManagerOrders
+          user={user}
+          onBack={() =>
+            setCurrentPage("manager")
+          }
+          onOpenSales={() =>
+            setCurrentPage("manager-sales")
+          }
+          onOpenStaff={() =>
+            setCurrentPage("manager-staff")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
 
-if (currentPage === "manager-menu") {
-  return (
-    <ManagerMenu
-      user={user}
-      onBack={() =>
-        setCurrentPage("manager")
-      }
-      onOpenOrders={() =>
-        setCurrentPage("manager-orders")
-      }
-      onOpenSales={() =>
-        setCurrentPage("manager-sales")
-      }
-      onOpenStaff={() =>
-        setCurrentPage("manager-staff")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "manager-menu") {
+      return (
+        <ManagerMenu
+          user={user}
+          onBack={() =>
+            setCurrentPage("manager")
+          }
+          onOpenOrders={() =>
+            setCurrentPage("manager-orders")
+          }
+          onOpenSales={() =>
+            setCurrentPage("manager-sales")
+          }
+          onOpenStaff={() =>
+            setCurrentPage("manager-staff")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
 
 
 
 
 
     if (currentPage === "manager") {
-  return (
-    <ManagerDashboard
-      user={user}
-      onLogout={handleLogout}
-      onOpenOrders={() => setCurrentPage("manager-orders")}
-      onOpenSales={() => setCurrentPage("manager-sales")}
-      onOpenStaff={() => setCurrentPage("manager-staff")}
-      onOpenMenu={() => setCurrentPage("manager-menu")}
-    />
-  );
-}
+      return (
+        <ManagerDashboard
+          user={user}
+          onLogout={handleLogout}
+          onOpenOrders={() => setCurrentPage("manager-orders")}
+          onOpenSales={() => setCurrentPage("manager-sales")}
+          onOpenStaff={() => setCurrentPage("manager-staff")}
+          onOpenMenu={() => setCurrentPage("manager-menu")}
+        />
+      );
+    }
 
 
-if (currentPage === "manager-staff") {
-  return (
-    <ManagerStaff
-      user={user}
-      onBack={() =>
-        setCurrentPage("manager")
-      }
-      onOpenOrders={() =>
-        setCurrentPage("manager-orders")
-      }
-      onOpenSales={() =>
-        setCurrentPage("manager-sales")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "manager-staff") {
+      return (
+        <ManagerStaff
+          user={user}
+          onBack={() =>
+            setCurrentPage("manager")
+          }
+          onOpenOrders={() =>
+            setCurrentPage("manager-orders")
+          }
+          onOpenSales={() =>
+            setCurrentPage("manager-sales")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
 
     // ------------------------------------------
     // WAITER - TABLES
@@ -342,53 +357,53 @@ if (currentPage === "manager-staff") {
         />
       );
     }
-// ------------------------------------------
-// WAITER MY ORDERS
-// ------------------------------------------
+    // ------------------------------------------
+    // WAITER MY ORDERS
+    // ------------------------------------------
 
-if (currentPage === "waiter-my-orders") {
-  return (
-    <MyOrders
-      user={user}
-      onBack={() => setCurrentPage("dashboard")}
-      onLogout={handleLogout}
-      onOpenOrder={(order) => {
-        setSelectedOrder(order);
-        setCurrentPage("waiter-order-details");
-      }}
-    />
-  );
-}
+    if (currentPage === "waiter-my-orders") {
+      return (
+        <MyOrders
+          user={user}
+          onBack={() => setCurrentPage("dashboard")}
+          onLogout={handleLogout}
+          onOpenOrder={(order) => {
+            setSelectedOrder(order);
+            setCurrentPage("waiter-order-details");
+          }}
+        />
+      );
+    }
 
-if (currentPage === "waiter-order-details") {
-  return (
-    <WaiterOrderDetails
-      order={selectedOrder}
-      user={user}
-      onBack={() => setCurrentPage("waiter-my-orders")}
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "waiter-order-details") {
+      return (
+        <WaiterOrderDetails
+          order={selectedOrder}
+          user={user}
+          onBack={() => setCurrentPage("waiter-my-orders")}
+          onLogout={handleLogout}
+        />
+      );
+    }
 
     // ------------------------------------------
     // WAITER DASHBOARD
     // ------------------------------------------
 
     return (
- <WaiterDashboard
-  user={user}
-  onLogout={handleLogout}
-  onOpenTables={() =>
-    setCurrentPage("tables")
-  }
-  onNewOrder={() =>
-    setCurrentPage("tables")
-  }
-  onOpenOrders={() =>
-    setCurrentPage("waiter-my-orders")
-  }
-/>
+      <WaiterDashboard
+        user={user}
+        onLogout={handleLogout}
+        onOpenTables={() =>
+          setCurrentPage("tables")
+        }
+        onNewOrder={() =>
+          setCurrentPage("tables")
+        }
+        onOpenOrders={() =>
+          setCurrentPage("waiter-my-orders")
+        }
+      />
     );
   }
 

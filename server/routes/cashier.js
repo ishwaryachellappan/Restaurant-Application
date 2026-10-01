@@ -31,6 +31,43 @@ router.get("/orders", async (req, res) => {
 
 
 // ------------------------------------------
+// GET PAYMENT HISTORY
+// ------------------------------------------
+
+router.get("/payments", async (req, res) => {
+  try {
+    const payments = await Order.find({
+      status: "COMPLETED",
+      paymentMethod: {
+        $in: ["CASH", "CARD", "UPI"],
+      },
+      paidAt: {
+        $ne: null,
+      },
+    }).sort({
+      paidAt: -1,
+    });
+
+    res.json({
+      success: true,
+      count: payments.length,
+      payments,
+    });
+
+  } catch (error) {
+    console.error(
+      "Cashier payment history error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch payment history",
+    });
+  }
+});
+
+// ------------------------------------------
 // COMPLETE PAYMENT
 // ------------------------------------------
 
