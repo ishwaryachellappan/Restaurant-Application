@@ -5,13 +5,14 @@ const TaxConfiguration = require("../models/TaxConfiguration");
 const router = express.Router();
 
 // ------------------------------------------
-// HELPER — TODAY'S DATE
+// HELPER — CURRENT DATE
 // ------------------------------------------
 
-const getTodayDate = () => {
+const getCurrentDate = () => {
   const today = new Date();
 
   const year = today.getFullYear();
+
   const month = String(
     today.getMonth() + 1
   ).padStart(2, "0");
@@ -25,62 +26,112 @@ const getTodayDate = () => {
 
 
 // ------------------------------------------
-// GET TODAY'S TAX
+// GET ACTIVE TAX
 // GET /api/tax/today
+//
+// NOTE:
+// The endpoint name stays /today so the
+// existing frontend continues to work.
+//
+// The tax itself is NOT daily anymore.
+// The latest configured tax remains active
+// until the cashier changes it.
 // ------------------------------------------
 
 router.get("/today", async (req, res) => {
   try {
-    const effectiveDate = getTodayDate();
 
     const configuration =
-      await TaxConfiguration.findOne({
-        effectiveDate,
-      });
+      await TaxConfiguration.findOne()
+        .sort({
+          updatedAt: -1,
+        });
 
-    // No tax configured yet for today
+    // No tax has ever been configured
     if (!configuration) {
+
       return res.json({
         success: true,
+
         configured: false,
-        effectiveDate,
+
+        effectiveDate:
+          getCurrentDate(),
+
         taxRate: 0,
+
+        updatedBy: "",
+
+        updatedAt: null,
+
         message:
-          "Tax rate has not been configured for today.",
+          "No tax rate has been configured yet.",
       });
     }
 
     return res.json({
+
       success: true,
+
       configured: true,
-      effectiveDate,
-      taxRate: configuration.taxRate,
-      updatedBy: configuration.updatedBy,
-      updatedAt: configuration.updatedAt,
+
+      // Date from which this configuration
+      // originally became active
+      effectiveDate:
+        configuration.effectiveDate,
+
+      taxRate:
+        configuration.taxRate,
+
+      updatedBy:
+        configuration.updatedBy,
+
+      updatedAt:
+        configuration.updatedAt,
+
     });
 
   } catch (error) {
+
     console.error(
-      "Get today's tax error:",
+      "Get active tax error:",
       error
     );
 
     return res.status(500).json({
+
       success: false,
+
       message:
-        "Unable to fetch today's tax rate.",
+        "Unable to fetch active tax rate.",
+
     });
   }
 });
 
 
 // ------------------------------------------
-// UPDATE TODAY'S TAX
+// UPDATE ACTIVE TAX
 // PUT /api/tax/today
+//
+// Cashier changes the currently active tax.
+// The same configuration record is updated.
+//
+// Example:
+//
+// 12%
+// ↓
+// remains active
+//
+// Cashier changes it to 18%
+// ↓
+// 18% becomes active
 // ------------------------------------------
 
 router.put("/today", async (req, res) => {
+
   try {
+
     const {
       taxRate,
       updatedBy,
@@ -88,49 +139,99 @@ router.put("/today", async (req, res) => {
 
     const rate = Number(taxRate);
 
-    // Validate tax rate
+
+    // --------------------------------------
+    // VALIDATION
+    // --------------------------------------
+
     if (!Number.isFinite(rate)) {
+
       return res.status(400).json({
+
         success: false,
+
         message:
           "Tax rate must be a valid number.",
+
       });
     }
+
 
     if (rate < 0 || rate > 100) {
+
       return res.status(400).json({
+
         success: false,
+
         message:
           "Tax rate must be between 0 and 100.",
+
       });
     }
 
-    const effectiveDate = getTodayDate();
 
-    const configuration =
-      await TaxConfiguration.findOneAndUpdate(
-        {
-          effectiveDate,
-        },
-        {
-          effectiveDate,
+    // --------------------------------------
+    // FIND CURRENT ACTIVE CONFIGURATION
+    // --------------------------------------
+
+    let configuration =
+      await TaxConfiguration.findOne()
+        .sort({
+          updatedAt: -1,
+        });
+
+
+    // --------------------------------------
+    // FIRST EVER TAX CONFIGURATION
+    // --------------------------------------
+
+    if (!configuration) {
+
+      configuration =
+        await TaxConfiguration.create({
+
+          effectiveDate:
+            getCurrentDate(),
+
           taxRate: rate,
+
           updatedBy:
             updatedBy?.trim() || "",
-        },
-        {
-          new: true,
-          upsert: true,
-          runValidators: true,
-          setDefaultsOnInsert: true,
-        }
-      );
+
+        });
+
+    }
+
+    // --------------------------------------
+    // UPDATE EXISTING CONFIGURATION
+    // --------------------------------------
+
+    else {
+
+      configuration.taxRate =
+        rate;
+
+      configuration.updatedBy =
+        updatedBy?.trim() || "";
+
+      await configuration.save();
+
+    }
+
+
+    // --------------------------------------
+    // RESPONSE
+    // --------------------------------------
 
     return res.json({
+
       success: true,
+
       message:
-        "Today's tax rate updated successfully.",
+        "Tax rate updated successfully.",
+
       configuration: {
+
         effectiveDate:
           configuration.effectiveDate,
 
@@ -142,19 +243,25 @@ router.put("/today", async (req, res) => {
 
         updatedAt:
           configuration.updatedAt,
+
       },
+
     });
 
   } catch (error) {
+
     console.error(
-      "Update today's tax error:",
+      "Update active tax error:",
       error
     );
 
     return res.status(500).json({
+
       success: false,
+
       message:
-        "Unable to update today's tax rate.",
+        "Unable to update tax rate.",
+
     });
   }
 });
