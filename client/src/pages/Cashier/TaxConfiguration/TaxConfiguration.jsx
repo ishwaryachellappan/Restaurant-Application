@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./TaxConfiguration.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function TaxConfiguration({
   user,
   onBack,
   onLogout,
 }) {
+
+    const { restaurantName, restaurantLogo } =
+    useRestaurantBranding();
   const [taxRate, setTaxRate] = useState("");
   const [currentTax, setCurrentTax] = useState(0);
 
@@ -223,23 +227,30 @@ function TaxConfiguration({
 
       <header className="tax-config-header">
 
-        <div className="tax-config-brand">
+       <div className="tax-config-brand">
 
-          <div className="tax-config-logo">
-            ₹
-          </div>
+  <div className="tax-config-logo">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽️"
+    )}
+  </div>
 
-          <div>
-            <h1>
-              Restaurant POS
-            </h1>
+  <div>
+    <h1>
+      {restaurantName}
+    </h1>
 
-            <p>
-              Tax Configuration
-            </p>
-          </div>
+    <p>
+      Tax Configuration
+    </p>
+  </div>
 
-        </div>
+</div>
 
         <div className="tax-config-user">
 

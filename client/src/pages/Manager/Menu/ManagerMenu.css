@@ -823,3 +823,26 @@
     gap: 0;
   }
 }
+
+.menu-brand-icon {
+  overflow: hidden;
+}
+
+.menu-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.menu-panel-header h2 {
+  font-weight: 800;
+}
+
+.menu-modal-header h2 {
+  font-weight: 800;
+}
+
+.menu-brand h2 {
+  font-weight: 800;
+}

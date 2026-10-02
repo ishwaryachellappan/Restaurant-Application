@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import "./PaymentHistory.css";
 import Receipt from "../Receipt/Receipt";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function PaymentHistory({
   user,
   onBack,
   onLogout,
 }) {
+
+    const { restaurantName, restaurantLogo } =
+    useRestaurantBranding();
   const getLocalDateString = (date) => {
     const d = new Date(date);
 
@@ -199,23 +203,28 @@ function PaymentHistory({
 
       <header className="payment-history-header">
 
-        <div className="payment-history-brand">
+      <div className="payment-history-brand">
 
-          <div className="payment-history-brand-icon">
-            🍽️
-          </div>
+  <div className="payment-history-brand-icon">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽️"
+    )}
+  </div>
 
-          <div>
-            <h1>
-              Restaurant POS
-            </h1>
+  <div>
+    <h1>{restaurantName}</h1>
 
-            <span>
-              Payment History
-            </span>
-          </div>
+    <span>
+      Payment History
+    </span>
+  </div>
 
-        </div>
+</div>
 
         <div className="payment-history-user">
 
