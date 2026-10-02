@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import "./WaiterDashboard.css";
+import {
+  useRestaurantBranding,
+} from "../../context/RestaurantBrandingContext";
 
 function WaiterDashboard({
   user,
@@ -8,6 +11,13 @@ function WaiterDashboard({
   onNewOrder,
   onOpenOrders,
 }) {
+
+  const {
+  restaurantName,
+  restaurantLogo,
+} = useRestaurantBranding();
+
+
   const [status, setStatus] = useState({
     activeTables: 0,
     openOrders: 0,
@@ -123,18 +133,22 @@ function WaiterDashboard({
 
       <header className="waiter-header">
 
-        <div className="waiter-brand">
+       <div className="waiter-brand">
+  <div className="waiter-brand-icon">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽"
+    )}
+  </div>
 
-          <div className="waiter-brand-icon">
-            🍽️
-          </div>
-
-          <div>
-            <h1>Restaurant POS</h1>
-            <span>Waiter Dashboard</span>
-          </div>
-
-        </div>
+  <div>
+    <strong>{restaurantName}</strong>
+  </div>
+</div>
 
         <div className="waiter-user">
 

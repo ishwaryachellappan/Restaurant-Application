@@ -797,3 +797,19 @@
 .staff-add-button:active {
   transform: translateY(0);
 }
+
+.manager-sales-brand-icon {
+  overflow: hidden;
+}
+
+.manager-sales-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.manager-sales-brand strong {
+  font-weight: 800;
+  color: #ffffff;
+}

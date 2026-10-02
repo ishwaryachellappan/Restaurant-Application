@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./ManagerStaff.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function ManagerStaff({
   user,
@@ -8,6 +9,7 @@ function ManagerStaff({
   onOpenOrders,
   onOpenSales,
 }) {
+  const { restaurantName, restaurantLogo } = useRestaurantBranding();
   const [staff, setStaff] = useState([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
@@ -246,12 +248,18 @@ function ManagerStaff({
       <aside className="staff-sidebar">
         <div className="staff-brand">
           <div className="staff-brand-icon">
-            🍽️
+            {restaurantLogo ? (
+              <img
+                src={restaurantLogo}
+                alt={restaurantName}
+              />
+            ) : (
+              "🍽️"
+            )}
           </div>
 
           <div>
-            <h2>Restaurant</h2>
-            <span>POS SYSTEM</span>
+            <h2>{restaurantName}</h2>
           </div>
         </div>
 
@@ -260,39 +268,39 @@ function ManagerStaff({
         </div>
 
         <button
-  className="staff-nav-item"
-  onClick={onBack}
-  type="button"
->
-  ▦
-  <span>Dashboard</span>
-</button>
+          className="staff-nav-item"
+          onClick={onBack}
+          type="button"
+        >
+          ▦
+          <span>Dashboard</span>
+        </button>
 
-<button
-  className="staff-nav-item"
-  onClick={onOpenOrders}
-  type="button"
->
-  📋
-  <span>Orders</span>
-</button>
+        <button
+          className="staff-nav-item"
+          onClick={onOpenOrders}
+          type="button"
+        >
+          📋
+          <span>Orders</span>
+        </button>
 
-<button
-  className="staff-nav-item"
-  onClick={onOpenSales}
-  type="button"
->
-  ◉
-  <span>Sales & Reports</span>
-</button>
+        <button
+          className="staff-nav-item"
+          onClick={onOpenSales}
+          type="button"
+        >
+          ◉
+          <span>Sales & Reports</span>
+        </button>
 
-<button
-  className="staff-nav-item staff-nav-active"
-  type="button"
->
-  👥
-  <span>Staff</span>
-</button>
+        <button
+          className="staff-nav-item staff-nav-active"
+          type="button"
+        >
+          👥
+          <span>Staff</span>
+        </button>
 
         <div className="staff-sidebar-footer">
           <div className="staff-user">
@@ -333,27 +341,27 @@ function ManagerStaff({
               </p>
             </div>
 
-           <div className="staff-actions">
-  <div className="staff-online">
-    <span />
-    System Online
-  </div>
+            <div className="staff-actions">
+              <div className="staff-online">
+                <span />
+                System Online
+              </div>
 
-  <button
-    className="staff-refresh"
-    onClick={loadStaff}
-    disabled={loading}
-  >
-    ↻ Refresh
-  </button>
+              <button
+                className="staff-refresh"
+                onClick={loadStaff}
+                disabled={loading}
+              >
+                ↻ Refresh
+              </button>
 
-  <button
-    className="staff-add-button"
-    onClick={() => setShowAddStaff(true)}
-  >
-    + Add Staff
-  </button>
-</div>
+              <button
+                className="staff-add-button"
+                onClick={() => setShowAddStaff(true)}
+              >
+                + Add Staff
+              </button>
+            </div>
           </div>
 
           <section className="staff-stats">
@@ -529,8 +537,7 @@ function ManagerStaff({
                               </strong>
 
                               <span>
-                                Restaurant POS
-                                account
+                                {restaurantName} account
                               </span>
                             </div>
                           </div>
@@ -555,9 +562,9 @@ function ManagerStaff({
                         <td>
                           <span
                             className={`staff-status ${member.status ===
-                                "ACTIVE"
-                                ? "staff-status-active"
-                                : "staff-status-inactive"
+                              "ACTIVE"
+                              ? "staff-status-active"
+                              : "staff-status-inactive"
                               }`}
                           >
                             <span />
@@ -568,8 +575,8 @@ function ManagerStaff({
                         <td>
                           <button
                             className={`staff-status-button ${member.status === "ACTIVE"
-                                ? "deactivate"
-                                : "activate"
+                              ? "deactivate"
+                              : "activate"
                               }`}
                             onClick={() => updateStatus(member)}
                             disabled={
@@ -599,7 +606,7 @@ function ManagerStaff({
             )}
           </section>
         </div>
-           </main>
+      </main>
 
       {/* ADD STAFF MODAL */}
 

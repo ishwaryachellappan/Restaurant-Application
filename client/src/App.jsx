@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-
+import { useRestaurantBranding } from "./context/RestaurantBrandingContext";
 
 import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
@@ -30,7 +30,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const { restaurantName, restaurantLogo } = useRestaurantBranding();
   // ------------------------------------------
   // LOGIN
   // ------------------------------------------
@@ -309,43 +309,43 @@ function App() {
     }
 
 
-if (currentPage === "manager") {
-  return (
-    <ManagerDashboard
-      user={user}
-      onLogout={handleLogout}
-      onOpenOrders={() =>
-        setCurrentPage("manager-orders")
-      }
-      onOpenSales={() =>
-        setCurrentPage("manager-sales")
-      }
-      onOpenStaff={() =>
-        setCurrentPage("manager-staff")
-      }
-      onOpenMenu={() =>
-        setCurrentPage("manager-menu")
-      }
-      onOpenSettings={() =>
-        setCurrentPage("manager-settings")
-      }
-    />
-  );
-}
+    if (currentPage === "manager") {
+      return (
+        <ManagerDashboard
+          user={user}
+          onLogout={handleLogout}
+          onOpenOrders={() =>
+            setCurrentPage("manager-orders")
+          }
+          onOpenSales={() =>
+            setCurrentPage("manager-sales")
+          }
+          onOpenStaff={() =>
+            setCurrentPage("manager-staff")
+          }
+          onOpenMenu={() =>
+            setCurrentPage("manager-menu")
+          }
+          onOpenSettings={() =>
+            setCurrentPage("manager-settings")
+          }
+        />
+      );
+    }
 
     if (currentPage === "manager-settings") {
-  return (
-    <RestaurantSettings
-      user={user}
+      return (
+        <RestaurantSettings
+          user={user}
 
-      onBack={() =>
-        setCurrentPage("manager")
-      }
+          onBack={() =>
+            setCurrentPage("manager")
+          }
 
-      onLogout={handleLogout}
-    />
-  );
-}
+          onLogout={handleLogout}
+        />
+      );
+    }
 
 
     if (currentPage === "manager-staff") {
@@ -458,13 +458,19 @@ if (currentPage === "manager") {
 
         <div className="brand-section">
 
-          <div className="restaurant-icon">
-            🍽️
-          </div>
+         
 
-          <h1>
-            Restaurant POS
-          </h1>
+          <div className="login-branding">
+            <div className="login-brand-logo">
+              {restaurantLogo ? (
+                <img src={restaurantLogo} alt={restaurantName} />
+              ) : (
+                "🍽"
+              )}
+            </div>
+
+            <h1>{restaurantName}</h1>
+          </div>
 
           <p>
             Welcome back

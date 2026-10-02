@@ -1,11 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "./RestaurantSettings.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function RestaurantSettings({
   user,
   onBack,
   onLogout,
 }) {
+  // ------------------------------------------
+  // GLOBAL RESTAURANT BRANDING
+  // ------------------------------------------
+
+  const {
+    restaurantName: globalRestaurantName,
+    restaurantLogo: globalRestaurantLogo,
+    refreshRestaurantBranding,
+  } = useRestaurantBranding();
+
+  // ------------------------------------------
+  // LOCAL SETTINGS FORM
+  // ------------------------------------------
+
   const [restaurantName, setRestaurantName] =
     useState("");
 
@@ -52,7 +67,6 @@ function RestaurantSettings({
       setLogo(
         data.settings?.logo || ""
       );
-
     } catch (error) {
       console.error(
         "Load restaurant settings error:",
@@ -63,7 +77,6 @@ function RestaurantSettings({
         error.message ||
           "Unable to load restaurant settings."
       );
-
     } finally {
       setLoading(false);
     }
@@ -73,101 +86,116 @@ function RestaurantSettings({
     loadSettings();
   }, []);
 
-
   // ------------------------------------------
   // LOGO UPLOAD
   // ------------------------------------------
 
   const handleLogoChange = (event) => {
-  const file = event.target.files?.[0];
+    const file = event.target.files?.[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  if (!file.type.startsWith("image/")) {
-    setError("Please select an image file.");
-    return;
-  }
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
 
-  if (file.size > 5 * 1024 * 1024) {
-    setError("Logo image must be smaller than 5 MB.");
-    return;
-  }
+    if (file.size > 5 * 1024 * 1024) {
+      setError(
+        "Logo image must be smaller than 5 MB."
+      );
+      return;
+    }
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = (loadEvent) => {
-    const image = new Image();
+    reader.onload = (loadEvent) => {
+      const image = new Image();
 
-    image.onload = () => {
-      const MAX_SIZE = 800;
+      image.onload = () => {
+        const MAX_SIZE = 800;
 
-      let width = image.width;
-      let height = image.height;
+        let width = image.width;
+        let height = image.height;
 
-      if (width > MAX_SIZE || height > MAX_SIZE) {
-        if (width > height) {
-          height =
-            (height / width) * MAX_SIZE;
-          width = MAX_SIZE;
-        } else {
-          width =
-            (width / height) * MAX_SIZE;
-          height = MAX_SIZE;
+        if (
+          width > MAX_SIZE ||
+          height > MAX_SIZE
+        ) {
+          if (width > height) {
+            height =
+              (height / width) *
+              MAX_SIZE;
+
+            width = MAX_SIZE;
+          } else {
+            width =
+              (width / height) *
+              MAX_SIZE;
+
+            height = MAX_SIZE;
+          }
         }
-      }
 
-      const canvas =
-        document.createElement("canvas");
+        const canvas =
+          document.createElement("canvas");
 
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
+        canvas.width = Math.round(width);
+        canvas.height = Math.round(height);
 
-      const context =
-        canvas.getContext("2d");
+        const context =
+          canvas.getContext("2d");
 
-      context.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+        if (!context) {
+          setError(
+            "Unable to process the selected logo."
+          );
+          return;
+        }
 
-      context.drawImage(
-        image,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-      const compressedLogo =
-        canvas.toDataURL(
-          "image/jpeg",
-          0.8
+        context.clearRect(
+          0,
+          0,
+          canvas.width,
+          canvas.height
         );
 
-      setLogo(compressedLogo);
-      setError("");
+        context.drawImage(
+          image,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        const compressedLogo =
+          canvas.toDataURL(
+            "image/jpeg",
+            0.8
+          );
+
+        setLogo(compressedLogo);
+        setError("");
+      };
+
+      image.onerror = () => {
+        setError(
+          "Unable to process the selected logo."
+        );
+      };
+
+      image.src =
+        loadEvent.target.result;
     };
 
-    image.onerror = () => {
+    reader.onerror = () => {
       setError(
-        "Unable to process the selected logo."
+        "Unable to read the selected logo."
       );
     };
 
-    image.src = loadEvent.target.result;
+    reader.readAsDataURL(file);
   };
-
-  reader.onerror = () => {
-    setError(
-      "Unable to read the selected logo."
-    );
-  };
-
-  reader.readAsDataURL(file);
-};
-
 
   // ------------------------------------------
   // SAVE SETTINGS
@@ -181,7 +209,6 @@ function RestaurantSettings({
       setError(
         "Restaurant name is required."
       );
-
       return;
     }
 
@@ -220,6 +247,7 @@ function RestaurantSettings({
         );
       }
 
+      // Update local form with saved values
       setRestaurantName(
         data.settings.restaurantName
       );
@@ -228,10 +256,14 @@ function RestaurantSettings({
         data.settings.logo || ""
       );
 
+      // Refresh global branding
+      // so the new name/logo appears
+      // throughout the POS immediately.
+      await refreshRestaurantBranding();
+
       setMessage(
         "Restaurant settings saved successfully."
       );
-
     } catch (error) {
       console.error(
         "Save restaurant settings error:",
@@ -242,12 +274,10 @@ function RestaurantSettings({
         error.message ||
           "Unable to save restaurant settings."
       );
-
     } finally {
       setSaving(false);
     }
   };
-
 
   // ------------------------------------------
   // REMOVE LOGO
@@ -256,7 +286,6 @@ function RestaurantSettings({
   const handleRemoveLogo = () => {
     setLogo("");
   };
-
 
   // ------------------------------------------
   // RENDER
@@ -272,26 +301,26 @@ function RestaurantSettings({
         <div className="restaurant-settings-brand">
 
           <div className="restaurant-settings-logo">
-            {logo ? (
+            {globalRestaurantLogo ? (
               <img
-                src={logo}
-                alt="Restaurant logo"
+                src={globalRestaurantLogo}
+                alt={globalRestaurantName}
               />
             ) : (
-              "₹"
+              "🍽"
             )}
           </div>
 
           <div>
-
             <h1>
-              Restaurant POS
+              {globalRestaurantName ||
+                restaurantName ||
+                "Restaurant POS"}
             </h1>
 
             <p>
               Restaurant Settings
             </p>
-
           </div>
 
         </div>
@@ -461,7 +490,7 @@ function RestaurantSettings({
 
               <small>
                 JPG, PNG, SVG or other image
-                formats. Maximum size: 2 MB.
+                formats. Maximum size: 5 MB.
               </small>
 
             </div>

@@ -1178,3 +1178,20 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.staff-brand-icon {
+  overflow: hidden;
+}
+
+.staff-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.staff-brand h2 {
+  margin: 0;
+  font-weight: 800;
+  color: #ffffff;
+}

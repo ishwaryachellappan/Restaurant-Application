@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./ManagerSales.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function ManagerSales({
   user,
@@ -7,6 +8,9 @@ function ManagerSales({
   onOrders,
   onLogout,
 }) {
+
+    const { restaurantName, restaurantLogo } =
+    useRestaurantBranding();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -249,21 +253,22 @@ function ManagerSales({
 
         <div className="manager-sales-brand">
 
-          <div className="manager-sales-brand-icon">
-            🍽
-          </div>
+  <div className="manager-sales-brand-icon">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽"
+    )}
+  </div>
 
-          <div>
-            <strong>
-              Restaurant
-            </strong>
+  <div>
+    <strong>{restaurantName}</strong>
+  </div>
 
-            <span>
-              POS SYSTEM
-            </span>
-          </div>
-
-        </div>
+</div>
 
         <div className="manager-sales-nav">
 

@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import "./KitchenDashboard.css";
+import {
+  useRestaurantBranding,
+} from "../../context/RestaurantBrandingContext";
 
 function KitchenDashboard({ user, onLogout }) {
+
+  const {
+  restaurantName,
+  restaurantLogo,
+} = useRestaurantBranding();
+
   const [orders, setOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
 
@@ -169,27 +178,50 @@ function KitchenDashboard({ user, onLogout }) {
   return (
     <div className="kitchen-page">
 
+      
+
       {/* HEADER */}
 
-      <header className="kitchen-header">
+     <header className="kitchen-header">
 
-        <div>
-          <h1>Kitchen Dashboard</h1>
+  <div className="kitchen-branding">
 
-          <p>
-            Welcome,{" "}
-            {user?.name || "Kitchen Staff"}
-          </p>
-        </div>
+    <div className="kitchen-brand-logo">
+      {restaurantLogo ? (
+        <img
+          src={restaurantLogo}
+          alt={restaurantName}
+        />
+      ) : (
+        "🍽"
+      )}
+    </div>
 
-        <button
-          className="kitchen-logout"
-          onClick={onLogout}
-        >
-          Logout
-        </button>
+    <div className="kitchen-brand-name">
+      <strong>{restaurantName}</strong>
+    </div>
 
-      </header>
+  </div>
+
+  <div className="kitchen-header-title">
+
+    <h1>Kitchen Dashboard</h1>
+
+    <p>
+      Welcome,{" "}
+      {user?.name || "Kitchen Staff"}
+    </p>
+
+  </div>
+
+  <button
+    className="kitchen-logout"
+    onClick={onLogout}
+  >
+    Logout
+  </button>
+
+</header>
 
       {/* CONTENT */}
 

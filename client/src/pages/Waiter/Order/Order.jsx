@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Order.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function Order({
   table,
@@ -14,8 +15,8 @@ function Order({
   const [menuItems, setMenuItems] = useState([]);
   const [menuLoading, setMenuLoading] = useState(true);
   const [menuError, setMenuError] = useState("");
-  
 
+  const { restaurantName, restaurantLogo } = useRestaurantBranding();
   // ------------------------------------------
   // SUCCESS POPUP
   // ------------------------------------------
@@ -97,7 +98,7 @@ function Order({
 
         setMenuError(
           error.message ||
-            "Unable to load menu."
+          "Unable to load menu."
         );
       } finally {
         setMenuLoading(false);
@@ -109,31 +110,31 @@ function Order({
 
 
   useEffect(() => {
-  const loadTaxRate = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/tax/today"
-      );
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setTaxRate(
-          Number(data.taxRate || 0)
+    const loadTaxRate = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/tax/today"
         );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setTaxRate(
+            Number(data.taxRate || 0)
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Load tax rate error:",
+          error
+        );
+
+        setTaxRate(0);
       }
-    } catch (error) {
-      console.error(
-        "Load tax rate error:",
-        error
-      );
+    };
 
-      setTaxRate(0);
-    }
-  };
-
-  loadTaxRate();
-}, []);
+    loadTaxRate();
+  }, []);
 
 
   // ------------------------------------------
@@ -188,10 +189,10 @@ function Order({
           (cartItem) =>
             cartItem.id === item.id
               ? {
-                  ...cartItem,
-                  quantity:
-                    cartItem.quantity + 1,
-                }
+                ...cartItem,
+                quantity:
+                  cartItem.quantity + 1,
+              }
               : cartItem
         );
       }
@@ -217,10 +218,10 @@ function Order({
       currentCart.map((item) =>
         item.id === itemId
           ? {
-              ...item,
-              quantity:
-                item.quantity + 1,
-            }
+            ...item,
+            quantity:
+              item.quantity + 1,
+          }
           : item
       )
     );
@@ -238,10 +239,10 @@ function Order({
         .map((item) =>
           item.id === itemId
             ? {
-                ...item,
-                quantity:
-                  item.quantity - 1,
-              }
+              ...item,
+              quantity:
+                item.quantity - 1,
+            }
             : item
         )
         .filter(
@@ -323,47 +324,47 @@ function Order({
             body: JSON.stringify(
               existingOrder
                 ? {
-                    items:
-                      cart.map(
-                        (item) => ({
-                          menuItemId:
-                            item.id,
-                          name:
-                            item.name,
-                          category:
-                            item.category,
-                          price:
-                            item.price,
-                          quantity:
-                            item.quantity,
-                        })
-                      ),
-                  }
+                  items:
+                    cart.map(
+                      (item) => ({
+                        menuItemId:
+                          item.id,
+                        name:
+                          item.name,
+                        category:
+                          item.category,
+                        price:
+                          item.price,
+                        quantity:
+                          item.quantity,
+                      })
+                    ),
+                }
                 : {
-  tableId: table._id,
-  tableNumber: table.tableNumber,
+                  tableId: table._id,
+                  tableNumber: table.tableNumber,
 
-  waiterId: user.id,
-  waiterName: user.name,
+                  waiterId: user.id,
+                  waiterName: user.name,
 
-    items: cart.map((item) => ({
-        menuItemId: item.id,
-        name: item.name,
-        category: item.category,
-        price: item.price,
-        quantity: item.quantity,
-      })),
+                  items: cart.map((item) => ({
+                    menuItemId: item.id,
+                    name: item.name,
+                    category: item.category,
+                    price: item.price,
+                    quantity: item.quantity,
+                  })),
 
-      discountType,
-      discountValue,
-      discountAmount,
+                  discountType,
+                  discountValue,
+                  discountAmount,
 
-      taxRate,
-      taxAmount,
+                  taxRate,
+                  taxAmount,
 
-      subtotal,
-      total,
-    }
+                  subtotal,
+                  total,
+                }
             ),
           });
 
@@ -376,7 +377,7 @@ function Order({
         ) {
           throw new Error(
             data.message ||
-              "Unable to save order."
+            "Unable to save order."
           );
         }
 
@@ -425,7 +426,7 @@ function Order({
 
         alert(
           error.message ||
-            "Unable to save the order."
+          "Unable to save the order."
         );
       }
     };
@@ -455,6 +456,17 @@ function Order({
       ====================================== */}
 
       <header className="order-header">
+        <div className="order-branding">
+          <div className="order-brand-logo">
+            {restaurantLogo ? (
+              <img src={restaurantLogo} alt={restaurantName} />
+            ) : (
+              "🍽"
+            )}
+          </div>
+
+          <strong>{restaurantName}</strong>
+        </div>
 
         <div className="order-header-left">
 
@@ -485,11 +497,10 @@ function Order({
         </div>
 
         <div
-          className={`order-table-status ${
-            existingOrder
+          className={`order-table-status ${existingOrder
               ? "occupied"
               : "available"
-          }`}
+            }`}
         >
 
           <span></span>
@@ -537,7 +548,7 @@ function Order({
                   type="button"
                   className={
                     selectedCategory ===
-                    category
+                      category
                       ? "category-button active"
                       : "category-button"
                   }
@@ -801,59 +812,59 @@ function Order({
 
           {/* TOTAL */}
 
-         <div className="cart-footer">
+          <div className="cart-footer">
 
-  <div className="order-price-summary">
+            <div className="order-price-summary">
 
-    <div className="price-summary-row">
-      <span>Subtotal</span>
+              <div className="price-summary-row">
+                <span>Subtotal</span>
 
-      <strong>
-        ₹{subtotal.toFixed(2)}
-      </strong>
-    </div>
+                <strong>
+                  ₹{subtotal.toFixed(2)}
+                </strong>
+              </div>
 
-    <div className="price-summary-row">
-      <span>Discount</span>
+              <div className="price-summary-row">
+                <span>Discount</span>
 
-      <strong>
-        - ₹{discountAmount.toFixed(2)}
-      </strong>
-    </div>
+                <strong>
+                  - ₹{discountAmount.toFixed(2)}
+                </strong>
+              </div>
 
-    <div className="price-summary-row">
-      <span>
-        Tax {taxRate > 0 ? `(${taxRate}%)` : ""}
-      </span>
+              <div className="price-summary-row">
+                <span>
+                  Tax {taxRate > 0 ? `(${taxRate}%)` : ""}
+                </span>
 
-      <strong>
-        ₹{taxAmount.toFixed(2)}
-      </strong>
-    </div>
+                <strong>
+                  ₹{taxAmount.toFixed(2)}
+                </strong>
+              </div>
 
-    <div className="price-summary-divider"></div>
+              <div className="price-summary-divider"></div>
 
-    <div className="price-summary-total">
-      <span>Grand Total</span>
+              <div className="price-summary-total">
+                <span>Grand Total</span>
 
-      <strong>
-        ₹{total.toFixed(2)}
-      </strong>
-    </div>
+                <strong>
+                  ₹{total.toFixed(2)}
+                </strong>
+              </div>
 
-  </div>
+            </div>
 
-  <button
-    type="button"
-    className="send-kitchen-button"
-    onClick={handleSendToKitchen}
-  >
-    {existingOrder
-      ? "Update Order"
-      : "Send to Kitchen"}
-  </button>
+            <button
+              type="button"
+              className="send-kitchen-button"
+              onClick={handleSendToKitchen}
+            >
+              {existingOrder
+                ? "Update Order"
+                : "Send to Kitchen"}
+            </button>
 
-</div>
+          </div>
 
         </aside>
 
@@ -932,7 +943,7 @@ function Order({
                 <strong>
                   {successDetails.itemCount}{" "}
                   {successDetails.itemCount ===
-                  1
+                    1
                     ? "Item"
                     : "Items"}
                 </strong>

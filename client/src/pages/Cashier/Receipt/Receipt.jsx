@@ -1,6 +1,9 @@
 import React from "react";
 import "./Receipt.css";
 import { useEffect } from "react";
+import {
+  useRestaurantBranding,
+} from "../../../context/RestaurantBrandingContext";
 
 function Receipt({
   order,
@@ -8,6 +11,11 @@ function Receipt({
   paidAt,
   onClose,
 }) {
+
+  const {
+  restaurantName,
+  restaurantLogo,
+} = useRestaurantBranding();
 
   
   if (!order) {
@@ -94,10 +102,22 @@ const grandTotal =
         {/* PRINTABLE RECEIPT */}
         <div className="receipt-page">
 
-          <div className="receipt-header">
-            <h1>RESTAURANT</h1>
-            <p>Payment Receipt</p>
-          </div>
+        <div className="receipt-header">
+
+  {restaurantLogo && (
+    <div className="receipt-logo">
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    </div>
+  )}
+
+  <h1>{restaurantName}</h1>
+
+  <p>Payment Receipt</p>
+
+</div>
 
           <div className="receipt-divider" />
 

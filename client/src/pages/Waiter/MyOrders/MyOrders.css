@@ -608,3 +608,25 @@
     width: 100%;
   }
 }
+
+.my-orders-brand-icon {
+  overflow: hidden;
+}
+
+.my-orders-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.my-orders-brand h1 {
+  font-weight: 800;
+}
+
+.my-orders-brand h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}

@@ -710,3 +710,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+.manager-orders-brand-icon {
+  overflow: hidden;
+}
+
+.manager-orders-brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.manager-orders-brand strong {
+  font-weight: 800;
+  color: #ffffff;
+}

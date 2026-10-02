@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./MyOrders.css";
+import { useRestaurantBranding } from "../../../context/RestaurantBrandingContext";
 
 function MyOrders({
   user,
@@ -7,6 +8,7 @@ function MyOrders({
   onLogout,
   onOpenOrder,
 }) {
+  const { restaurantName, restaurantLogo } = useRestaurantBranding();
   const getLocalDateString = (date) => {
     const d = new Date(date);
 
@@ -131,21 +133,25 @@ function MyOrders({
 
       <header className="my-orders-header">
 
-        <div className="my-orders-brand">
+       <div className="my-orders-brand">
 
-          <div className="my-orders-brand-icon">
-            🍽️
-          </div>
+  <div className="my-orders-brand-icon">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽️"
+    )}
+  </div>
 
-          <div>
-            <h1>Restaurant POS</h1>
+  <div>
+    <h1>{restaurantName}</h1>
+    <span>My Orders</span>
+  </div>
 
-            <span>
-              My Orders
-            </span>
-          </div>
-
-        </div>
+</div>
 
         <div className="my-orders-user">
 

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import "./CashierDashboard.css";
 import Receipt from "./Receipt/Receipt";
 import TaxConfiguration from "./TaxConfiguration/TaxConfiguration";
+import {
+  useRestaurantBranding,
+} from "../../context/RestaurantBrandingContext";
 
 function CashierDashboard({
   user,
@@ -9,6 +12,11 @@ function CashierDashboard({
   onPaymentHistory,
   onTaxConfiguration,
 }) {
+
+  const {
+  restaurantName,
+  restaurantLogo,
+} = useRestaurantBranding();
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -194,18 +202,22 @@ function CashierDashboard({
 
       <aside className="cashier-sidebar">
 
-        <div className="cashier-brand">
+       <div className="cashier-branding">
+  <div className="cashier-brand-logo">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽"
+    )}
+  </div>
 
-          <div className="cashier-brand-icon">
-            🍽
-          </div>
-
-          <div>
-            <strong>Restaurant</strong>
-            <span>POS SYSTEM</span>
-          </div>
-
-        </div>
+  <div className="cashier-brand-name">
+    <strong>{restaurantName}</strong>
+  </div>
+</div>
 
         <div className="cashier-sidebar-section">
 
