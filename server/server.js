@@ -12,6 +12,7 @@ const taxRoutes = require("./routes/tax");
 const settingsRoutes = require(
   "./routes/settings"
 );
+const inventoryRoutes = require("./routes/inventory");
 
 require("dotenv").config();
 
@@ -42,6 +43,7 @@ app.use(
   "/api/settings",
   settingsRoutes
 );
+app.use("/api/inventory", inventoryRoutes);
 
 // MongoDB connection
 mongoose
