@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import "./CashierDashboard.css";
 import Receipt from "./Receipt/Receipt";
 import TaxConfiguration from "./TaxConfiguration/TaxConfiguration";
-import {
-  useRestaurantBranding,
-} from "../../context/RestaurantBrandingContext";
+import { useRestaurantBranding } from "../../context/RestaurantBrandingContext";
 
 function CashierDashboard({
   user,
@@ -12,29 +10,73 @@ function CashierDashboard({
   onPaymentHistory,
   onTaxConfiguration,
 }) {
+  // ------------------------------------------
+  // RESTAURANT BRANDING
+  // ------------------------------------------
 
   const {
-  restaurantName,
-  restaurantLogo,
-} = useRestaurantBranding();
+    restaurantName,
+    restaurantLogo,
+  } = useRestaurantBranding();
+
+  // ------------------------------------------
+  // PAYMENT METHOD SETTINGS
+  // ------------------------------------------
+
+  const [
+    enabledPaymentMethods,
+    setEnabledPaymentMethods,
+  ] = useState({
+    cash: true,
+    card: true,
+    upi: true,
+  });
+
+  const [
+    paymentSettingsLoading,
+    setPaymentSettingsLoading,
+  ] = useState(true);
+
+  // ------------------------------------------
+  // ORDERS
+  // ------------------------------------------
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
+  // ------------------------------------------
+  // PAYMENT
+  // ------------------------------------------
 
-  // Payment success popup
-  const [paymentSuccess, setPaymentSuccess] = useState(null);
-  const [receiptData, setReceiptData] = useState(null);
-  const [showReceipt, setShowReceipt] = useState(false);
+  const [selectedOrder, setSelectedOrder] =
+    useState(null);
+
+  const [paymentMethod, setPaymentMethod] =
+    useState("");
+
+  const [paymentLoading, setPaymentLoading] =
+    useState(false);
+
+  const [paymentError, setPaymentError] =
+    useState("");
 
   // ------------------------------------------
+  // PAYMENT SUCCESS
+  // ------------------------------------------
+
+  const [paymentSuccess, setPaymentSuccess] =
+    useState(null);
+
+  const [receiptData, setReceiptData] =
+    useState(null);
+
+  const [showReceipt, setShowReceipt] =
+    useState(false);
+
+  // =========================================================
   // LOAD ORDERS
-  // ------------------------------------------
+  // =========================================================
 
   const loadOrders = async () => {
     try {
@@ -49,13 +91,17 @@ function CashierDashboard({
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message || "Unable to load cashier orders."
+          data.message ||
+            "Unable to load cashier orders."
         );
       }
 
       setOrders(data.orders || []);
     } catch (error) {
-      console.error("Cashier orders error:", error);
+      console.error(
+        "Cashier orders error:",
+        error
+      );
 
       setError(
         "Unable to load orders. Please make sure the backend is running."
@@ -65,17 +111,114 @@ function CashierDashboard({
     }
   };
 
-  // ------------------------------------------
+  // =========================================================
+  // LOAD PAYMENT SETTINGS
+  // =========================================================
+
+  const loadPaymentSettings = async () => {
+    try {
+      setPaymentSettingsLoading(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/settings/restaurant"
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to load payment settings."
+        );
+      }
+
+      const configuredMethods =
+        data.settings?.paymentMethods || {};
+
+      setEnabledPaymentMethods({
+        cash:
+          configuredMethods.cash !== false,
+
+        card:
+          configuredMethods.card !== false,
+
+        upi:
+          configuredMethods.upi !== false,
+      });
+    } catch (error) {
+      console.error(
+        "Load payment settings error:",
+        error
+      );
+
+      /*
+       * If the settings API cannot be reached,
+       * keep all payment methods available so
+       * Cashier is not blocked.
+       */
+      setEnabledPaymentMethods({
+        cash: true,
+        card: true,
+        upi: true,
+      });
+    } finally {
+      setPaymentSettingsLoading(false);
+    }
+  };
+
+  // =========================================================
+  // REFRESH EVERYTHING
+  // =========================================================
+
+  const refreshCashierData = async () => {
+    await Promise.all([
+      loadOrders(),
+      loadPaymentSettings(),
+    ]);
+  };
+
+  // =========================================================
   // INITIAL LOAD
-  // ------------------------------------------
+  // =========================================================
 
   useEffect(() => {
-    loadOrders();
+    refreshCashierData();
   }, []);
 
-  // ------------------------------------------
+  // =========================================================
+  // CLEAR SELECTED PAYMENT METHOD
+  // IF MANAGER DISABLED IT
+  // =========================================================
+
+  useEffect(() => {
+    if (
+      paymentMethod === "CASH" &&
+      !enabledPaymentMethods.cash
+    ) {
+      setPaymentMethod("");
+    }
+
+    if (
+      paymentMethod === "CARD" &&
+      !enabledPaymentMethods.card
+    ) {
+      setPaymentMethod("");
+    }
+
+    if (
+      paymentMethod === "UPI" &&
+      !enabledPaymentMethods.upi
+    ) {
+      setPaymentMethod("");
+    }
+  }, [
+    enabledPaymentMethods,
+    paymentMethod,
+  ]);
+
+  // =========================================================
   // VIEW BILL
-  // ------------------------------------------
+  // =========================================================
 
   const handleViewBill = (order) => {
     setSelectedOrder(order);
@@ -83,9 +226,9 @@ function CashierDashboard({
     setPaymentError("");
   };
 
-  // ------------------------------------------
+  // =========================================================
   // CLOSE BILL
-  // ------------------------------------------
+  // =========================================================
 
   const handleCloseBill = () => {
     if (paymentLoading) return;
@@ -95,15 +238,53 @@ function CashierDashboard({
     setPaymentError("");
   };
 
-  // ------------------------------------------
+  // =========================================================
   // CONFIRM PAYMENT
-  // ------------------------------------------
+  // =========================================================
 
   const handleConfirmPayment = async () => {
     if (!selectedOrder) return;
 
     if (!paymentMethod) {
-      setPaymentError("Please select a payment method.");
+      setPaymentError(
+        "Please select a payment method."
+      );
+      return;
+    }
+
+    /*
+     * Extra protection:
+     * Do not allow a payment method that
+     * has been disabled in Restaurant Settings.
+     */
+
+    if (
+      paymentMethod === "CASH" &&
+      !enabledPaymentMethods.cash
+    ) {
+      setPaymentError(
+        "Cash payment is currently disabled."
+      );
+      return;
+    }
+
+    if (
+      paymentMethod === "CARD" &&
+      !enabledPaymentMethods.card
+    ) {
+      setPaymentError(
+        "Card payment is currently disabled."
+      );
+      return;
+    }
+
+    if (
+      paymentMethod === "UPI" &&
+      !enabledPaymentMethods.upi
+    ) {
+      setPaymentError(
+        "UPI payment is currently disabled."
+      );
       return;
     }
 
@@ -115,9 +296,12 @@ function CashierDashboard({
         `http://localhost:5000/api/cashier/orders/${selectedOrder._id}/pay`,
         {
           method: "PATCH",
+
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type":
+              "application/json",
           },
+
           body: JSON.stringify({
             paymentMethod,
           }),
@@ -128,23 +312,40 @@ function CashierDashboard({
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message || "Payment failed."
+          data.message ||
+            "Payment failed."
         );
       }
 
-      // Save success details before closing payment modal
+      // ------------------------------------------
+      // PAYMENT SUCCESS DATA
+      // ------------------------------------------
+
       setPaymentSuccess({
-        amount: Number(selectedOrder.total || 0),
+        amount: Number(
+          selectedOrder.total || 0
+        ),
+
         paymentMethod,
-        orderNumber: selectedOrder.orderNumber,
-        tableNumber: selectedOrder.tableNumber,
+
+        orderNumber:
+          selectedOrder.orderNumber,
+
+        tableNumber:
+          selectedOrder.tableNumber,
       });
+
+      // ------------------------------------------
+      // RECEIPT DATA
+      // ------------------------------------------
 
       setReceiptData({
         order: {
           ...selectedOrder,
         },
+
         paymentMethod,
+
         paidAt:
           data.order?.paidAt ||
           new Date().toISOString(),
@@ -152,72 +353,93 @@ function CashierDashboard({
 
       setShowReceipt(false);
 
-      setReceiptData(null);
+      // ------------------------------------------
+      // CLOSE PAYMENT MODAL
+      // ------------------------------------------
 
-      // Close payment modal
       setSelectedOrder(null);
       setPaymentMethod("");
 
-      // Refresh payment queue
-      await loadOrders();
+      // ------------------------------------------
+      // REFRESH ORDERS
+      // ------------------------------------------
 
+      await loadOrders();
     } catch (error) {
-      console.error("Payment error:", error);
+      console.error(
+        "Payment error:",
+        error
+      );
 
       setPaymentError(
-        error.message || "Unable to complete payment."
+        error.message ||
+          "Unable to complete payment."
       );
     } finally {
       setPaymentLoading(false);
     }
   };
 
-  // ------------------------------------------
+  // =========================================================
   // CLOSE SUCCESS POPUP
-  // ------------------------------------------
+  // =========================================================
 
   const handleCloseSuccess = () => {
     setPaymentSuccess(null);
   };
 
-  // ------------------------------------------
+  // =========================================================
   // TOTAL PENDING
-  // ------------------------------------------
+  // =========================================================
 
-  const totalPendingAmount = orders.reduce(
-    (sum, order) => sum + Number(order.total || 0),
-    0
-  );
+  const totalPendingAmount =
+    orders.reduce(
+      (sum, order) =>
+        sum +
+        Number(order.total || 0),
+      0
+    );
 
-  // ------------------------------------------
+  // =========================================================
   // RENDER
-  // ------------------------------------------
+  // =========================================================
 
   return (
     <div className="cashier-app">
 
-      {/* =========================
+      {/* =================================================
           SIDEBAR
-      ========================= */}
+      ================================================= */}
 
       <aside className="cashier-sidebar">
 
-       <div className="cashier-branding">
-  <div className="cashier-brand-logo">
-    {restaurantLogo ? (
-      <img
-        src={restaurantLogo}
-        alt={restaurantName}
-      />
-    ) : (
-      "🍽"
-    )}
-  </div>
+        {/* BRANDING */}
 
-  <div className="cashier-brand-name">
-    <strong>{restaurantName}</strong>
-  </div>
-</div>
+        <div className="cashier-branding">
+
+          <div className="cashier-brand-logo">
+
+            {restaurantLogo ? (
+              <img
+                src={restaurantLogo}
+                alt={restaurantName}
+              />
+            ) : (
+              "🍽"
+            )}
+
+          </div>
+
+          <div className="cashier-brand-name">
+            <strong>
+              {restaurantName}
+            </strong>
+          </div>
+
+        </div>
+
+
+        {/* NAVIGATION */}
 
         <div className="cashier-sidebar-section">
 
@@ -225,59 +447,105 @@ function CashierDashboard({
             CASHIER
           </span>
 
-          <button className="cashier-nav-item active">
-            <span className="nav-icon">▣</span>
+
+          {/* DASHBOARD */}
+
+          <button
+            className="cashier-nav-item active"
+          >
+            <span className="nav-icon">
+              ▣
+            </span>
+
             Dashboard
           </button>
 
+
+          {/* REFRESH ORDERS */}
+
           <button
             className="cashier-nav-item"
-            onClick={loadOrders}
+            onClick={refreshCashierData}
+            disabled={
+              loading ||
+              paymentSettingsLoading
+            }
           >
-            <span className="nav-icon">↻</span>
+            <span className="nav-icon">
+              ↻
+            </span>
+
             Refresh Orders
           </button>
+
+
+          {/* PAYMENT HISTORY */}
 
           <button
             className="cashier-nav-item"
             onClick={onPaymentHistory}
           >
-            <span className="nav-icon">₹</span>
+            <span className="nav-icon">
+              ₹
+            </span>
+
             Payment History
           </button>
 
+
+          {/* TAX CONFIGURATION */}
+
           <button
-  className="cashier-nav-item"
-  onClick={onTaxConfiguration}
->
-  <span className="nav-icon">%</span>
-  Tax Configuration
-</button>
+            className="cashier-nav-item"
+            onClick={onTaxConfiguration}
+          >
+            <span className="nav-icon">
+              %
+            </span>
+
+            Tax Configuration
+          </button>
 
         </div>
+
+
+        {/* USER */}
 
         <div className="cashier-sidebar-section cashier-sidebar-bottom">
 
           <div className="cashier-user-card">
 
             <div className="cashier-user-avatar">
-              {user?.name?.charAt(0)?.toUpperCase() || "C"}
+              {user?.name
+                ?.charAt(0)
+                ?.toUpperCase() || "C"}
             </div>
 
             <div className="cashier-user-info">
-              <strong>{user?.name || "Cashier"}</strong>
-              <span>Cashier</span>
+
+              <strong>
+                {user?.name || "Cashier"}
+              </strong>
+
+              <span>
+                Cashier
+              </span>
+
             </div>
 
             <span className="cashier-online-dot"></span>
 
           </div>
 
+
           <button
             className="cashier-logout"
             onClick={onLogout}
           >
-            <span>↪</span>
+            <span>
+              ↪
+            </span>
+
             Logout
           </button>
 
@@ -285,9 +553,10 @@ function CashierDashboard({
 
       </aside>
 
-      {/* =========================
+
+      {/* =================================================
           MAIN AREA
-      ========================= */}
+      ================================================= */}
 
       <main className="cashier-main">
 
@@ -298,30 +567,49 @@ function CashierDashboard({
           <div>
 
             <div className="cashier-breadcrumb">
-              POS / <strong>Cashier</strong>
+              POS /{" "}
+              <strong>
+                Cashier
+              </strong>
             </div>
 
-            <h1>Cashier Dashboard</h1>
+            <h1>
+              Cashier Dashboard
+            </h1>
 
             <p>
-              Manage payments and complete customer orders.
+              Manage payments and complete
+              customer orders.
             </p>
 
           </div>
 
+
           <div className="cashier-topbar-right">
 
             <div className="cashier-status">
+
               <span></span>
+
               System Online
+
             </div>
+
 
             <button
               className="cashier-refresh"
-              onClick={loadOrders}
-              disabled={loading}
+              onClick={
+                refreshCashierData
+              }
+              disabled={
+                loading ||
+                paymentSettingsLoading
+              }
             >
-              <span>↻</span>
+              <span>
+                ↻
+              </span>
+
               Refresh
             </button>
 
@@ -329,9 +617,10 @@ function CashierDashboard({
 
         </header>
 
-        {/* =========================
+
+        {/* =================================================
             KPI CARDS
-        ========================= */}
+        ================================================= */}
 
         <section className="cashier-kpis">
 
@@ -342,12 +631,23 @@ function CashierDashboard({
             </div>
 
             <div className="cashier-kpi-content">
-              <span>Pending Orders</span>
-              <strong>{orders.length}</strong>
-              <small>Waiting for payment</small>
+
+              <span>
+                Pending Orders
+              </span>
+
+              <strong>
+                {orders.length}
+              </strong>
+
+              <small>
+                Waiting for payment
+              </small>
+
             </div>
 
           </div>
+
 
           <div className="cashier-kpi-card">
 
@@ -356,16 +656,26 @@ function CashierDashboard({
             </div>
 
             <div className="cashier-kpi-content">
-              <span>Amount Pending</span>
+
+              <span>
+                Amount Pending
+              </span>
 
               <strong>
-                ₹{totalPendingAmount.toFixed(2)}
+                ₹
+                {totalPendingAmount.toFixed(
+                  2
+                )}
               </strong>
 
-              <small>To be collected</small>
+              <small>
+                To be collected
+              </small>
+
             </div>
 
           </div>
+
 
           <div className="cashier-kpi-card">
 
@@ -374,18 +684,29 @@ function CashierDashboard({
             </div>
 
             <div className="cashier-kpi-content">
-              <span>Kitchen Status</span>
-              <strong>Ready</strong>
-              <small>Orders available for billing</small>
+
+              <span>
+                Kitchen Status
+              </span>
+
+              <strong>
+                Ready
+              </strong>
+
+              <small>
+                Orders available for billing
+              </small>
+
             </div>
 
           </div>
 
         </section>
 
-        {/* =========================
-            ORDERS SECTION
-        ========================= */}
+
+        {/* =================================================
+            ORDERS
+        ================================================= */}
 
         <section className="cashier-orders-section">
 
@@ -397,52 +718,75 @@ function CashierDashboard({
                 PAYMENT QUEUE
               </span>
 
-              <h2>Orders Ready for Payment</h2>
+              <h2>
+                Orders Ready for Payment
+              </h2>
 
               <p>
-                Review the bill and collect payment from
-                the customer.
+                Review the bill and collect
+                payment from the customer.
               </p>
 
             </div>
 
+
             <div className="cashier-order-count">
+
               {orders.length}
-              <span>orders</span>
+
+              <span>
+                orders
+              </span>
+
             </div>
 
           </div>
+
 
           {/* LOADING */}
 
           {loading && (
             <div className="cashier-state-card">
+
               <div className="cashier-spinner"></div>
-              <span>Loading payment queue...</span>
+
+              <span>
+                Loading payment queue...
+              </span>
+
             </div>
           )}
+
 
           {/* ERROR */}
 
-          {!loading && error && (
-            <div className="cashier-state-card error">
+          {!loading &&
+            error && (
+              <div className="cashier-state-card error">
 
-              <div className="state-icon">
-                !
+                <div className="state-icon">
+                  !
+                </div>
+
+                <strong>
+                  Unable to load orders
+                </strong>
+
+                <span>
+                  {error}
+                </span>
+
+                <button
+                  onClick={
+                    refreshCashierData
+                  }
+                >
+                  Try Again
+                </button>
+
               </div>
+            )}
 
-              <strong>
-                Unable to load orders
-              </strong>
-
-              <span>{error}</span>
-
-              <button onClick={loadOrders}>
-                Try Again
-              </button>
-
-            </div>
-          )}
 
           {/* EMPTY */}
 
@@ -460,12 +804,14 @@ function CashierDashboard({
                 </h3>
 
                 <p>
-                  There are currently no orders
-                  waiting for payment.
+                  There are currently no
+                  orders waiting for payment.
                 </p>
 
                 <button
-                  onClick={loadOrders}
+                  onClick={
+                    refreshCashierData
+                  }
                   className="cashier-empty-refresh"
                 >
                   ↻ Check for New Orders
@@ -473,6 +819,7 @@ function CashierDashboard({
 
               </div>
             )}
+
 
           {/* ORDERS */}
 
@@ -495,12 +842,15 @@ function CashierDashboard({
                       <div className="cashier-order-identity">
 
                         <div className="cashier-table-badge">
-                          T{order.tableNumber}
+                          T
+                          {order.tableNumber}
                         </div>
 
                         <div>
 
-                          <span>ORDER</span>
+                          <span>
+                            ORDER
+                          </span>
 
                           <h3>
                             {order.orderNumber}
@@ -510,22 +860,38 @@ function CashierDashboard({
 
                       </div>
 
+
                       <div className="cashier-ready-status">
+
                         <span></span>
+
                         READY
+
                       </div>
 
                     </div>
+
 
                     {/* ORDER ITEMS */}
 
                     <div className="cashier-order-items">
 
                       <div className="cashier-items-heading">
-                        <span>ITEM</span>
-                        <span>QTY</span>
-                        <span>AMOUNT</span>
+
+                        <span>
+                          ITEM
+                        </span>
+
+                        <span>
+                          QTY
+                        </span>
+
+                        <span>
+                          AMOUNT
+                        </span>
+
                       </div>
+
 
                       {order.items.map(
                         (item, index) => (
@@ -547,14 +913,17 @@ function CashierDashboard({
 
                             </div>
 
+
                             <span className="cashier-item-qty">
                               {item.quantity}
                             </span>
 
+
                             <strong className="cashier-item-price">
                               ₹
                               {Number(
-                                item.itemTotal || 0
+                                item.itemTotal ||
+                                  0
                               ).toFixed(2)}
                             </strong>
 
@@ -565,22 +934,28 @@ function CashierDashboard({
 
                     </div>
 
+
                     {/* ORDER TOTAL */}
 
                     <div className="cashier-order-bottom">
 
                       <div className="cashier-total-label">
 
-                        <span>Total Amount</span>
+                        <span>
+                          Total Amount
+                        </span>
 
                         <small>
-                          {order.items.length} item
-                          {order.items.length !== 1
+                          {order.items.length}{" "}
+                          item
+                          {order.items.length !==
+                          1
                             ? "s"
                             : ""}
                         </small>
 
                       </div>
+
 
                       <strong className="cashier-total">
                         ₹
@@ -591,6 +966,7 @@ function CashierDashboard({
 
                     </div>
 
+
                     {/* ACTION */}
 
                     <button
@@ -599,6 +975,7 @@ function CashierDashboard({
                         handleViewBill(order)
                       }
                     >
+
                       <span>
                         VIEW & COLLECT PAYMENT
                       </span>
@@ -606,9 +983,11 @@ function CashierDashboard({
                       <span className="collect-arrow">
                         →
                       </span>
+
                     </button>
 
                   </article>
+
                 ))}
 
               </div>
@@ -618,16 +997,17 @@ function CashierDashboard({
 
       </main>
 
-      {/* =========================
+
+      {/* =================================================
           PAYMENT MODAL
-      ========================= */}
+      ================================================= */}
 
       {selectedOrder && (
         <div className="cashier-modal-overlay">
 
           <div className="cashier-payment-modal">
 
-            {/* MODAL HEADER */}
+            {/* HEADER */}
 
             <div className="payment-modal-header">
 
@@ -638,7 +1018,8 @@ function CashierDashboard({
                 </span>
 
                 <h2>
-                  Table {selectedOrder.tableNumber}
+                  Table{" "}
+                  {selectedOrder.tableNumber}
                 </h2>
 
                 <p>
@@ -647,24 +1028,38 @@ function CashierDashboard({
 
               </div>
 
+
               <button
                 className="payment-close"
-                onClick={handleCloseBill}
-                disabled={paymentLoading}
+                onClick={
+                  handleCloseBill
+                }
+                disabled={
+                  paymentLoading
+                }
               >
                 ×
               </button>
 
             </div>
 
+
             {/* BILL */}
 
             <div className="payment-bill">
 
               <div className="payment-bill-heading">
-                <span>ORDER SUMMARY</span>
-                <span>AMOUNT</span>
+
+                <span>
+                  ORDER SUMMARY
+                </span>
+
+                <span>
+                  AMOUNT
+                </span>
+
               </div>
+
 
               {selectedOrder.items.map(
                 (item, index) => (
@@ -685,11 +1080,14 @@ function CashierDashboard({
                         {Number(
                           item.price || 0
                         ).toFixed(2)}
+
                         {" × "}
+
                         {item.quantity}
                       </span>
 
                     </div>
+
 
                     <strong>
                       ₹
@@ -699,12 +1097,16 @@ function CashierDashboard({
                     </strong>
 
                   </div>
+
                 )
               )}
 
+
               <div className="payment-total">
 
-                <span>Amount Due</span>
+                <span>
+                  Amount Due
+                </span>
 
                 <strong>
                   ₹
@@ -717,7 +1119,10 @@ function CashierDashboard({
 
             </div>
 
-            {/* PAYMENT METHODS */}
+
+            {/* =================================================
+                PAYMENT METHODS
+            ================================================= */}
 
             <div className="payment-method-section">
 
@@ -725,118 +1130,193 @@ function CashierDashboard({
                 SELECT PAYMENT METHOD
               </span>
 
-              <div className="payment-method-grid">
 
-                {/* CASH */}
-
-                <button
-                  type="button"
-                  className={`payment-method-card ${paymentMethod === "CASH"
-                    ? "selected"
+              <div
+                className={`payment-method-grid ${
+                  paymentSettingsLoading
+                    ? "payment-methods-loading"
                     : ""
-                    }`}
-                  onClick={() =>
-                    setPaymentMethod("CASH")
-                  }
-                  disabled={paymentLoading}
-                >
-                  <span className="payment-icon">
-                    💵
-                  </span>
+                }`}
+              >
 
-                  <strong>Cash</strong>
+                {paymentSettingsLoading ? (
 
-                  <small>
-                    Cash payment
-                  </small>
-                </button>
+                  <div className="payment-settings-loading">
+                    Loading payment methods...
+                  </div>
 
-                {/* CARD */}
+                ) : (
 
-                <button
-                  type="button"
-                  className={`payment-method-card ${paymentMethod === "CARD"
-                    ? "selected"
-                    : ""
-                    }`}
-                  onClick={() =>
-                    setPaymentMethod("CARD")
-                  }
-                  disabled={paymentLoading}
-                >
-                  <span className="payment-icon">
-                    💳
-                  </span>
+                  <>
 
-                  <strong>Card</strong>
+                    {/* CASH */}
 
-                  <small>
-                    Debit / Credit
-                  </small>
-                </button>
+                    {enabledPaymentMethods.cash && (
+                      <button
+                        type="button"
+                        className={`payment-method-card ${
+                          paymentMethod ===
+                          "CASH"
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setPaymentMethod(
+                            "CASH"
+                          )
+                        }
+                        disabled={
+                          paymentLoading
+                        }
+                      >
 
-                {/* UPI */}
+                        <span className="payment-icon">
+                          💵
+                        </span>
 
-                <button
-                  type="button"
-                  className={`payment-method-card ${paymentMethod === "UPI"
-                    ? "selected"
-                    : ""
-                    }`}
-                  onClick={() =>
-                    setPaymentMethod("UPI")
-                  }
-                  disabled={paymentLoading}
-                >
-                  <span className="payment-icon">
-                    📱
-                  </span>
+                        <strong>
+                          Cash
+                        </strong>
 
-                  <strong>UPI</strong>
+                        <small>
+                          Cash payment
+                        </small>
 
-                  <small>
-                    Scan & Pay
-                  </small>
-                </button>
+                      </button>
+                    )}
+
+
+                    {/* CARD */}
+
+                    {enabledPaymentMethods.card && (
+                      <button
+                        type="button"
+                        className={`payment-method-card ${
+                          paymentMethod ===
+                          "CARD"
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setPaymentMethod(
+                            "CARD"
+                          )
+                        }
+                        disabled={
+                          paymentLoading
+                        }
+                      >
+
+                        <span className="payment-icon">
+                          💳
+                        </span>
+
+                        <strong>
+                          Card
+                        </strong>
+
+                        <small>
+                          Debit / Credit
+                        </small>
+
+                      </button>
+                    )}
+
+
+                    {/* UPI */}
+
+                    {enabledPaymentMethods.upi && (
+                      <button
+                        type="button"
+                        className={`payment-method-card ${
+                          paymentMethod ===
+                          "UPI"
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setPaymentMethod(
+                            "UPI"
+                          )
+                        }
+                        disabled={
+                          paymentLoading
+                        }
+                      >
+
+                        <span className="payment-icon">
+                          📱
+                        </span>
+
+                        <strong>
+                          UPI
+                        </strong>
+
+                        <small>
+                          Scan & Pay
+                        </small>
+
+                      </button>
+                    )}
+
+                  </>
+
+                )}
 
               </div>
 
             </div>
 
+
             {/* PAYMENT ERROR */}
 
             {paymentError && (
               <div className="payment-error">
-                <span>!</span>
+
+                <span>
+                  !
+                </span>
+
                 {paymentError}
+
               </div>
             )}
 
-            {/* MODAL ACTIONS */}
+
+            {/* ACTIONS */}
 
             <div className="payment-actions">
 
               <button
                 className="payment-cancel"
-                onClick={handleCloseBill}
-                disabled={paymentLoading}
+                onClick={
+                  handleCloseBill
+                }
+                disabled={
+                  paymentLoading
+                }
               >
                 Cancel
               </button>
 
+
               <button
                 className="payment-confirm"
-                onClick={handleConfirmPayment}
+                onClick={
+                  handleConfirmPayment
+                }
                 disabled={
                   paymentLoading ||
+                  paymentSettingsLoading ||
                   !paymentMethod
                 }
               >
                 {paymentLoading
                   ? "Processing..."
                   : `COLLECT ₹${Number(
-                    selectedOrder.total || 0
-                  ).toFixed(2)}`}
+                      selectedOrder.total ||
+                        0
+                    ).toFixed(2)}`}
               </button>
 
             </div>
@@ -846,9 +1326,10 @@ function CashierDashboard({
         </div>
       )}
 
-      {/* =========================
+
+      {/* =================================================
           PAYMENT SUCCESS MODAL
-      ========================= */}
+      ================================================= */}
 
       {paymentSuccess && (
         <div className="cashier-success-overlay">
@@ -858,10 +1339,13 @@ function CashierDashboard({
             {/* SUCCESS ICON */}
 
             <div className="cashier-success-icon">
+
               <div className="cashier-success-icon-inner">
                 ✓
               </div>
+
             </div>
+
 
             {/* TITLE */}
 
@@ -870,14 +1354,20 @@ function CashierDashboard({
             </h2>
 
             <p className="cashier-success-subtitle">
-              Payment has been recorded successfully
+              Payment has been recorded
+              successfully
             </p>
+
 
             {/* AMOUNT */}
 
             <div className="cashier-success-amount">
-              ₹{paymentSuccess.amount.toFixed(2)}
+              ₹
+              {paymentSuccess.amount.toFixed(
+                2
+              )}
             </div>
+
 
             {/* PAYMENT DETAILS */}
 
@@ -885,37 +1375,53 @@ function CashierDashboard({
 
               <div className="cashier-success-detail">
 
-                <span>Payment Method</span>
+                <span>
+                  Payment Method
+                </span>
 
                 <strong>
-                  {paymentSuccess.paymentMethod}
+                  {
+                    paymentSuccess.paymentMethod
+                  }
                 </strong>
 
               </div>
 
+
               <div className="cashier-success-detail">
 
-                <span>Order</span>
+                <span>
+                  Order
+                </span>
 
                 <strong>
-                  {paymentSuccess.orderNumber}
+                  {
+                    paymentSuccess.orderNumber
+                  }
                 </strong>
 
               </div>
 
+
               <div className="cashier-success-detail">
 
-                <span>Table</span>
+                <span>
+                  Table
+                </span>
 
                 <strong>
-                  Table {paymentSuccess.tableNumber}
+                  Table{" "}
+                  {
+                    paymentSuccess.tableNumber
+                  }
                 </strong>
 
               </div>
 
             </div>
 
-            {/* DONE */}
+
+            {/* ACTIONS */}
 
             <div className="payment-success-actions">
 
@@ -923,24 +1429,32 @@ function CashierDashboard({
                 type="button"
                 className="payment-success-print"
                 onClick={() => {
-  setPaymentSuccess(null);
-  setShowReceipt(true);
-}}
+                  setPaymentSuccess(
+                    null
+                  );
+
+                  setShowReceipt(true);
+                }}
               >
                 🖨 PRINT RECEIPT
               </button>
+
 
               <button
                 type="button"
                 className="payment-success-done"
                 onClick={() => {
-                  setPaymentSuccess(null);
+                  setPaymentSuccess(
+                    null
+                  );
+
                   setShowReceipt(false);
                   setReceiptData(null);
                 }}
               >
                 DONE
               </button>
+
             </div>
 
           </div>
@@ -948,20 +1462,36 @@ function CashierDashboard({
         </div>
       )}
 
-      {receiptData && (
+
+      {/* =================================================
+          RECEIPT
+      ================================================= */}
+
+      {receiptData && !showReceipt && (
         <Receipt
           order={receiptData.order}
-          paymentMethod={receiptData.paymentMethod}
-          paidAt={receiptData.paidAt}
-          onClose={() => setReceiptData(null)}
+          paymentMethod={
+            receiptData.paymentMethod
+          }
+          paidAt={
+            receiptData.paidAt
+          }
+          onClose={() =>
+            setReceiptData(null)
+          }
         />
       )}
+
 
       {showReceipt && receiptData && (
         <Receipt
           order={receiptData.order}
-          paymentMethod={receiptData.paymentMethod}
-          paidAt={receiptData.paidAt}
+          paymentMethod={
+            receiptData.paymentMethod
+          }
+          paidAt={
+            receiptData.paidAt
+          }
           onClose={() => {
             setShowReceipt(false);
             setReceiptData(null);

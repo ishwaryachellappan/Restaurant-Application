@@ -1318,3 +1318,20 @@
   font-size: 18px;
   font-weight: 800;
 }
+
+.payment-settings-loading {
+  width: 100%;
+  padding: 18px;
+  text-align: center;
+  box-sizing: border-box;
+  color: #718096;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.payment-methods-loading {
+  display: block;
+}
