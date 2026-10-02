@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "./ManagerDashboard.css";
+import RestaurantSettings from "./Settings/RestaurantSettings";
+import { useRestaurantBranding } from "../../context/RestaurantBrandingContext";
 
 function ManagerDashboard({
   user,
@@ -8,8 +14,9 @@ function ManagerDashboard({
   onOpenSales,
   onOpenStaff,
   onOpenMenu,
+  onOpenSettings,
 }) {
-  
+
   const [orders, setOrders] = useState([]);
   const [tables, setTables] = useState([]);
   const [kitchenOrders, setKitchenOrders] = useState([]);
@@ -19,7 +26,11 @@ function ManagerDashboard({
 
   const [dateFilter, setDateFilter] = useState("today");
   const [customDate, setCustomDate] = useState("");
-const dateInputRef = useRef(null);
+  const dateInputRef = useRef(null);
+const {
+  restaurantName,
+  restaurantLogo,
+} = useRestaurantBranding();
 
   const loadDashboard = async () => {
     try {
@@ -255,17 +266,22 @@ const dateInputRef = useRef(null);
       <aside className="manager-sidebar">
 
         <div className="manager-brand">
+  <div className="manager-brand-icon">
+    {restaurantLogo ? (
+      <img
+        src={restaurantLogo}
+        alt={restaurantName}
+      />
+    ) : (
+      "🍽"
+    )}
+  </div>
 
-          <div className="manager-brand-icon">
-            🍽
-          </div>
-
-          <div>
-            <strong>Restaurant</strong>
-            <span>POS SYSTEM</span>
-          </div>
-
-        </div>
+  <div>
+    <strong>{restaurantName}</strong>
+   
+  </div>
+</div>
 
         <div className="manager-sidebar-section">
 
@@ -274,53 +290,63 @@ const dateInputRef = useRef(null);
           </span>
 
           <button className="manager-nav-item active">
-  <span>▦</span>
-  Dashboard
-</button>
+            <span>▦</span>
+            Dashboard
+          </button>
 
-<button
-  className="manager-nav-item"
-  onClick={onOpenOrders}
->
-  <span>▤</span>
-  Orders
-</button>
+          <button
+            className="manager-nav-item"
+            onClick={onOpenOrders}
+          >
+            <span>▤</span>
+            Orders
+          </button>
 
-<button
-  className="manager-nav-item"
-  onClick={onOpenSales}
->
-  <span>₹</span>
-  Sales & Reports
-</button>
+          <button
+            className="manager-nav-item"
+            onClick={onOpenSales}
+          >
+            <span>₹</span>
+            Sales & Reports
+          </button>
 
-<button
-  className="manager-nav-item"
-  onClick={() => onOpenStaff()}
->
-  👥
-  <span>Staff</span>
-</button>
+          <button
+            className="manager-nav-item"
+            onClick={() => onOpenStaff()}
+          >
+            👥
+            <span>Staff</span>
+          </button>
 
-<button
-  className="manager-nav-item"
-  onClick={() => {
-    console.log("MENU BUTTON CLICKED");
-    onOpenMenu();
-  }}
-  type="button"
->
-  <span>🍽️</span>
-  Menu Management
-</button>
+          <button
+            className="manager-nav-item"
+            onClick={() => {
+              console.log("MENU BUTTON CLICKED");
+              onOpenMenu();
+            }}
+            type="button"
+          >
+            <span>🍽️</span>
+            Menu Management
+          </button>
 
-<button
-  className="manager-nav-item"
-  onClick={loadDashboard}
->
-  <span>↻</span>
-  Refresh Data
-</button>
+          <button
+            type="button"
+            className="manager-nav-item"
+            onClick={onOpenSettings}
+          >
+            <span className="nav-icon">⚙</span>
+            Restaurant Settings
+          </button>
+
+
+          <button
+            className="manager-nav-item"
+            onClick={loadDashboard}
+          >
+            <span>↻</span>
+            Refresh Data
+          </button>
 
         </div>
 
@@ -387,100 +413,99 @@ const dateInputRef = useRef(null);
               sales activity.
             </p>
 
-<div className="manager-date-filter">
+            <div className="manager-date-filter">
 
-  <button
-    type="button"
-    className={
-      dateFilter === "today"
-        ? "active"
-        : ""
-    }
-    onClick={() => {
-      setDateFilter("today");
-      setCustomDate("");
-    }}
-  >
-    Today
-  </button>
+              <button
+                type="button"
+                className={
+                  dateFilter === "today"
+                    ? "active"
+                    : ""
+                }
+                onClick={() => {
+                  setDateFilter("today");
+                  setCustomDate("");
+                }}
+              >
+                Today
+              </button>
 
-  <button
-    type="button"
-    className={
-      dateFilter === "yesterday"
-        ? "active"
-        : ""
-    }
-    onClick={() => {
-      setDateFilter("yesterday");
-      setCustomDate("");
-    }}
-  >
-    Yesterday
-  </button>
+              <button
+                type="button"
+                className={
+                  dateFilter === "yesterday"
+                    ? "active"
+                    : ""
+                }
+                onClick={() => {
+                  setDateFilter("yesterday");
+                  setCustomDate("");
+                }}
+              >
+                Yesterday
+              </button>
 
-  <button
-    type="button"
-    className={`manager-custom-date ${
-      dateFilter === "custom"
-        ? "active"
-        : ""
-    }`}
-    onClick={() => {
-      if (dateInputRef.current) {
-        if (
-          typeof dateInputRef.current
-            .showPicker === "function"
-        ) {
-          dateInputRef.current.showPicker();
-        } else {
-          dateInputRef.current.click();
-        }
-      }
-    }}
-  >
-    <span className="manager-calendar-icon">
-      📅
-    </span>
+              <button
+                type="button"
+                className={`manager-custom-date ${dateFilter === "custom"
+                    ? "active"
+                    : ""
+                  }`}
+                onClick={() => {
+                  if (dateInputRef.current) {
+                    if (
+                      typeof dateInputRef.current
+                        .showPicker === "function"
+                    ) {
+                      dateInputRef.current.showPicker();
+                    } else {
+                      dateInputRef.current.click();
+                    }
+                  }
+                }}
+              >
+                <span className="manager-calendar-icon">
+                  📅
+                </span>
 
-    <span className="manager-custom-date-text">
-      {customDate
-        ? new Date(
-            `${customDate}T00:00:00`
-          ).toLocaleDateString(
-            "en-IN",
-            {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }
-          )
-        : "Select date"}
-    </span>
+                <span className="manager-custom-date-text">
+                  {customDate
+                    ? new Date(
+                      `${customDate}T00:00:00`
+                    ).toLocaleDateString(
+                      "en-IN",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }
+                    )
+                    : "Select date"}
+                </span>
 
-    <input
-      ref={dateInputRef}
-      type="date"
-      value={customDate}
-      onChange={(event) => {
-        const selectedDate =
-          event.target.value;
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={customDate}
+                  onChange={(event) => {
+                    const selectedDate =
+                      event.target.value;
 
-        if (!selectedDate) {
-          return;
-        }
+                    if (!selectedDate) {
+                      return;
+                    }
 
-        setCustomDate(selectedDate);
-        setDateFilter("custom");
-      }}
-      className="manager-hidden-date-input"
-      aria-label="Select custom date"
-    />
-  </button>
+                    setCustomDate(selectedDate);
+                    setDateFilter("custom");
+                  }}
+                  className="manager-hidden-date-input"
+                  aria-label="Select custom date"
+                />
+              </button>
 
-</div>
+            </div>
 
-           </div>
+          </div>
 
           <div className="manager-header-actions">
 
@@ -672,9 +697,9 @@ const dateInputRef = useRef(null);
                     <div
                       key={table._id}
                       className={`manager-table ${table.status ===
-                          "OCCUPIED"
-                          ? "occupied"
-                          : "available"
+                        "OCCUPIED"
+                        ? "occupied"
+                        : "available"
                         }`}
                     >
                       <strong>

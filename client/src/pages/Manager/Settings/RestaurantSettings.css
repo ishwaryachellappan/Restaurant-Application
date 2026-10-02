@@ -1,0 +1,412 @@
+.restaurant-settings-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  color: #0f172a;
+}
+
+.restaurant-settings-header {
+  height: 72px;
+  padding: 0 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.restaurant-settings-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.restaurant-settings-logo {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 9px;
+
+  background: #111827;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.restaurant-settings-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.restaurant-settings-brand h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.restaurant-settings-brand p {
+  margin: 3px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.restaurant-settings-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.restaurant-settings-user div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.restaurant-settings-user strong {
+  font-size: 12px;
+}
+
+.restaurant-settings-user span {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.restaurant-settings-user button {
+  border: none;
+  border-radius: 7px;
+
+  padding: 10px 16px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.restaurant-settings-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+.restaurant-settings-back {
+  border: none;
+  background: transparent;
+
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  margin-bottom: 18px;
+}
+
+.restaurant-settings-card {
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+
+  overflow: hidden;
+}
+
+.restaurant-settings-card-header {
+  padding: 28px 30px 24px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.restaurant-settings-label {
+  color: #64748b;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+.restaurant-settings-card-header h2 {
+  margin: 8px 0 6px;
+
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.restaurant-settings-card-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+.restaurant-settings-body {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.restaurant-settings-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.restaurant-settings-field label {
+  margin-bottom: 9px;
+
+  color: #334155;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.restaurant-settings-field input[type="text"] {
+  width: 100%;
+  height: 46px;
+
+  box-sizing: border-box;
+
+  padding: 0 14px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.restaurant-settings-field input[type="text"]:focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
+}
+
+.restaurant-settings-field small {
+  margin-top: 7px;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+}
+
+.restaurant-logo-upload {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.restaurant-logo-preview {
+  width: 120px;
+  height: 120px;
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.restaurant-logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.restaurant-logo-preview span {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.restaurant-logo-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.restaurant-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 40px;
+  padding: 0 16px;
+
+  border-radius: 7px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.restaurant-upload-button input {
+  display: none;
+}
+
+.restaurant-remove-logo {
+  border: none;
+  background: transparent;
+
+  color: #dc2626;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.restaurant-settings-success {
+  margin: 0 30px 20px;
+  padding: 12px 14px;
+
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+
+  background: #ecfdf5;
+  color: #047857;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.restaurant-settings-error {
+  margin: 0 30px 20px;
+  padding: 12px 14px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #fef2f2;
+  color: #b91c1c;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.restaurant-settings-footer {
+  padding: 20px 30px;
+
+  border-top: 1px solid #e2e8f0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.restaurant-settings-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.restaurant-settings-note span {
+  width: 24px;
+  height: 24px;
+
+  border-radius: 50%;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.restaurant-settings-note p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+.restaurant-settings-save {
+  height: 42px;
+
+  padding: 0 22px;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #111827;
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.restaurant-settings-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+
+  .restaurant-settings-header {
+    padding: 0 16px;
+  }
+
+  .restaurant-settings-content {
+    padding: 20px 14px 40px;
+  }
+
+  .restaurant-settings-card-header,
+  .restaurant-settings-body {
+    padding: 22px;
+  }
+
+  .restaurant-settings-footer {
+    padding: 18px 22px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .restaurant-settings-save {
+    width: 100%;
+  }
+
+  .restaurant-logo-upload {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}

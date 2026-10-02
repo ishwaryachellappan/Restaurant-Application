@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
+
 import WaiterDashboard from "./pages/Waiter/WaiterDashboard";
 import Tables from "./pages/Waiter/Tables";
 import Order from "./pages/Waiter/Order/Order";
@@ -15,6 +16,7 @@ import MyOrders from "./pages/Waiter/MyOrders/MyOrders";
 import WaiterOrderDetails from "./pages/Waiter/OrderDetails/WaiterOrderDetails";
 import PaymentHistory from "./pages/Cashier/PaymentHistory/PaymentHistory";
 import TaxConfiguration from "./pages/Cashier/TaxConfiguration/TaxConfiguration";
+import RestaurantSettings from "./pages/Manager/Settings/RestaurantSettings";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -213,44 +215,44 @@ function App() {
       );
     }
 
-if (currentPage === "cashier") {
-  return (
-    <CashierDashboard
-      user={user}
-      onLogout={handleLogout}
-      onPaymentHistory={() =>
-        setCurrentPage("cashier-payment-history")
-      }
-      onTaxConfiguration={() =>
-        setCurrentPage("cashier-tax-configuration")
-      }
-    />
-  );
-}
+    if (currentPage === "cashier") {
+      return (
+        <CashierDashboard
+          user={user}
+          onLogout={handleLogout}
+          onPaymentHistory={() =>
+            setCurrentPage("cashier-payment-history")
+          }
+          onTaxConfiguration={() =>
+            setCurrentPage("cashier-tax-configuration")
+          }
+        />
+      );
+    }
 
- if (currentPage === "cashier-payment-history") {
-  return (
-    <PaymentHistory
-      user={user}
-      onBack={() =>
-        setCurrentPage("cashier")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "cashier-payment-history") {
+      return (
+        <PaymentHistory
+          user={user}
+          onBack={() =>
+            setCurrentPage("cashier")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
 
-if (currentPage === "cashier-tax-configuration") {
-  return (
-    <TaxConfiguration
-      user={user}
-      onBack={() =>
-        setCurrentPage("cashier")
-      }
-      onLogout={handleLogout}
-    />
-  );
-}
+    if (currentPage === "cashier-tax-configuration") {
+      return (
+        <TaxConfiguration
+          user={user}
+          onBack={() =>
+            setCurrentPage("cashier")
+          }
+          onLogout={handleLogout}
+        />
+      );
+    }
 
     if (currentPage === "manager-sales") {
       return (
@@ -307,21 +309,43 @@ if (currentPage === "cashier-tax-configuration") {
     }
 
 
+if (currentPage === "manager") {
+  return (
+    <ManagerDashboard
+      user={user}
+      onLogout={handleLogout}
+      onOpenOrders={() =>
+        setCurrentPage("manager-orders")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
+      }
+      onOpenStaff={() =>
+        setCurrentPage("manager-staff")
+      }
+      onOpenMenu={() =>
+        setCurrentPage("manager-menu")
+      }
+      onOpenSettings={() =>
+        setCurrentPage("manager-settings")
+      }
+    />
+  );
+}
 
+    if (currentPage === "manager-settings") {
+  return (
+    <RestaurantSettings
+      user={user}
 
+      onBack={() =>
+        setCurrentPage("manager")
+      }
 
-    if (currentPage === "manager") {
-      return (
-        <ManagerDashboard
-          user={user}
-          onLogout={handleLogout}
-          onOpenOrders={() => setCurrentPage("manager-orders")}
-          onOpenSales={() => setCurrentPage("manager-sales")}
-          onOpenStaff={() => setCurrentPage("manager-staff")}
-          onOpenMenu={() => setCurrentPage("manager-menu")}
-        />
-      );
-    }
+      onLogout={handleLogout}
+    />
+  );
+}
 
 
     if (currentPage === "manager-staff") {
