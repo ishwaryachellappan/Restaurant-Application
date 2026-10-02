@@ -911,13 +911,9 @@ function CashierDashboard({
                 type="button"
                 className="payment-success-print"
                 onClick={() => {
-                  setPaymentSuccess(null);
-                  setShowReceipt(true);
-
-                  setTimeout(() => {
-                    window.print();
-                  }, 500);
-                }}
+  setPaymentSuccess(null);
+  setShowReceipt(true);
+}}
               >
                 🖨 PRINT RECEIPT
               </button>

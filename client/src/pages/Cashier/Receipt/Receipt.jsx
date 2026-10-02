@@ -1,5 +1,6 @@
 import React from "react";
 import "./Receipt.css";
+import { useEffect } from "react";
 
 function Receipt({
   order,
@@ -7,21 +8,58 @@ function Receipt({
   paidAt,
   onClose,
 }) {
+
+  
   if (!order) {
     return null;
   }
 
-  const items = order.items || [];
+ const items = order.items || [];
 
-  const subtotal = items.reduce((sum, item) => {
-    const itemTotal =
-      Number(item.itemTotal) ||
-      Number(item.price || 0) * Number(item.quantity || 0);
+const subtotal = items.reduce((sum, item) => {
+  const itemTotal =
+    Number(item.itemTotal) ||
+    Number(item.price || 0) *
+      Number(item.quantity || 0);
 
-    return sum + itemTotal;
-  }, 0);
+  return sum + itemTotal;
+}, 0);
 
-  const grandTotal = Number(order.total || subtotal);
+const discountAmount =
+  Number(order.discountAmount || 0);
+
+const taxRate =
+  Number(order.taxRate || 0);
+
+// First try the saved tax amount
+let taxAmount =
+  Number(order.taxAmount || 0);
+
+// Fallback for older orders where taxAmount
+// was not saved but total already includes tax
+if (
+  taxAmount === 0 &&
+  Number(order.total || 0) >
+    subtotal - discountAmount
+) {
+  taxAmount =
+    Number(order.total) -
+    (subtotal - discountAmount);
+}
+
+const cgstRate = taxRate / 2;
+const sgstRate = taxRate / 2;
+
+const cgstAmount = taxAmount / 2;
+const sgstAmount = taxAmount / 2;
+
+const grandTotal =
+  Number(order.total || 0) ||
+  (
+    subtotal -
+    discountAmount +
+    taxAmount
+  );
 
   const paymentDate = paidAt
     ? new Date(paidAt)
@@ -143,23 +181,60 @@ function Receipt({
 
           <div className="receipt-divider" />
 
-          <div className="receipt-summary">
+         <div className="receipt-summary">
 
-            <div>
-              <span>Subtotal</span>
-              <strong>
-                ₹{subtotal.toFixed(2)}
-              </strong>
-            </div>
+  <div>
+    <span>Subtotal</span>
 
-            <div className="receipt-grand-total">
-              <span>GRAND TOTAL</span>
-              <strong>
-                ₹{grandTotal.toFixed(2)}
-              </strong>
-            </div>
+    <strong>
+      ₹{subtotal.toFixed(2)}
+    </strong>
+  </div>
 
-          </div>
+  {discountAmount > 0 && (
+    <div>
+      <span>Discount</span>
+
+      <strong>
+        - ₹{discountAmount.toFixed(2)}
+      </strong>
+    </div>
+  )}
+
+  {taxAmount > 0 && (
+    <>
+      <div>
+        <span>
+          CGST ({cgstRate}%)
+        </span>
+
+        <strong>
+          ₹{cgstAmount.toFixed(2)}
+        </strong>
+      </div>
+
+      <div>
+        <span>
+          SGST ({sgstRate}%)
+        </span>
+
+        <strong>
+          ₹{sgstAmount.toFixed(2)}
+        </strong>
+      </div>
+    </>
+  )}
+
+  <div className="receipt-grand-total">
+    <span>GRAND TOTAL</span>
+
+    <strong>
+      ₹{grandTotal.toFixed(2)}
+    </strong>
+  </div>
+
+</div>
+
 
           <div className="receipt-divider" />
 
