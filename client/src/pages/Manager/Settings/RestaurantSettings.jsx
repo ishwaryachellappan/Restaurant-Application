@@ -7,10 +7,6 @@ function RestaurantSettings({
   onBack,
   onLogout,
 }) {
-  // ------------------------------------------
-  // GLOBAL RESTAURANT BRANDING
-  // ------------------------------------------
-
   const {
     restaurantName: globalRestaurantName,
     restaurantLogo: globalRestaurantLogo,
@@ -18,25 +14,36 @@ function RestaurantSettings({
   } = useRestaurantBranding();
 
   // ------------------------------------------
-  // LOCAL SETTINGS FORM
+  // FORM STATE
   // ------------------------------------------
 
-  const [restaurantName, setRestaurantName] =
-    useState("");
-
+  const [restaurantName, setRestaurantName] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [gstTaxNumber, setGstTaxNumber] = useState("");
+  const [currency, setCurrency] = useState("INR");
+  const [taxRate, setTaxRate] = useState("");
+  const [receiptFooter, setReceiptFooter] = useState(
+    "Thank you for dining with us!"
+  );
   const [logo, setLogo] = useState("");
+  const [orderPrefix, setOrderPrefix] = useState("ORD");
+  const [tableCount, setTableCount] = useState(10);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [paymentMethods, setPaymentMethods] = useState({
+    cash: true,
+    card: true,
+    upi: true,
+  });
 
-  const [saving, setSaving] =
-    useState(false);
+  // ------------------------------------------
+  // UI STATE
+  // ------------------------------------------
 
-  const [message, setMessage] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   // ------------------------------------------
   // LOAD SETTINGS
@@ -60,13 +67,45 @@ function RestaurantSettings({
         );
       }
 
+      const settings = data.settings || {};
+
       setRestaurantName(
-        data.settings?.restaurantName || ""
+        settings.restaurantName || ""
       );
 
-      setLogo(
-        data.settings?.logo || ""
+      setAddress(settings.address || "");
+      setPhone(settings.phone || "");
+      setGstTaxNumber(settings.gstTaxNumber || "");
+      setCurrency(settings.currency || "INR");
+      setTaxRate(
+        settings.taxRate !== undefined
+          ? String(settings.taxRate)
+          : ""
       );
+
+      setReceiptFooter(
+        settings.receiptFooter ||
+          "Thank you for dining with us!"
+      );
+
+      setLogo(settings.logo || "");
+
+      setOrderPrefix(
+        settings.orderPrefix || "ORD"
+      );
+
+      setTableCount(
+        settings.tableCount || 10
+      );
+
+      setPaymentMethods({
+        cash:
+          settings.paymentMethods?.cash !== false,
+        card:
+          settings.paymentMethods?.card !== false,
+        upi:
+          settings.paymentMethods?.upi !== false,
+      });
     } catch (error) {
       console.error(
         "Load restaurant settings error:",
@@ -124,15 +163,11 @@ function RestaurantSettings({
         ) {
           if (width > height) {
             height =
-              (height / width) *
-              MAX_SIZE;
-
+              (height / width) * MAX_SIZE;
             width = MAX_SIZE;
           } else {
             width =
-              (width / height) *
-              MAX_SIZE;
-
+              (width / height) * MAX_SIZE;
             height = MAX_SIZE;
           }
         }
@@ -198,6 +233,25 @@ function RestaurantSettings({
   };
 
   // ------------------------------------------
+  // REMOVE LOGO
+  // ------------------------------------------
+
+  const handleRemoveLogo = () => {
+    setLogo("");
+  };
+
+  // ------------------------------------------
+  // PAYMENT METHOD TOGGLE
+  // ------------------------------------------
+
+  const togglePaymentMethod = (method) => {
+    setPaymentMethods((previous) => ({
+      ...previous,
+      [method]: !previous[method],
+    }));
+  };
+
+  // ------------------------------------------
   // SAVE SETTINGS
   // ------------------------------------------
 
@@ -208,6 +262,42 @@ function RestaurantSettings({
     if (!restaurantName.trim()) {
       setError(
         "Restaurant name is required."
+      );
+      return;
+    }
+
+    const numericTaxRate = Number(taxRate);
+    const numericTableCount = Number(tableCount);
+
+    if (
+      !Number.isFinite(numericTaxRate) ||
+      numericTaxRate < 0 ||
+      numericTaxRate > 100
+    ) {
+      setError(
+        "Tax rate must be between 0 and 100."
+      );
+      return;
+    }
+
+    if (
+      !Number.isInteger(numericTableCount) ||
+      numericTableCount < 1
+    ) {
+      setError(
+        "Table count must be at least 1."
+      );
+      return;
+    }
+
+    const hasPaymentMethod =
+      paymentMethods.cash ||
+      paymentMethods.card ||
+      paymentMethods.upi;
+
+    if (!hasPaymentMethod) {
+      setError(
+        "At least one payment method must be enabled."
       );
       return;
     }
@@ -229,7 +319,29 @@ function RestaurantSettings({
             restaurantName:
               restaurantName.trim(),
 
+            address: address.trim(),
+
+            phone: phone.trim(),
+
+            gstTaxNumber:
+              gstTaxNumber.trim(),
+
+            currency,
+
+            taxRate: numericTaxRate,
+
+            receiptFooter:
+              receiptFooter.trim(),
+
             logo,
+
+            orderPrefix:
+              orderPrefix.trim().toUpperCase(),
+
+            tableCount:
+              numericTableCount,
+
+            paymentMethods,
           }),
         }
       );
@@ -247,18 +359,62 @@ function RestaurantSettings({
         );
       }
 
-      // Update local form with saved values
+      const settings =
+        data.settings || {};
+
       setRestaurantName(
-        data.settings.restaurantName
+        settings.restaurantName || ""
+      );
+
+      setAddress(
+        settings.address || ""
+      );
+
+      setPhone(
+        settings.phone || ""
+      );
+
+      setGstTaxNumber(
+        settings.gstTaxNumber || ""
+      );
+
+      setCurrency(
+        settings.currency || "INR"
+      );
+
+      setTaxRate(
+        settings.taxRate !== undefined
+          ? String(settings.taxRate)
+          : "0"
+      );
+
+      setReceiptFooter(
+        settings.receiptFooter || ""
       );
 
       setLogo(
-        data.settings.logo || ""
+        settings.logo || ""
       );
 
-      // Refresh global branding
-      // so the new name/logo appears
-      // throughout the POS immediately.
+      setOrderPrefix(
+        settings.orderPrefix || "ORD"
+      );
+
+      setTableCount(
+        settings.tableCount || 10
+      );
+
+      setPaymentMethods({
+        cash:
+          settings.paymentMethods?.cash !== false,
+        card:
+          settings.paymentMethods?.card !== false,
+        upi:
+          settings.paymentMethods?.upi !== false,
+      });
+
+      // Refresh global restaurant
+      // branding throughout the POS.
       await refreshRestaurantBranding();
 
       setMessage(
@@ -280,21 +436,15 @@ function RestaurantSettings({
   };
 
   // ------------------------------------------
-  // REMOVE LOGO
-  // ------------------------------------------
-
-  const handleRemoveLogo = () => {
-    setLogo("");
-  };
-
-  // ------------------------------------------
   // RENDER
   // ------------------------------------------
 
   return (
     <div className="restaurant-settings-page">
 
-      {/* HEADER */}
+      {/* ======================================
+          HEADER
+      ====================================== */}
 
       <header className="restaurant-settings-header">
 
@@ -311,7 +461,8 @@ function RestaurantSettings({
             )}
           </div>
 
-          <div>
+          <div className="restaurant-settings-brand-text">
+
             <h1>
               {globalRestaurantName ||
                 restaurantName ||
@@ -321,6 +472,7 @@ function RestaurantSettings({
             <p>
               Restaurant Settings
             </p>
+
           </div>
 
         </div>
@@ -328,10 +480,10 @@ function RestaurantSettings({
 
         <div className="restaurant-settings-user">
 
-          <div>
+          <div className="restaurant-settings-user-info">
 
             <strong>
-              {user?.name || "Manager"}
+              {user?.name || "Restaurant Manager"}
             </strong>
 
             <span>
@@ -352,7 +504,9 @@ function RestaurantSettings({
       </header>
 
 
-      {/* CONTENT */}
+      {/* ======================================
+          PAGE CONTENT
+      ====================================== */}
 
       <main className="restaurant-settings-content">
 
@@ -367,138 +521,545 @@ function RestaurantSettings({
 
         <section className="restaurant-settings-card">
 
+          {/* ==================================
+              CARD HEADER
+          ================================== */}
+
           <div className="restaurant-settings-card-header">
 
-            <div>
+            <span className="restaurant-settings-label">
+              SYSTEM CONFIGURATION
+            </span>
 
-              <span className="restaurant-settings-label">
-                SYSTEM CONFIGURATION
-              </span>
+            <h2>
+              Restaurant Settings
+            </h2>
 
-              <h2>
-                Restaurant Settings
-              </h2>
-
-              <p>
-                Configure the restaurant name
-                and logo used throughout the POS.
-              </p>
-
-            </div>
+            <p>
+              Configure restaurant information,
+              tax, receipt, tables and payment methods.
+            </p>
 
           </div>
 
 
           <div className="restaurant-settings-body">
 
-            {/* RESTAURANT NAME */}
+            {/* ==================================
+                RESTAURANT INFORMATION
+            ================================== */}
 
-            <div className="restaurant-settings-field">
+            <section className="settings-section">
 
-              <label>
-                Restaurant Name
-              </label>
-
-              <input
-                type="text"
-                value={restaurantName}
-                onChange={(event) =>
-                  setRestaurantName(
-                    event.target.value
-                  )
-                }
-                placeholder="Enter restaurant name"
-                disabled={
-                  loading || saving
-                }
-              />
-
-              <small>
-                This name will appear throughout
-                the POS and on printed receipts.
-              </small>
-
-            </div>
+              <h3 className="settings-section-title">
+                RESTAURANT INFORMATION
+              </h3>
 
 
-            {/* LOGO */}
+              <div className="settings-grid">
 
-            <div className="restaurant-settings-field">
+                {/* NAME */}
 
-              <label>
-                Restaurant Logo
-              </label>
+                <div className="restaurant-settings-field">
 
-              <div className="restaurant-logo-upload">
-
-                <div className="restaurant-logo-preview">
-
-                  {logo ? (
-                    <img
-                      src={logo}
-                      alt="Restaurant logo preview"
-                    />
-                  ) : (
-                    <span>
-                      No Logo
+                  <label>
+                    Restaurant Name
+                    <span className="required-mark">
+                      *
                     </span>
-                  )}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={restaurantName}
+                    onChange={(event) =>
+                      setRestaurantName(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Enter restaurant name"
+                    disabled={
+                      loading || saving
+                    }
+                  />
 
                 </div>
 
 
-                <div className="restaurant-logo-actions">
+                {/* PHONE */}
 
-                  <label className="restaurant-upload-button">
+                <div className="restaurant-settings-field">
 
-                    Upload Logo
-
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={
-                        handleLogoChange
-                      }
-                      disabled={
-                        loading ||
-                        saving
-                      }
-                    />
-
+                  <label>
+                    Phone
                   </label>
 
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={(event) =>
+                      setPhone(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Enter phone number"
+                    disabled={
+                      loading || saving
+                    }
+                  />
 
-                  {logo && (
-                    <button
-                      type="button"
-                      className="restaurant-remove-logo"
-                      onClick={
-                        handleRemoveLogo
-                      }
-                      disabled={
-                        loading ||
-                        saving
-                      }
-                    >
-                      Remove Logo
-                    </button>
-                  )}
+                </div>
+
+
+                {/* ADDRESS */}
+
+                <div className="restaurant-settings-field settings-field-full">
+
+                  <label>
+                    Address
+                  </label>
+
+                  <textarea
+                    value={address}
+                    onChange={(event) =>
+                      setAddress(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Enter restaurant address"
+                    rows={3}
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                </div>
+
+
+                {/* GST */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    GST / Tax Number
+                  </label>
+
+                  <input
+                    type="text"
+                    value={gstTaxNumber}
+                    onChange={(event) =>
+                      setGstTaxNumber(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Enter GST / Tax number"
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                </div>
+
+
+                {/* CURRENCY */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    Currency
+                  </label>
+
+                  <select
+                    value={currency}
+                    onChange={(event) =>
+                      setCurrency(
+                        event.target.value
+                      )
+                    }
+                    disabled={
+                      loading || saving
+                    }
+                  >
+                    <option value="INR">
+                      INR - ₹
+                    </option>
+
+                    <option value="MYR">
+                      MYR - RM
+                    </option>
+
+                    <option value="USD">
+                      USD - $
+                    </option>
+
+                    <option value="SGD">
+                      SGD - S$
+                    </option>
+
+                    <option value="AED">
+                      AED - د.إ
+                    </option>
+                  </select>
 
                 </div>
 
               </div>
 
-              <small>
-                JPG, PNG, SVG or other image
-                formats. Maximum size: 5 MB.
-              </small>
+            </section>
 
-            </div>
+
+            {/* ==================================
+                TAX & RECEIPT
+            ================================== */}
+
+            <section className="settings-section">
+
+              <h3 className="settings-section-title">
+                TAX & RECEIPT
+              </h3>
+
+
+              <div className="settings-grid">
+
+                {/* TAX */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    Tax %
+                  </label>
+
+                  <div className="settings-input-with-suffix">
+
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={taxRate}
+                      onChange={(event) =>
+                        setTaxRate(
+                          event.target.value
+                        )
+                      }
+                      placeholder="0"
+                      disabled={
+                        loading || saving
+                      }
+                    />
+
+                    <span>
+                      %
+                    </span>
+
+                  </div>
+
+                  <small>
+                    Enter tax percentage
+                    (e.g. 6 for 6%)
+                  </small>
+
+                </div>
+
+
+                {/* RECEIPT FOOTER */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    Receipt Footer
+                  </label>
+
+                  <input
+                    type="text"
+                    value={receiptFooter}
+                    onChange={(event) =>
+                      setReceiptFooter(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Thank you for dining with us!"
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <small>
+                    This text will appear at the
+                    bottom of printed receipts.
+                  </small>
+
+                </div>
+
+
+                {/* RECEIPT LOGO */}
+
+                <div className="restaurant-settings-field settings-field-full">
+
+                  <label>
+                    Receipt Logo
+                  </label>
+
+                  <div className="restaurant-logo-upload">
+
+                    <div className="restaurant-logo-preview">
+
+                      {logo ? (
+                        <img
+                          src={logo}
+                          alt="Restaurant logo preview"
+                        />
+                      ) : (
+                        <span>
+                          No Logo
+                        </span>
+                      )}
+
+                    </div>
+
+
+                    <div className="restaurant-logo-actions">
+
+                      <label className="restaurant-upload-button">
+
+                        Upload Logo
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={
+                            handleLogoChange
+                          }
+                          disabled={
+                            loading ||
+                            saving
+                          }
+                        />
+
+                      </label>
+
+
+                      {logo && (
+                        <button
+                          type="button"
+                          className="restaurant-remove-logo"
+                          onClick={
+                            handleRemoveLogo
+                          }
+                          disabled={
+                            loading ||
+                            saving
+                          }
+                        >
+                          Remove Logo
+                        </button>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                  <small>
+                    This logo will appear on printed
+                    receipts and POS screens.
+                    Maximum size: 5 MB.
+                  </small>
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            {/* ==================================
+                ORDER & TABLES
+            ================================== */}
+
+            <section className="settings-section">
+
+              <h3 className="settings-section-title">
+                ORDER & TABLES
+              </h3>
+
+
+              <div className="settings-grid">
+
+                {/* ORDER PREFIX */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    Order Prefix
+                  </label>
+
+                  <input
+                    type="text"
+                    value={orderPrefix}
+                    onChange={(event) =>
+                      setOrderPrefix(
+                        event.target.value
+                          .toUpperCase()
+                      )
+                    }
+                    placeholder="ORD"
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <small>
+                    Example: ORD-1001
+                  </small>
+
+                </div>
+
+
+                {/* TABLE COUNT */}
+
+                <div className="restaurant-settings-field">
+
+                  <label>
+                    Table Count
+                  </label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    value={tableCount}
+                    onChange={(event) =>
+                      setTableCount(
+                        event.target.value
+                      )
+                    }
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <small>
+                    Number of restaurant tables.
+                  </small>
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            {/* ==================================
+                PAYMENT METHODS
+            ================================== */}
+
+            <section className="settings-section settings-payment-section">
+
+              <h3 className="settings-section-title">
+                PAYMENT METHODS
+              </h3>
+
+
+              <div className="payment-methods-grid">
+
+                {/* CASH */}
+
+                <label className="payment-method-card">
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      paymentMethods.cash
+                    }
+                    onChange={() =>
+                      togglePaymentMethod(
+                        "cash"
+                      )
+                    }
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <span className="payment-method-check">
+                    ✓
+                  </span>
+
+                  <span className="payment-method-name">
+                    CASH
+                  </span>
+
+                </label>
+
+
+                {/* CARD */}
+
+                <label className="payment-method-card">
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      paymentMethods.card
+                    }
+                    onChange={() =>
+                      togglePaymentMethod(
+                        "card"
+                      )
+                    }
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <span className="payment-method-check">
+                    ✓
+                  </span>
+
+                  <span className="payment-method-name">
+                    CARD
+                  </span>
+
+                </label>
+
+
+                {/* UPI */}
+
+                <label className="payment-method-card">
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      paymentMethods.upi
+                    }
+                    onChange={() =>
+                      togglePaymentMethod(
+                        "upi"
+                      )
+                    }
+                    disabled={
+                      loading || saving
+                    }
+                  />
+
+                  <span className="payment-method-check">
+                    ✓
+                  </span>
+
+                  <span className="payment-method-name">
+                    UPI
+                  </span>
+
+                </label>
+
+              </div>
+
+            </section>
 
           </div>
 
 
-          {/* MESSAGES */}
+          {/* ==================================
+              MESSAGES
+          ================================== */}
 
           {message && (
             <div className="restaurant-settings-success">
@@ -513,7 +1074,9 @@ function RestaurantSettings({
           )}
 
 
-          {/* FOOTER */}
+          {/* ==================================
+              FOOTER
+          ================================== */}
 
           <div className="restaurant-settings-footer">
 
@@ -540,7 +1103,7 @@ function RestaurantSettings({
               }
             >
               {saving
-                ? "Saving..."
+                ? "SAVING..."
                 : "SAVE CHANGES"}
             </button>
 

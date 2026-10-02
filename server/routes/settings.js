@@ -6,6 +6,31 @@ const RestaurantSettings = require(
 
 const router = express.Router();
 
+
+// ------------------------------------------
+// DEFAULT SETTINGS
+// ------------------------------------------
+
+const getDefaultSettings = () => ({
+  restaurantName: "Restaurant POS",
+  address: "",
+  phone: "",
+  gstTaxNumber: "",
+  currency: "INR",
+  taxRate: 0,
+  receiptFooter: "Thank you for dining with us!",
+  logo: "",
+  orderPrefix: "ORD",
+  tableCount: 10,
+
+  paymentMethods: {
+    cash: true,
+    card: true,
+    upi: true,
+  },
+});
+
+
 // ------------------------------------------
 // GET RESTAURANT SETTINGS
 // GET /api/settings/restaurant
@@ -13,20 +38,15 @@ const router = express.Router();
 
 router.get("/restaurant", async (req, res) => {
   try {
-
     let settings =
       await RestaurantSettings.findOne();
 
     // Create default settings if none exist
     if (!settings) {
-
       settings =
-        await RestaurantSettings.create({
-          restaurantName:
-            "Restaurant POS",
-
-          logo: "",
-        });
+        await RestaurantSettings.create(
+          getDefaultSettings()
+        );
     }
 
     return res.json({
@@ -38,8 +58,35 @@ router.get("/restaurant", async (req, res) => {
         restaurantName:
           settings.restaurantName,
 
+        address:
+          settings.address,
+
+        phone:
+          settings.phone,
+
+        gstTaxNumber:
+          settings.gstTaxNumber,
+
+        currency:
+          settings.currency,
+
+        taxRate:
+          settings.taxRate,
+
+        receiptFooter:
+          settings.receiptFooter,
+
         logo:
           settings.logo,
+
+        orderPrefix:
+          settings.orderPrefix,
+
+        tableCount:
+          settings.tableCount,
+
+        paymentMethods:
+          settings.paymentMethods,
 
         updatedAt:
           settings.updatedAt,
@@ -73,7 +120,16 @@ router.put("/restaurant", async (req, res) => {
 
     const {
       restaurantName,
+      address,
+      phone,
+      gstTaxNumber,
+      currency,
+      taxRate,
+      receiptFooter,
       logo,
+      orderPrefix,
+      tableCount,
+      paymentMethods,
     } = req.body;
 
 
@@ -85,12 +141,44 @@ router.put("/restaurant", async (req, res) => {
       !restaurantName ||
       !restaurantName.trim()
     ) {
-
       return res.status(400).json({
         success: false,
 
         message:
           "Restaurant name is required.",
+      });
+    }
+
+
+    const numericTaxRate =
+      Number(taxRate ?? 0);
+
+    if (
+      !Number.isFinite(numericTaxRate) ||
+      numericTaxRate < 0 ||
+      numericTaxRate > 100
+    ) {
+      return res.status(400).json({
+        success: false,
+
+        message:
+          "Tax rate must be between 0% and 100%.",
+      });
+    }
+
+
+    const numericTableCount =
+      Number(tableCount ?? 10);
+
+    if (
+      !Number.isInteger(numericTableCount) ||
+      numericTableCount < 1
+    ) {
+      return res.status(400).json({
+        success: false,
+
+        message:
+          "Table count must be at least 1.",
       });
     }
 
@@ -114,14 +202,50 @@ router.put("/restaurant", async (req, res) => {
           restaurantName:
             restaurantName.trim(),
 
+          address:
+            address?.trim() || "",
+
+          phone:
+            phone?.trim() || "",
+
+          gstTaxNumber:
+            gstTaxNumber?.trim() || "",
+
+          currency:
+            currency?.trim() || "INR",
+
+          taxRate:
+            numericTaxRate,
+
+          receiptFooter:
+            receiptFooter?.trim() ||
+            "Thank you for dining with us!",
+
           logo:
             logo || "",
+
+          orderPrefix:
+            orderPrefix?.trim() || "ORD",
+
+          tableCount:
+            numericTableCount,
+
+          paymentMethods: {
+            cash:
+              paymentMethods?.cash !== false,
+
+            card:
+              paymentMethods?.card !== false,
+
+            upi:
+              paymentMethods?.upi !== false,
+          },
         });
 
     }
 
     // --------------------------------------
-    // UPDATE
+    // UPDATE EXISTING SETTINGS
     // --------------------------------------
 
     else {
@@ -129,10 +253,45 @@ router.put("/restaurant", async (req, res) => {
       settings.restaurantName =
         restaurantName.trim();
 
+      settings.address =
+        address?.trim() || "";
+
+      settings.phone =
+        phone?.trim() || "";
+
+      settings.gstTaxNumber =
+        gstTaxNumber?.trim() || "";
+
+      settings.currency =
+        currency?.trim() || "INR";
+
+      settings.taxRate =
+        numericTaxRate;
+
+      settings.receiptFooter =
+        receiptFooter?.trim() ||
+        "Thank you for dining with us!";
+
       if (logo !== undefined) {
         settings.logo = logo;
       }
 
+      settings.orderPrefix =
+        orderPrefix?.trim() || "ORD";
+
+      settings.tableCount =
+        numericTableCount;
+
+      settings.paymentMethods = {
+        cash:
+          paymentMethods?.cash !== false,
+
+        card:
+          paymentMethods?.card !== false,
+
+        upi:
+          paymentMethods?.upi !== false,
+      };
     }
 
 
@@ -152,19 +311,45 @@ router.put("/restaurant", async (req, res) => {
 
       settings: {
 
-        id: settings._id,
+        id:
+          settings._id,
 
         restaurantName:
           settings.restaurantName,
 
+        address:
+          settings.address,
+
+        phone:
+          settings.phone,
+
+        gstTaxNumber:
+          settings.gstTaxNumber,
+
+        currency:
+          settings.currency,
+
+        taxRate:
+          settings.taxRate,
+
+        receiptFooter:
+          settings.receiptFooter,
+
         logo:
           settings.logo,
 
+        orderPrefix:
+          settings.orderPrefix,
+
+        tableCount:
+          settings.tableCount,
+
+        paymentMethods:
+          settings.paymentMethods,
+
         updatedAt:
           settings.updatedAt,
-
       },
-
     });
 
   } catch (error) {
