@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import "./KitchenDashboard.css";
+import KitchenInventory from "./KitchenInventory";
 import {
   useRestaurantBranding,
 } from "../../context/RestaurantBrandingContext";
 
 function KitchenDashboard({ user, onLogout }) {
-
   const {
-  restaurantName,
-  restaurantLogo,
-} = useRestaurantBranding();
+    restaurantName,
+    restaurantLogo,
+  } = useRestaurantBranding();
 
   const [orders, setOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
+
+  const [showInventory, setShowInventory] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [completedLoading, setCompletedLoading] =
@@ -178,417 +180,466 @@ function KitchenDashboard({ user, onLogout }) {
   return (
     <div className="kitchen-page">
 
-      
+      {/* =================================================
+          INVENTORY PAGE
+          ================================================= */}
 
-      {/* HEADER */}
-
-     <header className="kitchen-header">
-
-  <div className="kitchen-branding">
-
-    <div className="kitchen-brand-logo">
-      {restaurantLogo ? (
-        <img
-          src={restaurantLogo}
-          alt={restaurantName}
+      {showInventory ? (
+        <KitchenInventory
+          onBack={() => setShowInventory(false)}
         />
       ) : (
-        "🍽"
-      )}
-    </div>
 
-    <div className="kitchen-brand-name">
-      <strong>{restaurantName}</strong>
-    </div>
+        <>
+          {/* =================================================
+              HEADER
+              ================================================= */}
 
-  </div>
+          <header className="kitchen-header">
 
-  <div className="kitchen-header-title">
+            {/* RESTAURANT BRANDING */}
 
-    <h1>Kitchen Dashboard</h1>
+            <div className="kitchen-branding">
 
-    <p>
-      Welcome,{" "}
-      {user?.name || "Kitchen Staff"}
-    </p>
+              <div className="kitchen-brand-logo">
+                {restaurantLogo ? (
+                  <img
+                    src={restaurantLogo}
+                    alt={restaurantName}
+                  />
+                ) : (
+                  "🍽"
+                )}
+              </div>
 
-  </div>
-
-  <button
-    className="kitchen-logout"
-    onClick={onLogout}
-  >
-    Logout
-  </button>
-
-</header>
-
-      {/* CONTENT */}
-
-      <main className="kitchen-content">
-
-        {/* ACTIVE ORDERS TITLE */}
-
-        <div className="kitchen-title-row">
-
-          <div>
-
-            <h2>
-              Kitchen Orders
-            </h2>
-
-            <p>
-              {orders.length} active order
-              {orders.length !== 1
-                ? "s"
-                : ""}
-            </p>
-
-          </div>
-
-          <button
-            className="refresh-button"
-            onClick={loadKitchenData}
-            disabled={
-              loading ||
-              completedLoading
-            }
-          >
-            {loading ||
-            completedLoading
-              ? "Loading..."
-              : "Refresh"}
-          </button>
-
-        </div>
-
-        {/* ACTIVE ERROR */}
-
-        {error && (
-          <div className="kitchen-error">
-            {error}
-          </div>
-        )}
-
-        {/* ACTIVE LOADING */}
-
-        {loading && (
-          <div className="kitchen-message">
-            Loading kitchen orders...
-          </div>
-        )}
-
-        {/* ACTIVE EMPTY */}
-
-        {!loading &&
-          !error &&
-          orders.length === 0 && (
-            <div className="kitchen-empty">
-
-              <h3>
-                No active orders
-              </h3>
-
-              <p>
-                New orders sent by
-                waiters will appear
-                here.
-              </p>
+              <div className="kitchen-brand-name">
+                <strong>
+                  {restaurantName}
+                </strong>
+              </div>
 
             </div>
-          )}
 
-        {/* ACTIVE ORDERS */}
+            {/* DASHBOARD TITLE */}
 
-        {!loading &&
-          !error &&
-          orders.length > 0 && (
+            <div className="kitchen-header-title">
 
-            <div className="kitchen-orders-grid">
-
-              {orders.map((order) => {
-
-                const isUpdating =
-                  updatingOrderId ===
-                  order._id;
-
-                return (
-                  <div
-                    className={`kitchen-order-card ${order.status.toLowerCase()}`}
-                    key={order._id}
-                  >
-
-                    {/* ORDER HEADER */}
-
-                    <div className="order-card-header">
-
-                      <div>
-
-                        <span className="table-label">
-                          TABLE{" "}
-                          {order.tableNumber}
-                        </span>
-
-                        <h3>
-                          {order.orderNumber}
-                        </h3>
-
-                      </div>
-
-                      <span
-                        className={`order-status ${order.status.toLowerCase()}`}
-                      >
-                        {order.status.replaceAll(
-                          "_",
-                          " "
-                        )}
-                      </span>
-
-                    </div>
-
-                    {/* ITEMS */}
-
-                    <div className="order-items">
-
-                      {order.items.map(
-                        (item, index) => (
-
-                          <div
-                            className="kitchen-item"
-                            key={`${item.menuItemId}-${index}`}
-                          >
-
-                            <span className="item-name">
-                              {item.name}
-                            </span>
-
-                            <span className="item-quantity">
-                              ×{" "}
-                              {item.quantity}
-                            </span>
-
-                          </div>
-
-                        )
-                      )}
-
-                    </div>
-
-                    {/* FOOTER */}
-
-                    <div className="order-card-footer">
-
-                      <span>
-                        Waiter:{" "}
-                        {order.waiterName}
-                      </span>
-
-                      <strong>
-                        ₹{order.total}
-                      </strong>
-
-                    </div>
-
-                    {/* ACTIONS */}
-
-                    {order.status ===
-                      "SENT_TO_KITCHEN" && (
-                      <button
-                        className="kitchen-action-button start-button"
-                        disabled={isUpdating}
-                        onClick={() =>
-                          updateOrderStatus(
-                            order._id,
-                            "start"
-                          )
-                        }
-                      >
-                        {isUpdating
-                          ? "Starting..."
-                          : "START PREPARING"}
-                      </button>
-                    )}
-
-                    {order.status ===
-                      "PREPARING" && (
-                      <button
-                        className="kitchen-action-button ready-button"
-                        disabled={isUpdating}
-                        onClick={() =>
-                          updateOrderStatus(
-                            order._id,
-                            "ready"
-                          )
-                        }
-                      >
-                        {isUpdating
-                          ? "Updating..."
-                          : "MARK READY"}
-                      </button>
-                    )}
-
-                    {order.status ===
-                      "READY" && (
-                      <div className="ready-message">
-                        ✓ Order Ready
-                      </div>
-                    )}
-
-                  </div>
-                );
-              })}
-
-            </div>
-          )}
-
-        {/* ---------------------------------- */}
-        {/* TODAY'S COMPLETED ORDERS */}
-        {/* ---------------------------------- */}
-
-        <section className="completed-orders-section">
-
-          <div className="completed-orders-header">
-
-            <div>
-
-              <h2>
-                Today's Completed Orders
-              </h2>
+              <h1>
+                Kitchen Dashboard
+              </h1>
 
               <p>
-                {completedOrders.length} completed
-                order
-                {completedOrders.length !==
-                1
-                  ? "s"
-                  : ""}
+                Welcome,{" "}
+                {user?.name || "Kitchen Staff"}
               </p>
 
             </div>
 
-          </div>
+            {/* HEADER ACTIONS */}
 
-          {/* COMPLETED ERROR */}
+            <div className="kitchen-header-actions">
 
-          {completedError && (
-            <div className="kitchen-error">
-              {completedError}
+              <button
+                className="kitchen-inventory-button"
+                onClick={() =>
+                  setShowInventory(true)
+                }
+              >
+                📦 Inventory
+              </button>
+
+              <button
+                className="kitchen-logout"
+                onClick={onLogout}
+              >
+                Logout
+              </button>
+
             </div>
-          )}
 
-          {/* COMPLETED LOADING */}
+          </header>
 
-          {completedLoading && (
-            <div className="kitchen-message">
-              Loading completed orders...
-            </div>
-          )}
+          {/* =================================================
+              CONTENT
+              ================================================= */}
 
-          {/* COMPLETED EMPTY */}
+          <main className="kitchen-content">
 
-          {!completedLoading &&
-            !completedError &&
-            completedOrders.length ===
-              0 && (
-              <div className="kitchen-empty">
+            {/* =================================================
+                ACTIVE ORDERS TITLE
+                ================================================= */}
 
-                <h3>
-                  No completed orders today
-                </h3>
+            <div className="kitchen-title-row">
+
+              <div>
+
+                <h2>
+                  Kitchen Orders
+                </h2>
 
                 <p>
-                  Orders completed today
-                  will appear here.
+                  {orders.length} active order
+                  {orders.length !== 1
+                    ? "s"
+                    : ""}
                 </p>
 
               </div>
+
+              <button
+                className="refresh-button"
+                onClick={loadKitchenData}
+                disabled={
+                  loading ||
+                  completedLoading
+                }
+              >
+                {loading ||
+                completedLoading
+                  ? "Loading..."
+                  : "Refresh"}
+              </button>
+
+            </div>
+
+            {/* =================================================
+                ACTIVE ERROR
+                ================================================= */}
+
+            {error && (
+              <div className="kitchen-error">
+                {error}
+              </div>
             )}
 
-          {/* COMPLETED ORDERS TABLE */}
+            {/* =================================================
+                ACTIVE LOADING
+                ================================================= */}
 
-          {!completedLoading &&
-            !completedError &&
-            completedOrders.length >
-              0 && (
-              <div className="completed-orders-table">
+            {loading && (
+              <div className="kitchen-message">
+                Loading kitchen orders...
+              </div>
+            )}
 
-                <div className="completed-table-header">
+            {/* =================================================
+                ACTIVE EMPTY
+                ================================================= */}
 
-                  <span>
-                    ORDER
-                  </span>
+            {!loading &&
+              !error &&
+              orders.length === 0 && (
+                <div className="kitchen-empty">
 
-                  <span>
-                    TABLE
-                  </span>
+                  <h3>
+                    No active orders
+                  </h3>
 
-                  <span>
-                    WAITER
-                  </span>
+                  <p>
+                    New orders sent by
+                    waiters will appear
+                    here.
+                  </p>
 
-                  <span>
-                    ITEMS
-                  </span>
+                </div>
+              )}
 
-                  <span>
-                    TOTAL
-                  </span>
+            {/* =================================================
+                ACTIVE ORDERS
+                ================================================= */}
 
-                  <span>
-                    STATUS
-                  </span>
+            {!loading &&
+              !error &&
+              orders.length > 0 && (
+
+                <div className="kitchen-orders-grid">
+
+                  {orders.map((order) => {
+
+                    const isUpdating =
+                      updatingOrderId ===
+                      order._id;
+
+                    return (
+                      <div
+                        className={`kitchen-order-card ${order.status.toLowerCase()}`}
+                        key={order._id}
+                      >
+
+                        {/* ORDER HEADER */}
+
+                        <div className="order-card-header">
+
+                          <div>
+
+                            <span className="table-label">
+                              TABLE{" "}
+                              {order.tableNumber}
+                            </span>
+
+                            <h3>
+                              {order.orderNumber}
+                            </h3>
+
+                          </div>
+
+                          <span
+                            className={`order-status ${order.status.toLowerCase()}`}
+                          >
+                            {order.status.replaceAll(
+                              "_",
+                              " "
+                            )}
+                          </span>
+
+                        </div>
+
+                        {/* ITEMS */}
+
+                        <div className="order-items">
+
+                          {order.items.map(
+                            (item, index) => (
+
+                              <div
+                                className="kitchen-item"
+                                key={`${item.menuItemId}-${index}`}
+                              >
+
+                                <span className="item-name">
+                                  {item.name}
+                                </span>
+
+                                <span className="item-quantity">
+                                  ×{" "}
+                                  {item.quantity}
+                                </span>
+
+                              </div>
+
+                            )
+                          )}
+
+                        </div>
+
+                        {/* FOOTER */}
+
+                        <div className="order-card-footer">
+
+                          <span>
+                            Waiter:{" "}
+                            {order.waiterName}
+                          </span>
+
+                          <strong>
+                            ₹{order.total}
+                          </strong>
+
+                        </div>
+
+                        {/* ACTIONS */}
+
+                        {order.status ===
+                          "SENT_TO_KITCHEN" && (
+                          <button
+                            className="kitchen-action-button start-button"
+                            disabled={isUpdating}
+                            onClick={() =>
+                              updateOrderStatus(
+                                order._id,
+                                "start"
+                              )
+                            }
+                          >
+                            {isUpdating
+                              ? "Starting..."
+                              : "START PREPARING"}
+                          </button>
+                        )}
+
+                        {order.status ===
+                          "PREPARING" && (
+                          <button
+                            className="kitchen-action-button ready-button"
+                            disabled={isUpdating}
+                            onClick={() =>
+                              updateOrderStatus(
+                                order._id,
+                                "ready"
+                              )
+                            }
+                          >
+                            {isUpdating
+                              ? "Updating..."
+                              : "MARK READY"}
+                          </button>
+                        )}
+
+                        {order.status ===
+                          "READY" && (
+                          <div className="ready-message">
+                            ✓ Order Ready
+                          </div>
+                        )}
+
+                      </div>
+                    );
+                  })}
+
+                </div>
+              )}
+
+            {/* =================================================
+                TODAY'S COMPLETED ORDERS
+                ================================================= */}
+
+            <section className="completed-orders-section">
+
+              <div className="completed-orders-header">
+
+                <div>
+
+                  <h2>
+                    Today's Completed Orders
+                  </h2>
+
+                  <p>
+                    {completedOrders.length} completed
+                    order
+                    {completedOrders.length !==
+                    1
+                      ? "s"
+                      : ""}
+                  </p>
 
                 </div>
 
-                {completedOrders.map(
-                  (order) => (
+              </div>
 
-                    <div
-                      className="completed-table-row"
-                      key={order._id}
-                    >
+              {/* COMPLETED ERROR */}
 
-                      <strong>
-                        {order.orderNumber}
-                      </strong>
+              {completedError && (
+                <div className="kitchen-error">
+                  {completedError}
+                </div>
+              )}
+
+              {/* COMPLETED LOADING */}
+
+              {completedLoading && (
+                <div className="kitchen-message">
+                  Loading completed orders...
+                </div>
+              )}
+
+              {/* COMPLETED EMPTY */}
+
+              {!completedLoading &&
+                !completedError &&
+                completedOrders.length ===
+                  0 && (
+                  <div className="kitchen-empty">
+
+                    <h3>
+                      No completed orders today
+                    </h3>
+
+                    <p>
+                      Orders completed today
+                      will appear here.
+                    </p>
+
+                  </div>
+                )}
+
+              {/* COMPLETED ORDERS TABLE */}
+
+              {!completedLoading &&
+                !completedError &&
+                completedOrders.length >
+                  0 && (
+                  <div className="completed-orders-table">
+
+                    <div className="completed-table-header">
 
                       <span>
-                        Table{" "}
-                        {order.tableNumber}
+                        ORDER
                       </span>
 
                       <span>
-                        {order.waiterName}
+                        TABLE
                       </span>
 
                       <span>
-                        {order.items.reduce(
-                          (sum, item) =>
-                            sum +
-                            item.quantity,
-                          0
-                        )}
+                        WAITER
                       </span>
 
-                      <strong>
-                        ₹{order.total}
-                      </strong>
+                      <span>
+                        ITEMS
+                      </span>
 
-                      <span className="completed-status">
-                        COMPLETED
+                      <span>
+                        TOTAL
+                      </span>
+
+                      <span>
+                        STATUS
                       </span>
 
                     </div>
 
-                  )
+                    {completedOrders.map(
+                      (order) => (
+
+                        <div
+                          className="completed-table-row"
+                          key={order._id}
+                        >
+
+                          <strong>
+                            {order.orderNumber}
+                          </strong>
+
+                          <span>
+                            Table{" "}
+                            {order.tableNumber}
+                          </span>
+
+                          <span>
+                            {order.waiterName}
+                          </span>
+
+                          <span>
+                            {order.items.reduce(
+                              (sum, item) =>
+                                sum +
+                                item.quantity,
+                              0
+                            )}
+                          </span>
+
+                          <strong>
+                            ₹{order.total}
+                          </strong>
+
+                          <span className="completed-status">
+                            COMPLETED
+                          </span>
+
+                        </div>
+
+                      )
+                    )}
+
+                  </div>
                 )}
 
-              </div>
-            )}
+            </section>
 
-        </section>
+          </main>
+        </>
 
-      </main>
+      )}
 
     </div>
   );

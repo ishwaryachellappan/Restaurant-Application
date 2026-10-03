@@ -26,8 +26,7 @@ const UNIT_OPTIONS = [
   "bottle",
   "other",
 ];
-
-const KitchenInventory = () => {
+const KitchenInventory = ({ onBack }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -452,6 +451,16 @@ const KitchenInventory = () => {
       {/* HEADER */}
 
       <div className="inventory-header">
+
+        <div className="inventory-back-row">
+  <button
+    className="inventory-back-button"
+    onClick={() => window.history.back()}
+  >
+    ← Back to Kitchen
+  </button>
+</div>
+
         <div>
           <h1>Inventory Management</h1>
 

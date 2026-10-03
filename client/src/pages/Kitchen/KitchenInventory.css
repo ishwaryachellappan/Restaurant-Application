@@ -776,3 +776,21 @@
     text-align: left;
   }
 }
+
+.inventory-back-row {
+  margin-bottom: 15px;
+}
+
+.inventory-back-button {
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.inventory-back-button:hover {
+  color: #111827;
+}

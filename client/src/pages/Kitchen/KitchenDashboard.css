@@ -568,3 +568,28 @@
 .kitchen-header-title p {
   margin: 6px 0 0;
 }
+
+/* =====================================================
+   KITCHEN HEADER ACTIONS
+   ===================================================== */
+
+.kitchen-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kitchen-inventory-button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 15px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.kitchen-inventory-button:hover {
+  background: #f9fafb;
+}
