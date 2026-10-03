@@ -184,11 +184,11 @@ function KitchenDashboard({ user, onLogout }) {
           INVENTORY PAGE
           ================================================= */}
 
-      {showInventory ? (
-        <KitchenInventory
-          onBack={() => setShowInventory(false)}
-        />
-      ) : (
+    {showInventory ? (
+  <KitchenInventory
+    onBack={() => setShowInventory(false)}
+  />
+) : (
 
         <>
           {/* =================================================

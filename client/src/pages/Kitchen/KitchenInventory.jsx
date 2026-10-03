@@ -452,10 +452,11 @@ const KitchenInventory = ({ onBack }) => {
 
       <div className="inventory-header">
 
-        <div className="inventory-back-row">
+  <div className="inventory-back-row">
   <button
+    type="button"
     className="inventory-back-button"
-    onClick={() => window.history.back()}
+    onClick={onBack}
   >
     ← Back to Kitchen
   </button>

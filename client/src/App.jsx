@@ -17,6 +17,7 @@ import WaiterOrderDetails from "./pages/Waiter/OrderDetails/WaiterOrderDetails";
 import PaymentHistory from "./pages/Cashier/PaymentHistory/PaymentHistory";
 import TaxConfiguration from "./pages/Cashier/TaxConfiguration/TaxConfiguration";
 import RestaurantSettings from "./pages/Manager/Settings/RestaurantSettings";
+import ManagerInventory from "./pages/Manager/Inventory/ManagerInventory";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -329,6 +330,9 @@ function App() {
           onOpenSettings={() =>
             setCurrentPage("manager-settings")
           }
+          onOpenInventory={() =>
+  setCurrentPage("manager-inventory")
+}
         />
       );
     }
@@ -347,6 +351,26 @@ function App() {
       );
     }
 
+if (currentPage === "manager-inventory") {
+  return (
+    <ManagerInventory
+      user={user}
+      onBack={() =>
+        setCurrentPage("manager")
+      }
+      onOpenOrders={() =>
+        setCurrentPage("manager-orders")
+      }
+      onOpenSales={() =>
+        setCurrentPage("manager-sales")
+      }
+      onOpenStaff={() =>
+        setCurrentPage("manager-staff")
+      }
+      onLogout={handleLogout}
+    />
+  );
+}
 
     if (currentPage === "manager-staff") {
       return (
@@ -458,7 +482,7 @@ function App() {
 
         <div className="brand-section">
 
-         
+
 
           <div className="login-branding">
             <div className="login-brand-logo">

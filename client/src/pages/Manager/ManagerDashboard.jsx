@@ -15,6 +15,7 @@ function ManagerDashboard({
   onOpenStaff,
   onOpenMenu,
   onOpenSettings,
+  onOpenInventory,
 }) {
 
   const [orders, setOrders] = useState([]);
@@ -27,10 +28,10 @@ function ManagerDashboard({
   const [dateFilter, setDateFilter] = useState("today");
   const [customDate, setCustomDate] = useState("");
   const dateInputRef = useRef(null);
-const {
-  restaurantName,
-  restaurantLogo,
-} = useRestaurantBranding();
+  const {
+    restaurantName,
+    restaurantLogo,
+  } = useRestaurantBranding();
 
   const loadDashboard = async () => {
     try {
@@ -266,22 +267,22 @@ const {
       <aside className="manager-sidebar">
 
         <div className="manager-brand">
-  <div className="manager-brand-icon">
-    {restaurantLogo ? (
-      <img
-        src={restaurantLogo}
-        alt={restaurantName}
-      />
-    ) : (
-      "🍽"
-    )}
-  </div>
+          <div className="manager-brand-icon">
+            {restaurantLogo ? (
+              <img
+                src={restaurantLogo}
+                alt={restaurantName}
+              />
+            ) : (
+              "🍽"
+            )}
+          </div>
 
-  <div>
-    <strong>{restaurantName}</strong>
-   
-  </div>
-</div>
+          <div>
+            <strong>{restaurantName}</strong>
+
+          </div>
+        </div>
 
         <div className="manager-sidebar-section">
 
@@ -333,10 +334,10 @@ const {
           <button
             type="button"
             className="manager-nav-item"
-            onClick={onOpenSettings}
+            onClick={onOpenInventory}
           >
-            <span className="nav-icon">⚙</span>
-            Restaurant Settings
+            <span className="nav-icon">📦</span>
+            Inventory
           </button>
 
 
@@ -448,8 +449,8 @@ const {
               <button
                 type="button"
                 className={`manager-custom-date ${dateFilter === "custom"
-                    ? "active"
-                    : ""
+                  ? "active"
+                  : ""
                   }`}
                 onClick={() => {
                   if (dateInputRef.current) {
