@@ -28,6 +28,8 @@ function ManagerStaff({
   });
 
   const [creatingStaff, setCreatingStaff] = useState(false);
+const [showStaffDirectory, setShowStaffDirectory] = useState(false);
+const [showStaffPerformance, setShowStaffPerformance] = useState(false);
 
   const loadStaff = async () => {
     try {
@@ -400,25 +402,50 @@ function ManagerStaff({
           </section>
 
           <section className="staff-panel">
-            <div className="staff-panel-header">
-              <div>
-                <span className="staff-section-label">
-                  STAFF DIRECTORY
-                </span>
+           <div className="staff-panel-header staff-toggle-header">
 
-                <h2>Restaurant Staff</h2>
+  <div>
+    <span className="staff-section-label">
+      STAFF DIRECTORY
+    </span>
 
-                <p>
-                  View and manage employee accounts.
-                </p>
-              </div>
+    <h2>Restaurant Staff</h2>
 
-              <div className="staff-result-count">
-                {filteredStaff.length} members
-              </div>
-            </div>
+    <p>
+      View and manage employee accounts.
+    </p>
+  </div>
 
-            <div className="staff-filters">
+  <div className="staff-toggle-right">
+
+    <div className="staff-result-count">
+      {filteredStaff.length} members
+    </div>
+
+    <button
+      type="button"
+      className="staff-section-toggle"
+      onClick={() =>
+        setShowStaffDirectory(
+          (current) => !current
+        )
+      }
+      aria-label={
+        showStaffDirectory
+          ? "Collapse Staff Directory"
+          : "Expand Staff Directory"
+      }
+    >
+      {showStaffDirectory ? "⌃" : "⌄"}
+    </button>
+
+  </div>
+
+</div>
+
+            {showStaffDirectory && (
+  <>
+    <div className="staff-filters">
               <div className="staff-search">
                 <span>⌕</span>
 
@@ -604,7 +631,111 @@ function ManagerStaff({
                 </table>
               </div>
             )}
+              </>
+)}
           </section>
+
+
+          <section className="staff-panel staff-performance-panel">
+
+  <div className="staff-panel-header staff-toggle-header">
+
+    <div>
+      <span className="staff-section-label">
+        STAFF PERFORMANCE
+      </span>
+
+      <h2>Staff Performance</h2>
+
+      <p>
+        View employee performance by selected time period.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      className="staff-section-toggle"
+      onClick={() =>
+        setShowStaffPerformance(
+          (current) => !current
+        )
+      }
+      aria-label={
+        showStaffPerformance
+          ? "Collapse Staff Performance"
+          : "Expand Staff Performance"
+      }
+    >
+      {showStaffPerformance ? "⌃" : "⌄"}
+    </button>
+
+  </div>
+
+  {showStaffPerformance && (
+    <div className="staff-performance-content">
+
+      <div className="staff-performance-period">
+
+        <button
+          type="button"
+          className="staff-performance-period-button active"
+        >
+          Today
+        </button>
+
+        <button
+          type="button"
+          className="staff-performance-period-button"
+        >
+          Yesterday
+        </button>
+
+        <button
+          type="button"
+          className="staff-performance-period-button"
+        >
+          This Week
+        </button>
+
+        <button
+          type="button"
+          className="staff-performance-period-button"
+        >
+          This Month
+        </button>
+
+        <button
+          type="button"
+          className="staff-performance-period-button"
+        >
+          Custom
+        </button>
+
+      </div>
+
+      <div className="staff-performance-placeholder">
+
+        <div className="staff-performance-placeholder-icon">
+          ◉
+        </div>
+
+        <h3>
+          Staff Performance
+        </h3>
+
+        <p>
+          Select a time period to view orders
+          and sales performance.
+        </p>
+
+      </div>
+
+    </div>
+  )}
+
+</section>
+
+
         </div>
       </main>
 

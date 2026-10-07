@@ -67,6 +67,17 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+cashierId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},
+
+cashierName: {
+  type: String,
+  default: "",
+  trim: true,
+},
 
     items: {
       type: [orderItemSchema],
