@@ -1,3 +1,7 @@
+/* =========================================================
+   RECEIPT OVERLAY
+========================================================= */
+
 .receipt-overlay {
   position: fixed;
   inset: 0;
@@ -12,6 +16,11 @@
 
   padding: 30px;
 }
+
+
+/* =========================================================
+   RECEIPT CONTAINER
+========================================================= */
 
 .receipt-container {
   width: 420px;
@@ -29,6 +38,11 @@
   padding: 28px;
 }
 
+
+/* =========================================================
+   RECEIPT PAGE
+========================================================= */
+
 .receipt-page {
   width: 100%;
 
@@ -42,10 +56,35 @@
     sans-serif;
 }
 
-/* HEADER */
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .receipt-header {
   text-align: center;
+}
+
+.receipt-logo {
+  width: 90px;
+  height: 90px;
+
+  margin: 0 auto 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.receipt-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
 }
 
 .receipt-header h1 {
@@ -56,6 +95,8 @@
   font-weight: 800;
 
   letter-spacing: 2px;
+
+  color: #111827;
 }
 
 .receipt-header p {
@@ -66,7 +107,10 @@
   color: #6b7280;
 }
 
-/* DIVIDER */
+
+/* =========================================================
+   DIVIDER
+========================================================= */
 
 .receipt-divider {
   border-top: 1px dashed #cbd5e1;
@@ -74,7 +118,10 @@
   margin: 18px 0;
 }
 
-/* ORDER INFO */
+
+/* =========================================================
+   ORDER INFORMATION
+========================================================= */
 
 .receipt-info {
   display: grid;
@@ -90,6 +137,8 @@
   flex-direction: column;
 
   gap: 3px;
+
+  min-width: 0;
 }
 
 .receipt-info span {
@@ -106,13 +155,30 @@
   font-size: 13px;
 
   color: #111827;
+
+  overflow-wrap: anywhere;
 }
 
-/* ITEMS */
+
+/* =========================================================
+   ITEMS
+========================================================= */
 
 .receipt-items {
   width: 100%;
+
+  min-width: 0;
 }
+
+
+/*
+   Four columns:
+
+   ITEM | QTY | PRICE | TOTAL
+
+   The first column is flexible.
+   The other three stay fixed.
+*/
 
 .receipt-item-header,
 .receipt-item {
@@ -120,14 +186,23 @@
 
   grid-template-columns:
     minmax(0, 1fr)
-    45px
-    75px
-    80px;
+    38px
+    68px
+    72px;
 
-  align-items: center;
+  align-items: start;
 
-  gap: 6px;
+  gap: 5px;
+
+  width: 100%;
+
+  box-sizing: border-box;
 }
+
+
+/* =========================================================
+   ITEM HEADER
+========================================================= */
 
 .receipt-item-header {
   margin-bottom: 10px;
@@ -144,23 +219,56 @@
   text-align: right;
 }
 
+
+/* =========================================================
+   ITEM ROW
+========================================================= */
+
 .receipt-item {
   margin-bottom: 10px;
 
   font-size: 12px;
+
+  line-height: 1.35;
 }
+
+
+/*
+   IMPORTANT:
+   Do NOT use ellipsis here.
+
+   Long names will wrap naturally instead of becoming C...
+*/
 
 .receipt-item-name {
   font-weight: 600;
 
-  overflow: hidden;
+  min-width: 0;
 
-  text-overflow: ellipsis;
+  white-space: normal;
 
+  overflow: visible;
+
+  text-overflow: clip;
+
+  overflow-wrap: anywhere;
+
+  word-break: normal;
+
+  line-height: 1.35;
+}
+
+
+/* Keep numeric columns together */
+
+.receipt-item > span:not(.receipt-item-name) {
   white-space: nowrap;
 }
 
-/* SUMMARY */
+
+/* =========================================================
+   SUMMARY
+========================================================= */
 
 .receipt-summary {
   display: flex;
@@ -176,6 +284,8 @@
   justify-content: space-between;
 
   align-items: center;
+
+  gap: 15px;
 }
 
 .receipt-summary span {
@@ -188,7 +298,14 @@
   font-size: 14px;
 
   color: #111827;
+
+  white-space: nowrap;
 }
+
+
+/* =========================================================
+   GRAND TOTAL
+========================================================= */
 
 .receipt-grand-total {
   padding-top: 6px;
@@ -206,9 +323,14 @@
   font-size: 20px;
 
   font-weight: 800;
+
+  white-space: nowrap;
 }
 
-/* PAYMENT */
+
+/* =========================================================
+   PAYMENT
+========================================================= */
 
 .receipt-payment {
   display: flex;
@@ -216,6 +338,8 @@
   justify-content: space-between;
 
   align-items: center;
+
+  gap: 15px;
 }
 
 .receipt-payment span {
@@ -236,9 +360,14 @@
   font-size: 11px;
 
   letter-spacing: 0.5px;
+
+  white-space: nowrap;
 }
 
-/* THANK YOU */
+
+/* =========================================================
+   THANK YOU
+========================================================= */
 
 .receipt-thank-you {
   text-align: center;
@@ -260,7 +389,10 @@
   color: #6b7280;
 }
 
-/* BUTTONS */
+
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .receipt-actions {
   display: flex;
@@ -308,23 +440,32 @@
   background: #e2e8f0;
 }
 
-/* PRINT */
+
+/* =========================================================
+   PRINT
+========================================================= */
 
 @media print {
 
   html,
   body {
     margin: 0 !important;
+
     padding: 0 !important;
+
     background: #ffffff !important;
   }
 
-  /* Hide the normal application */
+
+  /* Hide normal application */
+
   body > * {
     visibility: hidden !important;
   }
 
-  /* Make the complete receipt tree visible */
+
+  /* Show receipt */
+
   .receipt-overlay,
   .receipt-overlay *,
   .receipt-container,
@@ -333,12 +474,18 @@
     visibility: visible !important;
   }
 
+
+  /* =======================================================
+     RECEIPT OVERLAY
+  ======================================================= */
+
   .receipt-overlay {
     position: absolute !important;
 
     inset: 0 !important;
 
     width: 100% !important;
+
     height: auto !important;
 
     display: block !important;
@@ -346,25 +493,39 @@
     background: #ffffff !important;
 
     padding: 0 !important;
+
     margin: 0 !important;
   }
+
+
+  /* =======================================================
+     RECEIPT CONTAINER
+  ======================================================= */
 
   .receipt-container {
     width: 80mm !important;
 
     max-width: 80mm !important;
+
     max-height: none !important;
 
     margin: 0 !important;
+
     padding: 0 !important;
 
     background: #ffffff !important;
 
     box-shadow: none !important;
+
     border-radius: 0 !important;
 
     overflow: visible !important;
   }
+
+
+  /* =======================================================
+     RECEIPT PAGE
+  ======================================================= */
 
   .receipt-page {
     width: 80mm !important;
@@ -380,37 +541,98 @@
     background: #ffffff !important;
   }
 
-  /* Never print the buttons */
+
+  /* =======================================================
+     PRINT ITEM TABLE
+  ======================================================= */
+
+  .receipt-item-header,
+  .receipt-item {
+    width: 100% !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      28px
+      58px
+      62px !important;
+
+    gap: 4px !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  .receipt-item-name {
+    white-space: normal !important;
+
+    overflow: visible !important;
+
+    text-overflow: clip !important;
+
+    overflow-wrap: anywhere !important;
+
+    word-break: normal !important;
+
+    line-height: 1.3 !important;
+  }
+
+
+  .receipt-item > span:not(.receipt-item-name) {
+    white-space: nowrap !important;
+  }
+
+
+  /* =======================================================
+     NEVER PRINT BUTTONS
+  ======================================================= */
+
   .receipt-actions {
     display: none !important;
   }
 
+
+  /* =======================================================
+     PAGE SIZE
+  ======================================================= */
+
   @page {
     size: 80mm auto;
+
     margin: 0;
   }
 }
 
-.receipt-logo {
-  width: 90px;
-  height: 90px;
-  margin: 0 auto 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
 
-.receipt-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
+/* =========================================================
+   SMALL SCREEN
+========================================================= */
 
-.receipt-header h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 800;
-  color: #111827;
+@media screen and (max-width: 520px) {
+
+  .receipt-overlay {
+    padding: 15px;
+  }
+
+  .receipt-container {
+    width: 100%;
+
+    max-width: 420px;
+
+    padding: 22px;
+  }
+
+  .receipt-header h1 {
+    font-size: 21px;
+  }
+
+  .receipt-item-header,
+  .receipt-item {
+    grid-template-columns:
+      minmax(0, 1fr)
+      34px
+      65px
+      70px;
+
+    gap: 4px;
+  }
 }
