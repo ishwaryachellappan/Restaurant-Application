@@ -10,18 +10,18 @@ function CashierDashboard({
   onPaymentHistory,
   onTaxConfiguration,
 }) {
-  // ------------------------------------------
+  // =========================================================
   // RESTAURANT BRANDING
-  // ------------------------------------------
+  // =========================================================
 
   const {
     restaurantName,
     restaurantLogo,
   } = useRestaurantBranding();
 
-  // ------------------------------------------
-  // PAYMENT METHOD SETTINGS
-  // ------------------------------------------
+  // =========================================================
+  // PAYMENT SETTINGS
+  // =========================================================
 
   const [
     enabledPaymentMethods,
@@ -37,17 +37,17 @@ function CashierDashboard({
     setPaymentSettingsLoading,
   ] = useState(true);
 
-  // ------------------------------------------
+  // =========================================================
   // ORDERS
-  // ------------------------------------------
+  // =========================================================
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ------------------------------------------
-  // PAYMENT
-  // ------------------------------------------
+  // =========================================================
+  // SINGLE ORDER PAYMENT
+  // =========================================================
 
   const [selectedOrder, setSelectedOrder] =
     useState(null);
@@ -61,9 +61,44 @@ function CashierDashboard({
   const [paymentError, setPaymentError] =
     useState("");
 
-  // ------------------------------------------
+  // =========================================================
+  // COMBINE BILLS
+  // =========================================================
+
+  const [showCombineBills, setShowCombineBills] =
+    useState(false);
+
+  const [
+    combineSelectedOrderIds,
+    setCombineSelectedOrderIds,
+  ] = useState([]);
+
+  const [
+    combineBillingLoading,
+    setCombineBillingLoading,
+  ] = useState(false);
+
+  const [
+    combineBillingError,
+    setCombineBillingError,
+  ] = useState("");
+
+  const [billingSession, setBillingSession] =
+    useState(null);
+
+  const [
+    combinedPaymentMethod,
+    setCombinedPaymentMethod,
+  ] = useState("");
+
+  const [
+    combinedPaymentLoading,
+    setCombinedPaymentLoading,
+  ] = useState(false);
+
+  // =========================================================
   // PAYMENT SUCCESS
-  // ------------------------------------------
+  // =========================================================
 
   const [paymentSuccess, setPaymentSuccess] =
     useState(null);
@@ -151,11 +186,6 @@ function CashierDashboard({
         error
       );
 
-      /*
-       * If the settings API cannot be reached,
-       * keep all payment methods available so
-       * Cashier is not blocked.
-       */
       setEnabledPaymentMethods({
         cash: true,
         card: true,
@@ -167,7 +197,7 @@ function CashierDashboard({
   };
 
   // =========================================================
-  // REFRESH EVERYTHING
+  // REFRESH
   // =========================================================
 
   const refreshCashierData = async () => {
@@ -186,8 +216,7 @@ function CashierDashboard({
   }, []);
 
   // =========================================================
-  // CLEAR SELECTED PAYMENT METHOD
-  // IF MANAGER DISABLED IT
+  // CLEAR INVALID PAYMENT METHOD
   // =========================================================
 
   useEffect(() => {
@@ -217,7 +246,7 @@ function CashierDashboard({
   ]);
 
   // =========================================================
-  // VIEW BILL
+  // SINGLE PAYMENT
   // =========================================================
 
   const handleViewBill = (order) => {
@@ -226,10 +255,6 @@ function CashierDashboard({
     setPaymentError("");
   };
 
-  // =========================================================
-  // CLOSE BILL
-  // =========================================================
-
   const handleCloseBill = () => {
     if (paymentLoading) return;
 
@@ -237,10 +262,6 @@ function CashierDashboard({
     setPaymentMethod("");
     setPaymentError("");
   };
-
-  // =========================================================
-  // CONFIRM PAYMENT
-  // =========================================================
 
   const handleConfirmPayment = async () => {
     if (!selectedOrder) return;
@@ -251,12 +272,6 @@ function CashierDashboard({
       );
       return;
     }
-
-    /*
-     * Extra protection:
-     * Do not allow a payment method that
-     * has been disabled in Restaurant Settings.
-     */
 
     if (
       paymentMethod === "CASH" &&
@@ -296,12 +311,10 @@ function CashierDashboard({
         `http://localhost:5000/api/cashier/orders/${selectedOrder._id}/pay`,
         {
           method: "PATCH",
-
           headers: {
             "Content-Type":
               "application/json",
           },
-
           body: JSON.stringify({
             paymentMethod,
           }),
@@ -317,52 +330,30 @@ function CashierDashboard({
         );
       }
 
-      // ------------------------------------------
-      // PAYMENT SUCCESS DATA
-      // ------------------------------------------
-
       setPaymentSuccess({
         amount: Number(
           selectedOrder.total || 0
         ),
-
         paymentMethod,
-
         orderNumber:
           selectedOrder.orderNumber,
-
         tableNumber:
           selectedOrder.tableNumber,
       });
-
-      // ------------------------------------------
-      // RECEIPT DATA
-      // ------------------------------------------
 
       setReceiptData({
         order: {
           ...selectedOrder,
         },
-
         paymentMethod,
-
         paidAt:
           data.order?.paidAt ||
           new Date().toISOString(),
       });
 
       setShowReceipt(false);
-
-      // ------------------------------------------
-      // CLOSE PAYMENT MODAL
-      // ------------------------------------------
-
       setSelectedOrder(null);
       setPaymentMethod("");
-
-      // ------------------------------------------
-      // REFRESH ORDERS
-      // ------------------------------------------
 
       await loadOrders();
     } catch (error) {
@@ -381,11 +372,351 @@ function CashierDashboard({
   };
 
   // =========================================================
-  // CLOSE SUCCESS POPUP
+  // COMBINE BILLS - OPEN
   // =========================================================
 
-  const handleCloseSuccess = () => {
-    setPaymentSuccess(null);
+  const handleOpenCombineBills = () => {
+    setCombineSelectedOrderIds([]);
+    setCombineBillingError("");
+    setBillingSession(null);
+    setCombinedPaymentMethod("");
+    setShowCombineBills(true);
+  };
+
+  // =========================================================
+  // COMBINE BILLS - CLOSE
+  // =========================================================
+
+  const handleCloseCombineBills = () => {
+    if (
+      combineBillingLoading ||
+      combinedPaymentLoading
+    ) {
+      return;
+    }
+
+    setShowCombineBills(false);
+    setCombineSelectedOrderIds([]);
+    setCombineBillingError("");
+    setBillingSession(null);
+    setCombinedPaymentMethod("");
+  };
+
+  // =========================================================
+  // SELECT COMBINE ORDER
+  // =========================================================
+
+  const handleCombineOrderSelect = (orderId) => {
+    if (billingSession) return;
+
+    setCombineSelectedOrderIds(
+      (previous) => {
+        if (previous.includes(orderId)) {
+          return previous.filter(
+            (id) => id !== orderId
+          );
+        }
+
+        return [
+          ...previous,
+          orderId,
+        ];
+      }
+    );
+
+    setCombineBillingError("");
+  };
+
+  // =========================================================
+  // SELECTED COMBINE ORDERS
+  // =========================================================
+
+  const combineSelectedOrders =
+    orders.filter((order) =>
+      combineSelectedOrderIds.includes(
+        order._id
+      )
+    );
+
+  // =========================================================
+  // COMBINED TOTAL
+  // =========================================================
+
+  const combineSelectedTotal =
+    combineSelectedOrders.reduce(
+      (sum, order) =>
+        sum +
+        Number(order.total || 0),
+      0
+    );
+
+  // =========================================================
+  // CREATE COMBINED BILL
+  // =========================================================
+
+  const handleCreateCombinedBilling =
+    async () => {
+      if (combineSelectedOrders.length < 2) {
+        setCombineBillingError(
+          "Please select at least two orders."
+        );
+        return;
+      }
+
+      try {
+        setCombineBillingLoading(true);
+        setCombineBillingError("");
+
+        const response = await fetch(
+          "http://localhost:5000/api/cashier/billing/combine",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              orderIds:
+                combineSelectedOrders.map(
+                  (order) => order._id
+                ),
+              createdBy:
+                user?.name || "Cashier",
+            }),
+          }
+        );
+
+        const data =
+          await response.json();
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.message ||
+              "Unable to create combined bill."
+          );
+        }
+
+        setBillingSession(
+          data.billingSession
+        );
+
+        setCombinedPaymentMethod("");
+        setCombineBillingError("");
+      } catch (error) {
+        console.error(
+          "Combined billing error:",
+          error
+        );
+
+        setCombineBillingError(
+          error.message ||
+            "Unable to create combined bill."
+        );
+      } finally {
+        setCombineBillingLoading(false);
+      }
+    };
+
+  // =========================================================
+  // PAY COMBINED BILL
+  // =========================================================
+
+  const handleCombinedPayment = async () => {
+    if (!billingSession) return;
+
+    if (!combinedPaymentMethod) {
+      setCombineBillingError(
+        "Please select a payment method."
+      );
+      return;
+    }
+
+    if (
+      combinedPaymentMethod === "CASH" &&
+      !enabledPaymentMethods.cash
+    ) {
+      setCombineBillingError(
+        "Cash payment is currently disabled."
+      );
+      return;
+    }
+
+    if (
+      combinedPaymentMethod === "CARD" &&
+      !enabledPaymentMethods.card
+    ) {
+      setCombineBillingError(
+        "Card payment is currently disabled."
+      );
+      return;
+    }
+
+    if (
+      combinedPaymentMethod === "UPI" &&
+      !enabledPaymentMethods.upi
+    ) {
+      setCombineBillingError(
+        "UPI payment is currently disabled."
+      );
+      return;
+    }
+
+    try {
+      setCombinedPaymentLoading(true);
+      setCombineBillingError("");
+
+      const response = await fetch(
+        `http://localhost:5000/api/cashier/billing/${billingSession.id}/pay`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            paymentMethod:
+              combinedPaymentMethod,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Combined payment failed."
+        );
+      }
+
+      // ------------------------------------------
+      // BUILD COMBINED RECEIPT ORDER
+      // ------------------------------------------
+
+      const combinedOrder = {
+        _id: billingSession.id,
+
+        orderNumber:
+          billingSession.billingNumber,
+
+        tableNumber:
+          billingSession.tableNumbers.join(
+            ", "
+          ),
+
+        waiterName:
+          combineSelectedOrders
+            .map(
+              (order) =>
+                order.waiterName
+            )
+            .filter(Boolean)
+            .join(", "),
+
+        items:
+          combineSelectedOrders.flatMap(
+            (order) =>
+              order.items || []
+          ),
+
+        subtotal:
+          combineSelectedOrders.reduce(
+            (sum, order) =>
+              sum +
+              Number(
+                order.subtotal || 0
+              ),
+            0
+          ),
+
+        total:
+          Number(
+            billingSession.totalAmount || 0
+          ),
+
+        status: "COMPLETED",
+
+        paymentMethod:
+          combinedPaymentMethod,
+
+        paidAt:
+          data.billingSession?.paidAt ||
+          new Date().toISOString(),
+      };
+
+      // ------------------------------------------
+      // PAYMENT SUCCESS
+      // ------------------------------------------
+
+      setPaymentSuccess({
+        amount:
+          Number(
+            billingSession.totalAmount ||
+              0
+          ),
+
+        paymentMethod:
+          combinedPaymentMethod,
+
+        orderNumber:
+          billingSession.billingNumber,
+
+        tableNumber:
+          billingSession.tableNumbers.join(
+            ", "
+          ),
+
+        combined: true,
+      });
+
+      // ------------------------------------------
+      // RECEIPT
+      // ------------------------------------------
+
+      setReceiptData({
+        order: combinedOrder,
+
+        paymentMethod:
+          combinedPaymentMethod,
+
+        paidAt:
+          data.billingSession?.paidAt ||
+          new Date().toISOString(),
+      });
+
+      setShowReceipt(false);
+
+      // ------------------------------------------
+      // CLOSE COMBINE MODAL
+      // ------------------------------------------
+
+      setShowCombineBills(false);
+      setCombineSelectedOrderIds([]);
+      setBillingSession(null);
+      setCombinedPaymentMethod("");
+      setCombineBillingError("");
+
+      // ------------------------------------------
+      // REFRESH
+      // ------------------------------------------
+
+      await loadOrders();
+    } catch (error) {
+      console.error(
+        "Combined payment error:",
+        error
+      );
+
+      setCombineBillingError(
+        error.message ||
+          "Unable to complete combined payment."
+      );
+    } finally {
+      setCombinedPaymentLoading(false);
+    }
   };
 
   // =========================================================
@@ -413,8 +744,6 @@ function CashierDashboard({
 
       <aside className="cashier-sidebar">
 
-        {/* BRANDING */}
-
         <div className="cashier-branding">
 
           <div className="cashier-brand-logo">
@@ -439,16 +768,12 @@ function CashierDashboard({
         </div>
 
 
-        {/* NAVIGATION */}
-
         <div className="cashier-sidebar-section">
 
           <span className="cashier-sidebar-title">
             CASHIER
           </span>
 
-
-          {/* DASHBOARD */}
 
           <button
             className="cashier-nav-item active"
@@ -460,8 +785,6 @@ function CashierDashboard({
             Dashboard
           </button>
 
-
-          {/* REFRESH ORDERS */}
 
           <button
             className="cashier-nav-item"
@@ -479,8 +802,6 @@ function CashierDashboard({
           </button>
 
 
-          {/* PAYMENT HISTORY */}
-
           <button
             className="cashier-nav-item"
             onClick={onPaymentHistory}
@@ -492,8 +813,6 @@ function CashierDashboard({
             Payment History
           </button>
 
-
-          {/* TAX CONFIGURATION */}
 
           <button
             className="cashier-nav-item"
@@ -508,8 +827,6 @@ function CashierDashboard({
 
         </div>
 
-
-        {/* USER */}
 
         <div className="cashier-sidebar-section cashier-sidebar-bottom">
 
@@ -555,12 +872,10 @@ function CashierDashboard({
 
 
       {/* =================================================
-          MAIN AREA
+          MAIN
       ================================================= */}
 
       <main className="cashier-main">
-
-        {/* TOP BAR */}
 
         <header className="cashier-topbar">
 
@@ -619,7 +934,7 @@ function CashierDashboard({
 
 
         {/* =================================================
-            KPI CARDS
+            KPI
         ================================================= */}
 
         <section className="cashier-kpis">
@@ -730,20 +1045,36 @@ function CashierDashboard({
             </div>
 
 
-            <div className="cashier-order-count">
+            <div className="cashier-order-heading-actions">
 
-              {orders.length}
+              <button
+                type="button"
+                className="cashier-combine-bills-button"
+                onClick={
+                  handleOpenCombineBills
+                }
+                disabled={
+                  orders.length < 2
+                }
+              >
+                ⇄ Combine Bills
+              </button>
 
-              <span>
-                orders
-              </span>
+
+              <div className="cashier-order-count">
+
+                {orders.length}
+
+                <span>
+                  orders
+                </span>
+
+              </div>
 
             </div>
 
           </div>
 
-
-          {/* LOADING */}
 
           {loading && (
             <div className="cashier-state-card">
@@ -757,8 +1088,6 @@ function CashierDashboard({
             </div>
           )}
 
-
-          {/* ERROR */}
 
           {!loading &&
             error && (
@@ -787,8 +1116,6 @@ function CashierDashboard({
               </div>
             )}
 
-
-          {/* EMPTY */}
 
           {!loading &&
             !error &&
@@ -821,8 +1148,6 @@ function CashierDashboard({
             )}
 
 
-          {/* ORDERS */}
-
           {!loading &&
             !error &&
             orders.length > 0 && (
@@ -834,8 +1159,6 @@ function CashierDashboard({
                     className="cashier-order"
                     key={order._id}
                   >
-
-                    {/* ORDER TOP */}
 
                     <div className="cashier-order-top">
 
@@ -871,8 +1194,6 @@ function CashierDashboard({
 
                     </div>
 
-
-                    {/* ORDER ITEMS */}
 
                     <div className="cashier-order-items">
 
@@ -935,8 +1256,6 @@ function CashierDashboard({
                     </div>
 
 
-                    {/* ORDER TOTAL */}
-
                     <div className="cashier-order-bottom">
 
                       <div className="cashier-total-label">
@@ -966,8 +1285,6 @@ function CashierDashboard({
 
                     </div>
 
-
-                    {/* ACTION */}
 
                     <button
                       className="cashier-collect-button"
@@ -999,15 +1316,13 @@ function CashierDashboard({
 
 
       {/* =================================================
-          PAYMENT MODAL
+          SINGLE ORDER PAYMENT MODAL
       ================================================= */}
 
       {selectedOrder && (
         <div className="cashier-modal-overlay">
 
           <div className="cashier-payment-modal">
-
-            {/* HEADER */}
 
             <div className="payment-modal-header">
 
@@ -1043,8 +1358,6 @@ function CashierDashboard({
 
             </div>
 
-
-            {/* BILL */}
 
             <div className="payment-bill">
 
@@ -1120,10 +1433,6 @@ function CashierDashboard({
             </div>
 
 
-            {/* =================================================
-                PAYMENT METHODS
-            ================================================= */}
-
             <div className="payment-method-section">
 
               <span className="payment-method-label">
@@ -1148,8 +1457,6 @@ function CashierDashboard({
                 ) : (
 
                   <>
-
-                    {/* CASH */}
 
                     {enabledPaymentMethods.cash && (
                       <button
@@ -1186,8 +1493,6 @@ function CashierDashboard({
                     )}
 
 
-                    {/* CARD */}
-
                     {enabledPaymentMethods.card && (
                       <button
                         type="button"
@@ -1222,8 +1527,6 @@ function CashierDashboard({
                       </button>
                     )}
 
-
-                    {/* UPI */}
 
                     {enabledPaymentMethods.upi && (
                       <button
@@ -1268,8 +1571,6 @@ function CashierDashboard({
             </div>
 
 
-            {/* PAYMENT ERROR */}
-
             {paymentError && (
               <div className="payment-error">
 
@@ -1282,8 +1583,6 @@ function CashierDashboard({
               </div>
             )}
 
-
-            {/* ACTIONS */}
 
             <div className="payment-actions">
 
@@ -1328,15 +1627,557 @@ function CashierDashboard({
 
 
       {/* =================================================
-          PAYMENT SUCCESS MODAL
+          COMBINE BILLS MODAL
+      ================================================= */}
+
+      {showCombineBills && (
+        <div className="cashier-modal-overlay">
+
+          <div className="cashier-combine-modal">
+
+            {!billingSession ? (
+
+              <>
+                <div className="combine-modal-header">
+
+                  <div>
+
+                    <span className="payment-modal-label">
+                      BILLING
+                    </span>
+
+                    <h2>
+                      Combine Bills
+                    </h2>
+
+                    <p>
+                      Select two or more active
+                      orders for one combined bill.
+                    </p>
+
+                  </div>
+
+
+                  <button
+                    className="payment-close"
+                    onClick={
+                      handleCloseCombineBills
+                    }
+                    disabled={
+                      combineBillingLoading
+                    }
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+
+                {combineBillingError && (
+                  <div className="payment-error">
+
+                    <span>
+                      !
+                    </span>
+
+                    {combineBillingError}
+
+                  </div>
+                )}
+
+
+                <div className="combine-orders-list">
+
+                  <div className="combine-orders-title">
+                    ACTIVE ORDERS
+                  </div>
+
+
+                  {orders.map((order) => {
+
+                    const isSelected =
+                      combineSelectedOrderIds.includes(
+                        order._id
+                      );
+
+                    return (
+                      <button
+                        type="button"
+                        key={order._id}
+                        className={`combine-order-card ${
+                          isSelected
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleCombineOrderSelect(
+                            order._id
+                          )
+                        }
+                        disabled={
+                          combineBillingLoading
+                        }
+                      >
+
+                        <div className="combine-order-check">
+
+                          {isSelected
+                            ? "✓"
+                            : ""}
+
+                        </div>
+
+
+                        <div className="combine-order-table">
+
+                          <span>
+                            TABLE
+                          </span>
+
+                          <strong>
+                            {order.tableNumber}
+                          </strong>
+
+                        </div>
+
+
+                        <div className="combine-order-info">
+
+                          <span>
+                            ORDER
+                          </span>
+
+                          <strong>
+                            {order.orderNumber}
+                          </strong>
+
+                        </div>
+
+
+                        <div className="combine-order-amount">
+
+                          <span>
+                            TOTAL
+                          </span>
+
+                          <strong>
+                            ₹
+                            {Number(
+                              order.total ||
+                                0
+                            ).toFixed(2)}
+                          </strong>
+
+                        </div>
+
+                      </button>
+                    );
+                  })}
+
+                </div>
+
+
+                <div className="combine-bill-summary">
+
+                  <div>
+
+                    <span>
+                      Selected Orders
+                    </span>
+
+                    <strong>
+                      {
+                        combineSelectedOrders.length
+                      }
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      Selected Tables
+                    </span>
+
+                    <strong>
+                      {
+                        combineSelectedOrders.length
+                      }
+                    </strong>
+
+                  </div>
+
+
+                  <div className="combine-total-row">
+
+                    <span>
+                      Combined Total
+                    </span>
+
+                    <strong>
+                      ₹
+                      {combineSelectedTotal.toFixed(
+                        2
+                      )}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div className="combine-modal-actions">
+
+                  <button
+                    type="button"
+                    className="payment-cancel"
+                    onClick={
+                      handleCloseCombineBills
+                    }
+                    disabled={
+                      combineBillingLoading
+                    }
+                  >
+                    Cancel
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className="payment-confirm"
+                    disabled={
+                      combineSelectedOrders.length <
+                        2 ||
+                      combineBillingLoading
+                    }
+                    onClick={
+                      handleCreateCombinedBilling
+                    }
+                  >
+                    {combineBillingLoading
+                      ? "Preparing..."
+                      : "COLLECT PAYMENT"}
+                  </button>
+
+                </div>
+
+              </>
+
+            ) : (
+
+              <>
+                {/* =================================================
+                    COMBINED PAYMENT
+                ================================================= */}
+
+                <div className="combine-modal-header">
+
+                  <div>
+
+                    <span className="payment-modal-label">
+                      COMBINED PAYMENT
+                    </span>
+
+                    <h2>
+                      Combined Bill
+                    </h2>
+
+                    <p>
+                      {
+                        billingSession.billingNumber
+                      }
+                    </p>
+
+                  </div>
+
+
+                  <button
+                    className="payment-close"
+                    onClick={
+                      handleCloseCombineBills
+                    }
+                    disabled={
+                      combinedPaymentLoading
+                    }
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+
+                {/* ORDERS */}
+
+                <div className="combine-final-orders">
+
+                  {combineSelectedOrders.map(
+                    (order) => (
+
+                      <div
+                        className="combine-final-order"
+                        key={order._id}
+                      >
+
+                        <div>
+
+                          <span>
+                            TABLE{" "}
+                            {order.tableNumber}
+                          </span>
+
+                          <strong>
+                            {order.orderNumber}
+                          </strong>
+
+                        </div>
+
+
+                        <strong>
+                          ₹
+                          {Number(
+                            order.total || 0
+                          ).toFixed(2)}
+                        </strong>
+
+                      </div>
+
+                    )
+                  )}
+
+                </div>
+
+
+                {/* TOTAL */}
+
+                <div className="combine-final-total">
+
+                  <span>
+                    Combined Total
+                  </span>
+
+                  <strong>
+                    ₹
+                    {Number(
+                      billingSession.totalAmount ||
+                        0
+                    ).toFixed(2)}
+                  </strong>
+
+                </div>
+
+
+                {/* PAYMENT METHODS */}
+
+                <div className="payment-method-section">
+
+                  <span className="payment-method-label">
+                    SELECT PAYMENT METHOD
+                  </span>
+
+
+                  <div
+                    className={`payment-method-grid ${
+                      paymentSettingsLoading
+                        ? "payment-methods-loading"
+                        : ""
+                    }`}
+                  >
+
+                    {paymentSettingsLoading ? (
+
+                      <div className="payment-settings-loading">
+                        Loading payment methods...
+                      </div>
+
+                    ) : (
+
+                      <>
+
+                        {enabledPaymentMethods.cash && (
+                          <button
+                            type="button"
+                            className={`payment-method-card ${
+                              combinedPaymentMethod ===
+                              "CASH"
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setCombinedPaymentMethod(
+                                "CASH"
+                              )
+                            }
+                            disabled={
+                              combinedPaymentLoading
+                            }
+                          >
+
+                            <span className="payment-icon">
+                              💵
+                            </span>
+
+                            <strong>
+                              Cash
+                            </strong>
+
+                            <small>
+                              Cash payment
+                            </small>
+
+                          </button>
+                        )}
+
+
+                        {enabledPaymentMethods.card && (
+                          <button
+                            type="button"
+                            className={`payment-method-card ${
+                              combinedPaymentMethod ===
+                              "CARD"
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setCombinedPaymentMethod(
+                                "CARD"
+                              )
+                            }
+                            disabled={
+                              combinedPaymentLoading
+                            }
+                          >
+
+                            <span className="payment-icon">
+                              💳
+                            </span>
+
+                            <strong>
+                              Card
+                            </strong>
+
+                            <small>
+                              Debit / Credit
+                            </small>
+
+                          </button>
+                        )}
+
+
+                        {enabledPaymentMethods.upi && (
+                          <button
+                            type="button"
+                            className={`payment-method-card ${
+                              combinedPaymentMethod ===
+                              "UPI"
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              setCombinedPaymentMethod(
+                                "UPI"
+                              )
+                            }
+                            disabled={
+                              combinedPaymentLoading
+                            }
+                          >
+
+                            <span className="payment-icon">
+                              📱
+                            </span>
+
+                            <strong>
+                              UPI
+                            </strong>
+
+                            <small>
+                              Scan & Pay
+                            </small>
+
+                          </button>
+                        )}
+
+                      </>
+
+                    )}
+
+                  </div>
+
+                </div>
+
+
+                {combineBillingError && (
+                  <div className="payment-error">
+
+                    <span>
+                      !
+                    </span>
+
+                    {combineBillingError}
+
+                  </div>
+                )}
+
+
+                {/* ACTIONS */}
+
+                <div className="combine-modal-actions">
+
+                  <button
+                    type="button"
+                    className="payment-cancel"
+                    onClick={
+                      handleCloseCombineBills
+                    }
+                    disabled={
+                      combinedPaymentLoading
+                    }
+                  >
+                    Cancel
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className="payment-confirm"
+                    disabled={
+                      combinedPaymentLoading ||
+                      paymentSettingsLoading ||
+                      !combinedPaymentMethod
+                    }
+                    onClick={
+                      handleCombinedPayment
+                    }
+                  >
+                    {combinedPaymentLoading
+                      ? "Processing..."
+                      : `COLLECT ₹${Number(
+                          billingSession.totalAmount ||
+                            0
+                        ).toFixed(2)}`}
+                  </button>
+
+                </div>
+
+              </>
+
+            )}
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* =================================================
+          PAYMENT SUCCESS
       ================================================= */}
 
       {paymentSuccess && (
         <div className="cashier-success-overlay">
 
           <div className="cashier-success-modal">
-
-            {/* SUCCESS ICON */}
 
             <div className="cashier-success-icon">
 
@@ -1346,8 +2187,6 @@ function CashierDashboard({
 
             </div>
 
-
-            {/* TITLE */}
 
             <h2>
               Payment Successful
@@ -1359,8 +2198,6 @@ function CashierDashboard({
             </p>
 
 
-            {/* AMOUNT */}
-
             <div className="cashier-success-amount">
               ₹
               {paymentSuccess.amount.toFixed(
@@ -1368,8 +2205,6 @@ function CashierDashboard({
               )}
             </div>
 
-
-            {/* PAYMENT DETAILS */}
 
             <div className="cashier-success-details">
 
@@ -1420,8 +2255,6 @@ function CashierDashboard({
 
             </div>
 
-
-            {/* ACTIONS */}
 
             <div className="payment-success-actions">
 

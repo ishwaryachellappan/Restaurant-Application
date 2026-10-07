@@ -1335,3 +1335,585 @@
 .payment-methods-loading {
   display: block;
 }
+
+/* =========================================================
+   COMBINED BILLING
+========================================================= */
+
+.cashier-order-select {
+  margin-bottom: 14px;
+}
+
+.cashier-order-select label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+}
+
+.cashier-order-select input {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  accent-color: #111827;
+}
+
+.cashier-order-selected {
+  border: 2px solid #111827 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.cashier-combine-button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cashier-combine-button:hover {
+  background: #1f2937;
+}
+
+.cashier-combine-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   COMBINE BILLS
+========================================================= */
+
+.cashier-order-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cashier-combine-bills-button {
+  border: 1px solid #111827;
+  border-radius: 8px;
+  padding: 11px 17px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.cashier-combine-bills-button:hover {
+  background: #1f2937;
+}
+
+.cashier-combine-bills-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   COMBINE MODAL
+========================================================= */
+
+.cashier-combine-modal {
+  width: min(720px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+  padding: 28px;
+}
+
+.combine-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.combine-modal-header h2 {
+  margin: 5px 0 5px;
+  font-size: 25px;
+  color: #111827;
+}
+
+.combine-modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ACTIVE ORDERS
+========================================================= */
+
+.combine-orders-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.combine-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 390px;
+  overflow-y: auto;
+}
+
+.combine-order-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px 90px 1fr 120px;
+  align-items: center;
+  gap: 14px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.combine-order-card:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.combine-order-card.selected {
+  border: 2px solid #111827;
+  background: #f3f4f6;
+}
+
+.combine-order-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.combine-order-check {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #9ca3af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #ffffff;
+}
+
+.combine-order-card.selected
+.combine-order-check {
+  background: #111827;
+  border-color: #111827;
+}
+
+.combine-order-table,
+.combine-order-info,
+.combine-order-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combine-order-table span,
+.combine-order-info span,
+.combine-order-amount span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #9ca3af;
+}
+
+.combine-order-table strong,
+.combine-order-info strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.combine-order-amount {
+  text-align: right;
+}
+
+.combine-order-amount strong {
+  font-size: 16px;
+  color: #111827;
+}
+
+
+/* =========================================================
+   COMBINED SUMMARY
+========================================================= */
+
+.combine-bill-summary {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.combine-bill-summary > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+}
+
+.combine-bill-summary span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.combine-bill-summary strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.combine-total-row {
+  margin-top: 8px;
+  padding-top: 15px !important;
+  border-top: 1px solid #d1d5db;
+}
+
+.combine-total-row span {
+  color: #111827;
+  font-weight: 700;
+}
+
+.combine-total-row strong {
+  font-size: 22px;
+}
+
+
+/* =========================================================
+   COMBINE ACTIONS
+========================================================= */
+
+.combine-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.cashier-order-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cashier-combine-bills-button {
+  border: 1px solid #111827;
+  border-radius: 8px;
+  padding: 11px 17px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.cashier-combine-bills-button:hover {
+  background: #1f2937;
+}
+
+.cashier-combine-bills-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cashier-order-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cashier-combine-bills-button {
+  border: 1px solid #111827;
+  border-radius: 8px;
+  padding: 11px 17px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cashier-combine-bills-button:hover {
+  background: #1f2937;
+}
+
+.cashier-combine-bills-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cashier-combine-modal {
+  width: min(720px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+  padding: 28px;
+}
+
+.combine-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.combine-modal-header h2 {
+  margin: 5px 0;
+  font-size: 25px;
+  color: #111827;
+}
+
+.combine-modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.combine-orders-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.combine-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 390px;
+  overflow-y: auto;
+}
+
+.combine-order-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px 90px 1fr 120px;
+  align-items: center;
+  gap: 14px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.combine-order-card:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.combine-order-card.selected {
+  border: 2px solid #111827;
+  background: #f3f4f6;
+}
+
+.combine-order-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.combine-order-check {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #9ca3af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  background: #ffffff;
+}
+
+.combine-order-card.selected .combine-order-check {
+  background: #111827;
+  border-color: #111827;
+}
+
+.combine-order-table,
+.combine-order-info,
+.combine-order-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combine-order-table span,
+.combine-order-info span,
+.combine-order-amount span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #9ca3af;
+}
+
+.combine-order-table strong,
+.combine-order-info strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.combine-order-amount {
+  text-align: right;
+}
+
+.combine-order-amount strong {
+  font-size: 16px;
+  color: #111827;
+}
+
+.combine-bill-summary {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.combine-bill-summary > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+}
+
+.combine-bill-summary span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.combine-bill-summary strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.combine-total-row {
+  margin-top: 8px;
+  padding-top: 15px !important;
+  border-top: 1px solid #d1d5db;
+}
+
+.combine-total-row span {
+  color: #111827;
+  font-weight: 700;
+}
+
+.combine-total-row strong {
+  font-size: 22px;
+}
+
+.combine-final-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.combine-final-order {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: #f9fafb;
+}
+
+.combine-final-order > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combine-final-order span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.8px;
+}
+
+.combine-final-order strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.combine-final-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-top: 1px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.combine-final-total span {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.combine-final-total strong {
+  font-size: 26px;
+  color: #111827;
+}
+
+.combine-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 700px) {
+  .cashier-order-heading-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .cashier-combine-bills-button {
+    width: 100%;
+  }
+
+  .combine-order-card {
+    grid-template-columns: 35px 65px 1fr;
+  }
+
+  .combine-order-amount {
+    grid-column: 3;
+    text-align: left;
+  }
+}

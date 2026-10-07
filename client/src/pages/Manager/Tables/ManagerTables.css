@@ -1,0 +1,635 @@
+/* =========================================================
+   MANAGER TABLE MANAGEMENT
+   ========================================================= */
+
+.manager-tables-page {
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.manager-tables-back-row {
+  margin-bottom: 18px;
+}
+
+.manager-tables-back {
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.manager-tables-back:hover {
+  color: #111827;
+}
+
+
+/* =========================================================
+   TABLE TOOLBAR
+   ========================================================= */
+
+.manager-tables-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.manager-tables-search {
+  min-width: 250px;
+  flex: 1;
+  max-width: 420px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+}
+
+.manager-tables-search span {
+  font-size: 14px;
+  opacity: 0.65;
+}
+
+.manager-tables-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+  font-size: 13px;
+}
+
+.manager-tables-search input::placeholder {
+  color: #9ca3af;
+}
+
+.manager-tables-filter select {
+  height: 42px;
+  min-width: 145px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+.manager-merge-button {
+  height: 42px;
+  margin-left: auto;
+  border: none;
+  border-radius: 9px;
+  padding: 0 17px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manager-merge-button:hover {
+  background: #1f2937;
+}
+
+
+/* =========================================================
+   TABLE PANEL
+   ========================================================= */
+
+.manager-tables-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.manager-tables-panel .manager-panel-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #eef0f2;
+}
+
+
+/* =========================================================
+   TABLE GRID
+   ========================================================= */
+
+.manager-tables-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px;
+}
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.manager-table-card {
+  position: relative;
+  min-height: 205px;
+  padding: 17px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.manager-table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(15, 23, 42, 0.07);
+}
+
+.manager-table-card.available {
+  border-top: 3px solid #16a34a;
+}
+
+.manager-table-card.occupied {
+  border-top: 3px solid #f59e0b;
+}
+
+.manager-table-card.reserved {
+  border-top: 3px solid #6366f1;
+}
+
+.manager-table-card.cleaning {
+  border-top: 3px solid #6b7280;
+}
+
+
+/* =========================================================
+   TABLE CARD HEADER
+   ========================================================= */
+
+.manager-table-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.manager-table-number {
+  width: 43px;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.manager-table-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.manager-table-status.available {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.manager-table-status.occupied {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.manager-table-status.reserved {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.manager-table-status.cleaning {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.manager-table-name {
+  margin-top: 13px;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.manager-table-capacity {
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   ACTIVE ORDER
+   ========================================================= */
+
+.manager-table-order {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.manager-table-order div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manager-table-order span {
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.manager-table-order strong {
+  color: #111827;
+  font-size: 12px;
+}
+
+.manager-table-order > strong {
+  font-size: 13px;
+}
+
+.manager-table-no-order {
+  margin-top: 16px;
+  padding: 11px;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.manager-table-merged {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+   ========================================================= */
+
+.manager-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+
+/* =========================================================
+   MERGE MODAL
+   ========================================================= */
+
+.manager-table-modal {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 25px 70px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.manager-table-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.manager-table-modal-header span {
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.manager-table-modal-header h2 {
+  margin: 5px 0 4px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.manager-table-modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.manager-modal-close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.manager-modal-close:hover {
+  background: #e5e7eb;
+}
+
+.manager-table-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   MODAL FIELDS
+   ========================================================= */
+
+.manager-merge-fields {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.manager-merge-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.manager-merge-field label {
+  margin-bottom: 7px;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.manager-merge-field select {
+  width: 100%;
+  height: 43px;
+  padding: 0 11px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #111827;
+  font-size: 13px;
+}
+
+.manager-merge-field select:focus {
+  border-color: #9ca3af;
+}
+
+.manager-merge-field small {
+  margin-top: 6px;
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.manager-merge-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   MERGE PREVIEW
+   ========================================================= */
+
+.manager-merge-preview {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.manager-merge-preview-card {
+  min-height: 90px;
+  padding: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.manager-merge-preview-card span {
+  display: block;
+  margin-bottom: 7px;
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.manager-merge-preview-card strong {
+  display: block;
+  color: #111827;
+  font-size: 15px;
+}
+
+.manager-merge-preview-card small {
+  display: block;
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.manager-merge-preview-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   MODAL MESSAGES
+   ========================================================= */
+
+.manager-modal-error {
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.manager-modal-success {
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
+
+.manager-table-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 17px 24px;
+  border-top: 1px solid #eef0f2;
+  background: #fafafa;
+}
+
+.manager-modal-secondary,
+.manager-modal-primary {
+  height: 40px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.manager-modal-secondary {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.manager-modal-secondary:hover {
+  background: #f9fafb;
+}
+
+.manager-modal-primary {
+  border: none;
+  background: #111827;
+  color: #ffffff;
+}
+
+.manager-modal-primary:hover {
+  background: #1f2937;
+}
+
+.manager-modal-primary:disabled,
+.manager-modal-secondary:disabled,
+.manager-modal-close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .manager-tables-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .manager-tables-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .manager-merge-button {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .manager-tables-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-tables-toolbar {
+    align-items: stretch;
+  }
+
+  .manager-tables-search {
+    min-width: 100%;
+    max-width: none;
+  }
+
+  .manager-tables-filter,
+  .manager-tables-filter select,
+  .manager-merge-button {
+    width: 100%;
+  }
+
+  .manager-merge-fields,
+  .manager-merge-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-merge-arrow,
+  .manager-merge-preview-plus {
+    margin: 0 auto;
+  }
+
+  .manager-table-modal-header,
+  .manager-table-modal-body {
+    padding: 18px;
+  }
+
+  .manager-table-modal-footer {
+    padding: 14px 18px;
+  }
+}

@@ -1,3 +1,4 @@
+clear
 const mongoose = require("mongoose");
 
 const tableSchema = new mongoose.Schema(
@@ -22,34 +23,13 @@ const tableSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "AVAILABLE",
-        "OCCUPIED",
-        "RESERVED",
-        "CLEANING",
-      ],
+      enum: ["AVAILABLE", "OCCUPIED", "RESERVED", "CLEANING"],
       default: "AVAILABLE",
     },
 
     currentOrder: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Order",
-      default: null,
-    },
-
-    // Tables merged into this table
-    mergedWith: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Table",
-      },
-    ],
-
-    // If this table is merged into another table,
-    // this points to the primary table.
-    mergedInto: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Table",
       default: null,
     },
   },

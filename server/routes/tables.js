@@ -159,3 +159,144 @@ router.get("/", async (req, res) => {
 
 
 module.exports = router;
+
+// ======================================================
+// MERGE TABLES
+// ======================================================
+
+router.post("/merge", async (req, res) => {
+  try {
+    const {
+      primaryTableId,
+      secondaryTableId,
+    } = req.body;
+
+    if (!primaryTableId || !secondaryTableId) {
+      return res.status(400).json({
+        success: false,
+        message: "Both tables are required.",
+      });
+    }
+
+    if (primaryTableId === secondaryTableId) {
+      return res.status(400).json({
+        success: false,
+        message: "A table cannot be merged with itself.",
+      });
+    }
+
+    const primaryTable =
+      await Table.findById(primaryTableId);
+
+    const secondaryTable =
+      await Table.findById(secondaryTableId);
+
+    if (!primaryTable) {
+      return res.status(404).json({
+        success: false,
+        message: "Primary table not found.",
+      });
+    }
+
+    if (!secondaryTable) {
+      return res.status(404).json({
+        success: false,
+        message: "Secondary table not found.",
+      });
+    }
+
+    if (primaryTable.mergedInto) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The primary table is already merged into another table.",
+      });
+    }
+
+    if (secondaryTable.mergedInto) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The secondary table is already merged into another table.",
+      });
+    }
+
+    if (
+      secondaryTable.status === "RESERVED" ||
+      secondaryTable.status === "CLEANING"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "A reserved or cleaning table cannot be merged.",
+      });
+    }
+
+    if (secondaryTable.currentOrder) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The secondary table already has an active order.",
+      });
+    }
+
+    if (!primaryTable.currentOrder) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The primary table must have an active order.",
+      });
+    }
+
+    const alreadyMerged =
+      primaryTable.mergedWith.some(
+        (tableId) =>
+          tableId.toString() ===
+          secondaryTable._id.toString()
+      );
+
+    if (alreadyMerged) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "These tables are already merged.",
+      });
+    }
+
+    primaryTable.mergedWith.push(
+      secondaryTable._id
+    );
+
+    primaryTable.status = "OCCUPIED";
+
+    secondaryTable.mergedInto =
+      primaryTable._id;
+
+    secondaryTable.status = "OCCUPIED";
+
+    secondaryTable.currentOrder = null;
+
+    await primaryTable.save();
+    await secondaryTable.save();
+
+    return res.json({
+      success: true,
+      message:
+        `Table ${primaryTable.tableNumber} and Table ${secondaryTable.tableNumber} merged successfully.`,
+      primaryTable,
+      secondaryTable,
+    });
+
+  } catch (error) {
+    console.error(
+      "Merge tables error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to merge tables.",
+      error: error.message,
+    });
+  }
+});
