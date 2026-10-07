@@ -28,8 +28,28 @@ function ManagerStaff({
   });
 
   const [creatingStaff, setCreatingStaff] = useState(false);
-const [showStaffDirectory, setShowStaffDirectory] = useState(false);
-const [showStaffPerformance, setShowStaffPerformance] = useState(false);
+  const [showStaffDirectory, setShowStaffDirectory] = useState(false);
+  const [showStaffPerformance, setShowStaffPerformance] = useState(false);
+
+  const [performancePeriod, setPerformancePeriod] = useState("TODAY");
+
+  const [performanceData, setPerformanceData] = useState({
+    waiters: [],
+    cashiers: [],
+    totals: {
+      waiterOrders: 0,
+      waiterAmount: 0,
+      cashierPayments: 0,
+      cashierAmount: 0,
+    },
+  });
+
+  const [performanceLoading, setPerformanceLoading] = useState(false);
+  const [performanceError, setPerformanceError] = useState("");
+
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+
 
   const loadStaff = async () => {
     try {
@@ -56,6 +76,179 @@ const [showStaffPerformance, setShowStaffPerformance] = useState(false);
       setLoading(false);
     }
   };
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const getPerformanceDates = (period) => {
+    const today = new Date();
+
+    if (period === "TODAY") {
+      return {
+        from: formatDate(today),
+        to: formatDate(today),
+      };
+    }
+
+    if (period === "YESTERDAY") {
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      return {
+        from: formatDate(yesterday),
+        to: formatDate(yesterday),
+      };
+    }
+
+    if (period === "WEEK") {
+      const start = new Date(today);
+      const day = start.getDay();
+
+      const difference = day === 0 ? 6 : day - 1;
+
+      start.setDate(start.getDate() - difference);
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+
+      return {
+        from: formatDate(start),
+        to: formatDate(end),
+      };
+    }
+
+    if (period === "MONTH") {
+      const start = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+
+      const end = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+
+      return {
+        from: formatDate(start),
+        to: formatDate(end),
+      };
+    }
+
+    if (period === "CUSTOM") {
+      return {
+        from: customFrom,
+        to: customTo,
+      };
+    }
+
+    return {
+      from: formatDate(today),
+      to: formatDate(today),
+    };
+  };
+
+  const loadPerformance = async (
+    selectedPeriod = performancePeriod,
+    customStart = customFrom,
+    customEnd = customTo
+  ) => {
+    try {
+      setPerformanceLoading(true);
+      setPerformanceError("");
+
+      let dates;
+
+      if (selectedPeriod === "CUSTOM") {
+        dates = {
+          from: customStart,
+          to: customEnd,
+        };
+
+        if (!dates.from || !dates.to) {
+          setPerformanceLoading(false);
+          return;
+        }
+      } else {
+        dates = getPerformanceDates(selectedPeriod);
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/staff/performance?from=${dates.from}&to=${dates.to}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+          "Unable to load staff performance."
+        );
+      }
+
+      setPerformanceData({
+        waiters: data.waiters || [],
+        cashiers: data.cashiers || [],
+        totals: data.totals || {
+          waiterOrders: 0,
+          waiterAmount: 0,
+          cashierPayments: 0,
+          cashierAmount: 0,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Load staff performance error:",
+        error
+      );
+
+      setPerformanceError(
+        error.message ||
+        "Unable to load staff performance."
+      );
+    } finally {
+      setPerformanceLoading(false);
+    }
+  };
+
+  const selectPerformancePeriod = (period) => {
+    setPerformancePeriod(period);
+
+    if (period !== "CUSTOM") {
+      loadPerformance(period);
+    }
+  };
+
+  const applyCustomPerformance = () => {
+    if (!customFrom || !customTo) {
+      alert("Please select both From and To dates.");
+      return;
+    }
+
+    if (customFrom > customTo) {
+      alert("From date cannot be after To date.");
+      return;
+    }
+
+    setPerformancePeriod("CUSTOM");
+
+    loadPerformance(
+      "CUSTOM",
+      customFrom,
+      customTo
+    );
+  };
+
+  useEffect(() => {
+    if (showStaffPerformance) {
+      loadPerformance("TODAY");
+    }
+  }, [showStaffPerformance]);
 
   useEffect(() => {
     loadStaff();
@@ -402,338 +595,604 @@ const [showStaffPerformance, setShowStaffPerformance] = useState(false);
           </section>
 
           <section className="staff-panel">
-           <div className="staff-panel-header staff-toggle-header">
+            <div className="staff-panel-header staff-toggle-header">
 
-  <div>
-    <span className="staff-section-label">
-      STAFF DIRECTORY
-    </span>
+              <div>
+                <span className="staff-section-label">
+                  STAFF DIRECTORY
+                </span>
 
-    <h2>Restaurant Staff</h2>
-
-    <p>
-      View and manage employee accounts.
-    </p>
-  </div>
-
-  <div className="staff-toggle-right">
-
-    <div className="staff-result-count">
-      {filteredStaff.length} members
-    </div>
-
-    <button
-      type="button"
-      className="staff-section-toggle"
-      onClick={() =>
-        setShowStaffDirectory(
-          (current) => !current
-        )
-      }
-      aria-label={
-        showStaffDirectory
-          ? "Collapse Staff Directory"
-          : "Expand Staff Directory"
-      }
-    >
-      {showStaffDirectory ? "⌃" : "⌄"}
-    </button>
-
-  </div>
-
-</div>
-
-            {showStaffDirectory && (
-  <>
-    <div className="staff-filters">
-              <div className="staff-search">
-                <span>⌕</span>
-
-                <input
-                  type="text"
-                  placeholder="Search by name or username..."
-                  value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                />
-              </div>
-
-              <select
-                value={roleFilter}
-                onChange={(event) =>
-                  setRoleFilter(event.target.value)
-                }
-              >
-                <option value="ALL">
-                  All Roles
-                </option>
-                <option value="MANAGER">
-                  Manager
-                </option>
-                <option value="WAITER">
-                  Waiter
-                </option>
-                <option value="KITCHEN">
-                  Kitchen
-                </option>
-                <option value="CASHIER">
-                  Cashier
-                </option>
-              </select>
-
-              <select
-                value={statusFilter}
-                onChange={(event) =>
-                  setStatusFilter(
-                    event.target.value
-                  )
-                }
-              >
-                <option value="ALL">
-                  All Status
-                </option>
-                <option value="ACTIVE">
-                  Active
-                </option>
-                <option value="INACTIVE">
-                  Inactive
-                </option>
-              </select>
-
-              <button
-                className="staff-clear"
-                onClick={() => {
-                  setSearch("");
-                  setRoleFilter("ALL");
-                  setStatusFilter("ALL");
-                }}
-              >
-                Clear
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="staff-state">
-                Loading staff...
-              </div>
-            ) : error ? (
-              <div className="staff-state staff-error">
-                {error}
-              </div>
-            ) : filteredStaff.length === 0 ? (
-              <div className="staff-state">
-                <div className="staff-empty-icon">
-                  👥
-                </div>
-
-                <h3>No staff found</h3>
+                <h2>Restaurant Staff</h2>
 
                 <p>
-                  Try changing your search or
-                  filters.
+                  View and manage employee accounts.
                 </p>
               </div>
-            ) : (
-              <div className="staff-table-wrapper">
-                <table className="staff-table">
-                  <thead>
-                    <tr>
-                      <th>STAFF MEMBER</th>
-                      <th>USERNAME</th>
-                      <th>ROLE</th>
-                      <th>STATUS</th>
-                      <th>ACTION</th>
-                    </tr>
-                  </thead>
 
-                  <tbody>
-                    {filteredStaff.map((member) => (
-                      <tr key={member._id}>
-                        <td>
-                          <div className="staff-member">
-                            <div className="staff-avatar">
-                              {getInitial(
-                                member.name
-                              )}
-                            </div>
+              <div className="staff-toggle-right">
 
-                            <div>
-                              <strong>
-                                {member.name}
-                              </strong>
+                <div className="staff-result-count">
+                  {filteredStaff.length} members
+                </div>
 
-                              <span>
-                                {restaurantName} account
-                              </span>
-                            </div>
-                          </div>
-                        </td>
+                <button
+                  type="button"
+                  className="staff-section-toggle"
+                  onClick={() =>
+                    setShowStaffDirectory(
+                      (current) => !current
+                    )
+                  }
+                  aria-label={
+                    showStaffDirectory
+                      ? "Collapse Staff Directory"
+                      : "Expand Staff Directory"
+                  }
+                >
+                  {showStaffDirectory ? "⌃" : "⌄"}
+                </button>
 
-                        <td>
-                          <span className="staff-username">
-                            {member.username}
-                          </span>
-                        </td>
-
-                        <td>
-                          <span
-                            className={`staff-role staff-role-${member.role.toLowerCase()}`}
-                          >
-                            {getRoleLabel(
-                              member.role
-                            )}
-                          </span>
-                        </td>
-
-                        <td>
-                          <span
-                            className={`staff-status ${member.status ===
-                              "ACTIVE"
-                              ? "staff-status-active"
-                              : "staff-status-inactive"
-                              }`}
-                          >
-                            <span />
-                            {member.status}
-                          </span>
-                        </td>
-
-                        <td>
-                          <button
-                            className={`staff-status-button ${member.status === "ACTIVE"
-                              ? "deactivate"
-                              : "activate"
-                              }`}
-                            onClick={() => updateStatus(member)}
-                            disabled={
-                              updatingId === member._id ||
-                              member._id === user?._id
-                            }
-                            title={
-                              member._id === user?._id
-                                ? "You cannot deactivate your own account"
-                                : ""
-                            }
-                          >
-                            {updatingId === member._id
-                              ? "Updating..."
-                              : member._id === user?._id
-                                ? "Current Account"
-                                : member.status === "ACTIVE"
-                                  ? "Deactivate"
-                                  : "Activate"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
-            )}
+
+            </div>
+
+            {showStaffDirectory && (
+              <>
+                <div className="staff-filters">
+                  <div className="staff-search">
+                    <span>⌕</span>
+
+                    <input
+                      type="text"
+                      placeholder="Search by name or username..."
+                      value={search}
+                      onChange={(event) =>
+                        setSearch(event.target.value)
+                      }
+                    />
+                  </div>
+
+                  <select
+                    value={roleFilter}
+                    onChange={(event) =>
+                      setRoleFilter(event.target.value)
+                    }
+                  >
+                    <option value="ALL">
+                      All Roles
+                    </option>
+                    <option value="MANAGER">
+                      Manager
+                    </option>
+                    <option value="WAITER">
+                      Waiter
+                    </option>
+                    <option value="KITCHEN">
+                      Kitchen
+                    </option>
+                    <option value="CASHIER">
+                      Cashier
+                    </option>
+                  </select>
+
+                  <select
+                    value={statusFilter}
+                    onChange={(event) =>
+                      setStatusFilter(
+                        event.target.value
+                      )
+                    }
+                  >
+                    <option value="ALL">
+                      All Status
+                    </option>
+                    <option value="ACTIVE">
+                      Active
+                    </option>
+                    <option value="INACTIVE">
+                      Inactive
+                    </option>
+                  </select>
+
+                  <button
+                    className="staff-clear"
+                    onClick={() => {
+                      setSearch("");
+                      setRoleFilter("ALL");
+                      setStatusFilter("ALL");
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {loading ? (
+                  <div className="staff-state">
+                    Loading staff...
+                  </div>
+                ) : error ? (
+                  <div className="staff-state staff-error">
+                    {error}
+                  </div>
+                ) : filteredStaff.length === 0 ? (
+                  <div className="staff-state">
+                    <div className="staff-empty-icon">
+                      👥
+                    </div>
+
+                    <h3>No staff found</h3>
+
+                    <p>
+                      Try changing your search or
+                      filters.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="staff-table-wrapper">
+                    <table className="staff-table">
+                      <thead>
+                        <tr>
+                          <th>STAFF MEMBER</th>
+                          <th>USERNAME</th>
+                          <th>ROLE</th>
+                          <th>STATUS</th>
+                          <th>ACTION</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {filteredStaff.map((member) => (
+                          <tr key={member._id}>
+                            <td>
+                              <div className="staff-member">
+                                <div className="staff-avatar">
+                                  {getInitial(
+                                    member.name
+                                  )}
+                                </div>
+
+                                <div>
+                                  <strong>
+                                    {member.name}
+                                  </strong>
+
+                                  <span>
+                                    {restaurantName} account
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td>
+                              <span className="staff-username">
+                                {member.username}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span
+                                className={`staff-role staff-role-${member.role.toLowerCase()}`}
+                              >
+                                {getRoleLabel(
+                                  member.role
+                                )}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span
+                                className={`staff-status ${member.status ===
+                                  "ACTIVE"
+                                  ? "staff-status-active"
+                                  : "staff-status-inactive"
+                                  }`}
+                              >
+                                <span />
+                                {member.status}
+                              </span>
+                            </td>
+
+                            <td>
+                              <button
+                                className={`staff-status-button ${member.status === "ACTIVE"
+                                  ? "deactivate"
+                                  : "activate"
+                                  }`}
+                                onClick={() => updateStatus(member)}
+                                disabled={
+                                  updatingId === member._id ||
+                                  member._id === user?._id
+                                }
+                                title={
+                                  member._id === user?._id
+                                    ? "You cannot deactivate your own account"
+                                    : ""
+                                }
+                              >
+                                {updatingId === member._id
+                                  ? "Updating..."
+                                  : member._id === user?._id
+                                    ? "Current Account"
+                                    : member.status === "ACTIVE"
+                                      ? "Deactivate"
+                                      : "Activate"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </>
-)}
+            )}
           </section>
 
 
           <section className="staff-panel staff-performance-panel">
 
-  <div className="staff-panel-header staff-toggle-header">
+            <div className="staff-panel-header staff-toggle-header">
 
-    <div>
-      <span className="staff-section-label">
-        STAFF PERFORMANCE
-      </span>
+              <div>
+                <span className="staff-section-label">
+                  STAFF PERFORMANCE
+                </span>
 
-      <h2>Staff Performance</h2>
+                <h2>Staff Performance</h2>
 
-      <p>
-        View employee performance by selected time period.
-      </p>
+                <p>
+                  View employee performance by selected time period.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="staff-section-toggle"
+                onClick={() =>
+                  setShowStaffPerformance(
+                    (current) => !current
+                  )
+                }
+                aria-label={
+                  showStaffPerformance
+                    ? "Collapse Staff Performance"
+                    : "Expand Staff Performance"
+                }
+              >
+                {showStaffPerformance ? "⌃" : "⌄"}
+              </button>
+
+            </div>
+
+            {showStaffPerformance && (
+              <div className="staff-performance-content">
+
+                <div className="staff-performance-period">
+
+                  <button
+                    type="button"
+                    className={`staff-performance-period-button ${performancePeriod === "TODAY"
+                        ? "active"
+                        : ""
+                      }`}
+                    onClick={() =>
+                      selectPerformancePeriod("TODAY")
+                    }
+                  >
+                    Today
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`staff-performance-period-button ${performancePeriod === "YESTERDAY"
+                        ? "active"
+                        : ""
+                      }`}
+                    onClick={() =>
+                      selectPerformancePeriod("YESTERDAY")
+                    }
+                  >
+                    Yesterday
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`staff-performance-period-button ${performancePeriod === "WEEK"
+                        ? "active"
+                        : ""
+                      }`}
+                    onClick={() =>
+                      selectPerformancePeriod("WEEK")
+                    }
+                  >
+                    This Week
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`staff-performance-period-button ${performancePeriod === "MONTH"
+                        ? "active"
+                        : ""
+                      }`}
+                    onClick={() =>
+                      selectPerformancePeriod("MONTH")
+                    }
+                  >
+                    This Month
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`staff-performance-period-button ${performancePeriod === "CUSTOM"
+                        ? "active"
+                        : ""
+                      }`}
+                    onClick={() =>
+                      selectPerformancePeriod("CUSTOM")
+                    }
+                  >
+                    Custom
+                  </button>
+
+                </div>
+
+                {performancePeriod === "CUSTOM" && (
+  <div className="staff-performance-custom">
+
+    <div className="staff-performance-date-field">
+      <label>From</label>
+
+      <input
+        type="date"
+        value={customFrom}
+        onChange={(event) =>
+          setCustomFrom(event.target.value)
+        }
+      />
+    </div>
+
+    <div className="staff-performance-date-field">
+      <label>To</label>
+
+      <input
+        type="date"
+        value={customTo}
+        onChange={(event) =>
+          setCustomTo(event.target.value)
+        }
+      />
     </div>
 
     <button
       type="button"
-      className="staff-section-toggle"
-      onClick={() =>
-        setShowStaffPerformance(
-          (current) => !current
-        )
-      }
-      aria-label={
-        showStaffPerformance
-          ? "Collapse Staff Performance"
-          : "Expand Staff Performance"
-      }
+      className="staff-performance-apply"
+      onClick={applyCustomPerformance}
     >
-      {showStaffPerformance ? "⌃" : "⌄"}
+      Apply
     </button>
 
   </div>
+)}
 
-  {showStaffPerformance && (
-    <div className="staff-performance-content">
 
-      <div className="staff-performance-period">
+                <div className="staff-performance-results">
 
-        <button
-          type="button"
-          className="staff-performance-period-button active"
-        >
-          Today
-        </button>
+                  {performanceLoading ? (
+                    <div className="staff-state">
+                      Loading staff performance...
+                    </div>
+                  ) : performanceError ? (
+                    <div className="staff-state staff-error">
+                      {performanceError}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="staff-performance-summary">
 
-        <button
-          type="button"
-          className="staff-performance-period-button"
-        >
-          Yesterday
-        </button>
+                        <div className="staff-performance-summary-card">
+                          <span>Waiter Orders</span>
+                          <strong>
+                            {performanceData.totals.waiterOrders}
+                          </strong>
+                        </div>
 
-        <button
-          type="button"
-          className="staff-performance-period-button"
-        >
-          This Week
-        </button>
+                        <div className="staff-performance-summary-card">
+                          <span>Waiter Sales</span>
+                          <strong>
+                            ₹{" "}
+                            {Number(
+                              performanceData.totals.waiterAmount || 0
+                            ).toFixed(2)}
+                          </strong>
+                        </div>
 
-        <button
-          type="button"
-          className="staff-performance-period-button"
-        >
-          This Month
-        </button>
+                       
 
-        <button
-          type="button"
-          className="staff-performance-period-button"
-        >
-          Custom
-        </button>
+                      </div>
 
-      </div>
+                      {/* WAITER PERFORMANCE */}
 
-      <div className="staff-performance-placeholder">
+                      <div className="staff-performance-table-section">
 
-        <div className="staff-performance-placeholder-icon">
-          ◉
-        </div>
+                        <div className="staff-performance-table-header">
+                          <div>
+                            <span className="staff-section-label">
+                              WAITER PERFORMANCE
+                            </span>
 
-        <h3>
-          Staff Performance
-        </h3>
+                            <h3>Orders & Sales</h3>
+                          </div>
+                        </div>
 
-        <p>
-          Select a time period to view orders
-          and sales performance.
-        </p>
+                        {performanceData.waiters.length === 0 ? (
+                          <div className="staff-performance-empty">
+                            No completed waiter orders for this period.
+                          </div>
+                        ) : (
+                          <div className="staff-table-wrapper">
 
-      </div>
+                            <table className="staff-table staff-performance-table">
 
-    </div>
-  )}
+                              <thead>
+                                <tr>
+                                  <th>WAITER</th>
+                                  <th>COMPLETED ORDERS</th>
+                                  <th>SALES AMOUNT</th>
+                                </tr>
+                              </thead>
 
-</section>
+                              <tbody>
+
+                                {performanceData.waiters.map(
+                                  (member) => (
+                                    <tr key={member.staffId}>
+
+                                      <td>
+                                        <div className="staff-member">
+
+                                          <div className="staff-avatar">
+                                            {getInitial(
+                                              member.staffName
+                                            )}
+                                          </div>
+
+                                          <div>
+                                            <strong>
+                                              {member.staffName}
+                                            </strong>
+
+                                            <span>
+                                              Waiter
+                                            </span>
+                                          </div>
+
+                                        </div>
+                                      </td>
+
+                                      <td>
+                                        <strong>
+                                          {member.orders}
+                                        </strong>
+                                      </td>
+
+                                      <td>
+                                        <strong>
+                                          ₹{" "}
+                                          {Number(
+                                            member.amount || 0
+                                          ).toFixed(2)}
+                                        </strong>
+                                      </td>
+
+                                    </tr>
+                                  )
+                                )}
+
+                              </tbody>
+
+                            </table>
+
+                          </div>
+                        )}
+
+                      </div>
+
+                      {/* CASHIER PERFORMANCE */}
+
+                      <div className="staff-performance-table-section">
+
+                        <div className="staff-performance-table-header">
+                          <div>
+                            <span className="staff-section-label">
+                              CASHIER PERFORMANCE
+                            </span>
+
+                            <h3>Payments & Collections</h3>
+                          </div>
+                        </div>
+
+                        {performanceData.cashiers.length === 0 ? (
+                          <div className="staff-performance-empty">
+                            No cashier payments recorded for this period.
+                          </div>
+                        ) : (
+                          <div className="staff-table-wrapper">
+
+                            <table className="staff-table staff-performance-table">
+
+                              <thead>
+                                <tr>
+                                  <th>CASHIER</th>
+                                  <th>PAYMENTS</th>
+                                  <th>AMOUNT COLLECTED</th>
+                                </tr>
+                              </thead>
+
+                              <tbody>
+
+                                {performanceData.cashiers.map(
+                                  (member) => (
+                                    <tr key={member.staffId}>
+
+                                      <td>
+                                        <div className="staff-member">
+
+                                          <div className="staff-avatar">
+                                            {getInitial(
+                                              member.staffName
+                                            )}
+                                          </div>
+
+                                          <div>
+                                            <strong>
+                                              {member.staffName}
+                                            </strong>
+
+                                            <span>
+                                              Cashier
+                                            </span>
+                                          </div>
+
+                                        </div>
+                                      </td>
+
+                                      <td>
+                                        <strong>
+                                          {member.orders}
+                                        </strong>
+                                      </td>
+
+                                      <td>
+                                        <strong>
+                                          ₹{" "}
+                                          {Number(
+                                            member.amount || 0
+                                          ).toFixed(2)}
+                                        </strong>
+                                      </td>
+
+                                    </tr>
+                                  )
+                                )}
+
+                              </tbody>
+
+                            </table>
+
+                          </div>
+                        )}
+
+                      </div>
+
+                    </>
+                  )}
+
+                </div>
+
+              </div>
+            )}
+
+          </section>
 
 
         </div>

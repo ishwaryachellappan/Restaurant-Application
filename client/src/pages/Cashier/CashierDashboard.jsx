@@ -315,9 +315,11 @@ function CashierDashboard({
             "Content-Type":
               "application/json",
           },
-          body: JSON.stringify({
-            paymentMethod,
-          }),
+         body: JSON.stringify({
+  paymentMethod,
+  cashierId: user?._id || null,
+  cashierName: user?.name || "Cashier",
+}),
         }
       );
 
@@ -577,9 +579,10 @@ function CashierDashboard({
               "application/json",
           },
           body: JSON.stringify({
-            paymentMethod:
-              combinedPaymentMethod,
-          }),
+  paymentMethod: combinedPaymentMethod,
+  cashierId: user?._id || null,
+  cashierName: user?.name || "Cashier",
+}),
         }
       );
 

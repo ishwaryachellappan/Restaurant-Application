@@ -111,9 +111,13 @@ router.patch("/orders/:id/pay", async (req, res) => {
     }
 
     // Complete payment
-    order.status = "COMPLETED";
-    order.paymentMethod = paymentMethod;
-    order.paidAt = new Date();
+    // Complete payment
+order.status = "COMPLETED";
+order.paymentMethod = paymentMethod;
+order.paidAt = new Date();
+
+order.cashierId = cashierId || null;
+order.cashierName = cashierName || "";
 
     await order.save();
 
@@ -161,7 +165,11 @@ router.patch(
   "/billing/:id/pay",
   async (req, res) => {
     try {
-      const { paymentMethod } = req.body;
+     const {
+  paymentMethod,
+  cashierId,
+  cashierName,
+} = req.body;
 
       const allowedMethods = [
         "CASH",
@@ -327,18 +335,18 @@ router.patch(
       const paidAt =
         new Date();
 
-      for (const order of orders) {
-        order.status =
-          "COMPLETED";
+     for (const order of orders) {
+  order.status = "COMPLETED";
 
-        order.paymentMethod =
-          paymentMethod;
+  order.paymentMethod = paymentMethod;
 
-        order.paidAt =
-          paidAt;
+  order.paidAt = paidAt;
 
-        await order.save();
-      }
+  order.cashierId = cashierId || null;
+  order.cashierName = cashierName || "";
+
+  await order.save();
+}
 
       // ------------------------------------------
       // RELEASE ALL TABLES

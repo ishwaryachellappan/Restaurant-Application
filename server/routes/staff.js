@@ -138,4 +138,224 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ============================================================
+// STAFF PERFORMANCE
+// ============================================================
+
+router.get("/performance", async (req, res) => {
+  try {
+    const {
+      from,
+      to,
+    } = req.query;
+
+    // --------------------------------------------------------
+    // DATE VALIDATION
+    // --------------------------------------------------------
+
+    if (!from || !to) {
+      return res.status(400).json({
+        success: false,
+        message: "From and To dates are required.",
+      });
+    }
+
+    const startDate = new Date(`${from}T00:00:00`);
+    const endDate = new Date(`${to}T23:59:59.999`);
+
+    if (
+      Number.isNaN(startDate.getTime()) ||
+      Number.isNaN(endDate.getTime())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date range.",
+      });
+    }
+
+    if (startDate > endDate) {
+      return res.status(400).json({
+        success: false,
+        message: "From date cannot be after To date.",
+      });
+    }
+
+    // --------------------------------------------------------
+    // LOAD COMPLETED ORDERS
+    // --------------------------------------------------------
+
+    const Order = require("../models/Order");
+
+    const orders = await Order.find({
+      status: "COMPLETED",
+
+      $or: [
+        {
+          paidAt: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        {
+          paidAt: null,
+          updatedAt: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+      ],
+    }).sort({
+      paidAt: 1,
+      createdAt: 1,
+    });
+
+    // --------------------------------------------------------
+    // WAITer PERFORMANCE
+    // --------------------------------------------------------
+
+    const waiterMap = new Map();
+
+    for (const order of orders) {
+      if (!order.waiterId) {
+        continue;
+      }
+
+      const waiterId = String(order.waiterId);
+
+      if (!waiterMap.has(waiterId)) {
+        waiterMap.set(waiterId, {
+          staffId: order.waiterId,
+          staffName: order.waiterName || "Unknown Waiter",
+          role: "WAITER",
+          orders: 0,
+          amount: 0,
+        });
+      }
+
+      const waiter = waiterMap.get(waiterId);
+
+      waiter.orders += 1;
+      waiter.amount += Number(order.total || 0);
+    }
+
+    // --------------------------------------------------------
+    // CASHIER PERFORMANCE
+    // --------------------------------------------------------
+
+    const cashierMap = new Map();
+
+    for (const order of orders) {
+      if (!order.cashierId) {
+        continue;
+      }
+
+      const cashierId = String(order.cashierId);
+
+      if (!cashierMap.has(cashierId)) {
+        cashierMap.set(cashierId, {
+          staffId: order.cashierId,
+          staffName: order.cashierName || "Unknown Cashier",
+          role: "CASHIER",
+          orders: 0,
+          amount: 0,
+        });
+      }
+
+      const cashier = cashierMap.get(cashierId);
+
+      cashier.orders += 1;
+      cashier.amount += Number(order.total || 0);
+    }
+
+    // --------------------------------------------------------
+    // CONVERT MAPS TO ARRAYS
+    // --------------------------------------------------------
+
+    const waiters = Array.from(
+      waiterMap.values()
+    ).map((staff) => ({
+      ...staff,
+      amount: Number(staff.amount.toFixed(2)),
+    }));
+
+    const cashiers = Array.from(
+      cashierMap.values()
+    ).map((staff) => ({
+      ...staff,
+      amount: Number(staff.amount.toFixed(2)),
+    }));
+
+    // --------------------------------------------------------
+    // TOTALS
+    // --------------------------------------------------------
+
+    const waiterTotalOrders = waiters.reduce(
+      (sum, staff) =>
+        sum + staff.orders,
+      0
+    );
+
+    const waiterTotalAmount = waiters.reduce(
+      (sum, staff) =>
+        sum + staff.amount,
+      0
+    );
+
+    const cashierTotalOrders = cashiers.reduce(
+      (sum, staff) =>
+        sum + staff.orders,
+      0
+    );
+
+    const cashierTotalAmount = cashiers.reduce(
+      (sum, staff) =>
+        sum + staff.amount,
+      0
+    );
+
+    // --------------------------------------------------------
+    // RESPONSE
+    // --------------------------------------------------------
+
+    res.json({
+      success: true,
+
+      period: {
+        from,
+        to,
+      },
+
+      waiters,
+
+      cashiers,
+
+      totals: {
+        waiterOrders: waiterTotalOrders,
+        waiterAmount: Number(
+          waiterTotalAmount.toFixed(2)
+        ),
+
+        cashierPayments:
+          cashierTotalOrders,
+
+        cashierAmount: Number(
+          cashierTotalAmount.toFixed(2)
+        ),
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Staff performance error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Unable to load staff performance.",
+      error: error.message,
+    });
+  }
+}); 
+
 module.exports = router;

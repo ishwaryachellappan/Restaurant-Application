@@ -1669,3 +1669,273 @@
   }
 
 }
+
+/* =========================================================
+   STAFF PERFORMANCE
+========================================================= */
+
+.staff-performance-panel {
+  margin-top: 20px;
+}
+
+.staff-performance-content {
+  padding: 0 28px 28px;
+}
+
+/* Period buttons */
+
+.staff-performance-period {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 0;
+  border-top: 1px solid #e8edf3;
+  flex-wrap: wrap;
+}
+
+.staff-performance-period-button {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.staff-performance-period-button:hover {
+  border-color: #172033;
+  color: #172033;
+}
+
+.staff-performance-period-button.active {
+  background: #172033;
+  border-color: #172033;
+  color: #ffffff;
+}
+
+/* Custom date range */
+
+.staff-performance-custom {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 4px 0 8px;
+}
+
+.staff-performance-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.staff-performance-date-field label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.staff-performance-date-field input {
+  height: 40px;
+  min-width: 170px;
+  padding: 0 12px;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  font-size: 13px;
+  outline: none;
+}
+
+.staff-performance-date-field input:focus {
+  border-color: #172033;
+  box-shadow: 0 0 0 3px rgba(23, 32, 51, 0.08);
+}
+
+.staff-performance-apply {
+  height: 40px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 8px;
+  background: #172033;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.staff-performance-apply:hover {
+  opacity: 0.92;
+}
+
+/* =========================================================
+   PERFORMANCE SUMMARY
+========================================================= */
+
+.staff-performance-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 4px 0 28px;
+}
+
+.staff-performance-summary-card {
+  min-height: 92px;
+  padding: 18px 20px;
+  border: 1px solid #e1e7ef;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+}
+
+.staff-performance-summary-card span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.staff-performance-summary-card strong {
+  color: #172033;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PERFORMANCE TABLE SECTIONS
+========================================================= */
+
+.staff-performance-table-section {
+  margin-top: 24px;
+}
+
+.staff-performance-table-section:first-of-type {
+  margin-top: 0;
+}
+
+.staff-performance-table-header {
+  padding: 0 0 14px;
+}
+
+.staff-performance-table-header .staff-section-label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.staff-performance-table-header h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.staff-performance-table {
+  width: 100%;
+}
+
+.staff-performance-table th {
+  height: 48px;
+}
+
+.staff-performance-table td {
+  height: 68px;
+}
+
+.staff-performance-table td:nth-child(2),
+.staff-performance-table td:nth-child(3),
+.staff-performance-table th:nth-child(2),
+.staff-performance-table th:nth-child(3) {
+  text-align: right;
+}
+
+.staff-performance-table td strong {
+  color: #172033;
+  font-size: 14px;
+}
+
+/* Empty state */
+
+.staff-performance-empty {
+  padding: 32px 20px;
+  border: 1px dashed #d8e0ea;
+  border-radius: 10px;
+  background: #fafbfd;
+  color: #64748b;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* Loading / error */
+
+.staff-performance-results .staff-state {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+  .staff-performance-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .staff-performance-content {
+    padding: 0 18px 20px;
+  }
+
+  .staff-performance-period {
+    gap: 8px;
+  }
+
+  .staff-performance-period-button {
+    padding: 0 13px;
+  }
+
+  .staff-performance-custom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .staff-performance-date-field input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .staff-performance-apply {
+    width: 100%;
+  }
+
+  .staff-performance-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-performance-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .staff-performance-table {
+    min-width: 620px;
+  }
+}
+
+.staff-performance-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 700px;
+}
