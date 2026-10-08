@@ -846,3 +846,15 @@
 .menu-brand h2 {
   font-weight: 800;
 }
+
+.manager-menu-embedded {
+  width: 100%;
+  min-height: 100%;
+  display: block;
+}
+
+.manager-menu-embedded .manager-menu-main {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}

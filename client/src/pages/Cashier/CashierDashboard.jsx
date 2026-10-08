@@ -789,20 +789,7 @@ function CashierDashboard({
           </button>
 
 
-          <button
-            className="cashier-nav-item"
-            onClick={refreshCashierData}
-            disabled={
-              loading ||
-              paymentSettingsLoading
-            }
-          >
-            <span className="nav-icon">
-              ↻
-            </span>
-
-            Refresh Orders
-          </button>
+        
 
 
           <button

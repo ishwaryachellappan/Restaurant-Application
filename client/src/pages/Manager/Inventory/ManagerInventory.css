@@ -746,3 +746,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+.manager-inventory-embedded {
+  width: 100%;
+  min-height: 100%;
+  display: block;
+}
+
+.manager-inventory-embedded .manager-inventory-main {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}

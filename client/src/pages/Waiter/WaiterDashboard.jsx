@@ -3,19 +3,17 @@ import "./WaiterDashboard.css";
 import {
   useRestaurantBranding,
 } from "../../context/RestaurantBrandingContext";
-
 function WaiterDashboard({
   user,
   onLogout,
-  onOpenTables,
   onNewOrder,
   onOpenOrders,
 }) {
 
   const {
-  restaurantName,
-  restaurantLogo,
-} = useRestaurantBranding();
+    restaurantName,
+    restaurantLogo,
+  } = useRestaurantBranding();
 
 
   const [status, setStatus] = useState({
@@ -133,22 +131,22 @@ function WaiterDashboard({
 
       <header className="waiter-header">
 
-       <div className="waiter-brand">
-  <div className="waiter-brand-icon">
-    {restaurantLogo ? (
-      <img
-        src={restaurantLogo}
-        alt={restaurantName}
-      />
-    ) : (
-      "🍽"
-    )}
-  </div>
+        <div className="waiter-brand">
+          <div className="waiter-brand-icon">
+            {restaurantLogo ? (
+              <img
+                src={restaurantLogo}
+                alt={restaurantName}
+              />
+            ) : (
+              "🍽"
+            )}
+          </div>
 
-  <div>
-    <strong>{restaurantName}</strong>
-  </div>
-</div>
+          <div>
+            <strong>{restaurantName}</strong>
+          </div>
+        </div>
 
         <div className="waiter-user">
 
@@ -198,27 +196,27 @@ function WaiterDashboard({
 
         <section className="waiter-cards">
 
-          {/* TABLES */}
+          {/* NEW ORDER */}
 
           <div className="waiter-card">
 
             <div className="card-icon">
-              🪑
+              🍴
             </div>
 
             <div className="card-content">
 
-              <h3>Tables</h3>
+              <h3>New Order</h3>
 
               <p>
-                View and manage restaurant tables.
+                Start a new customer order.
               </p>
 
               <button
                 type="button"
-                onClick={onOpenTables}
+                onClick={onNewOrder}
               >
-                View Tables
+                Create Order
               </button>
 
             </div>
@@ -252,32 +250,7 @@ function WaiterDashboard({
 
           </div>
 
-          {/* NEW ORDER */}
 
-          <div className="waiter-card">
-
-            <div className="card-icon">
-              🍴
-            </div>
-
-            <div className="card-content">
-
-              <h3>New Order</h3>
-
-              <p>
-                Start a new customer order.
-              </p>
-
-              <button
-                type="button"
-                onClick={onNewOrder}
-              >
-                Create Order
-              </button>
-
-            </div>
-
-          </div>
 
         </section>
 

@@ -6,16 +6,17 @@ import {
 import "./ManagerDashboard.css";
 import RestaurantSettings from "./Settings/RestaurantSettings";
 import { useRestaurantBranding } from "../../context/RestaurantBrandingContext";
+import ManagerOrders from "./Orders/ManagerOrders";
+import ManagerSales from "./Sales/ManagerSales";
+import ManagerStaff from "./Staff/ManagerStaff";
+import ManagerMenu from "./Menu/ManagerMenu";
+import ManagerInventory from "./Inventory/ManagerInventory";
 
 function ManagerDashboard({
   user,
   onLogout,
-  onOpenOrders,
-  onOpenSales,
-  onOpenStaff,
-  onOpenMenu,
-  onOpenSettings,
-  onOpenInventory,
+  activeTab,
+  onTabChange,
 }) {
 
   const [orders, setOrders] = useState([]);
@@ -290,55 +291,71 @@ function ManagerDashboard({
             MANAGEMENT
           </span>
 
-          <button className="manager-nav-item active">
+       <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "dashboard" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("dashboard")}
+>
             <span>▦</span>
             Dashboard
           </button>
 
-          <button
-            className="manager-nav-item"
-            onClick={onOpenOrders}
-          >
-            <span>▤</span>
-            Orders
-          </button>
+        <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "orders" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("orders")}
+>
+  <span>▤</span>
+  Orders
+</button>
 
-          <button
-            className="manager-nav-item"
-            onClick={onOpenSales}
-          >
-            <span>₹</span>
-            Sales & Reports
-          </button>
+         <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "sales" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("sales")}
+>
+  <span>₹</span>
+  Sales & Reports
+</button>
 
-          <button
-            className="manager-nav-item"
-            onClick={() => onOpenStaff()}
-          >
-            👥
-            <span>Staff</span>
-          </button>
+         <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "staff" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("staff")}
+>
+  👥
+  <span>Staff</span>
+</button>
 
-          <button
-            className="manager-nav-item"
-            onClick={() => {
-              console.log("MENU BUTTON CLICKED");
-              onOpenMenu();
-            }}
-            type="button"
-          >
-            <span>🍽️</span>
-            Menu Management
-          </button>
+       <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "menu" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("menu")}
+>
+  <span>🍽️</span>
+  Menu Management
+</button>
 
-          <button
-            type="button"
-            className="manager-nav-item"
-            onClick={onOpenInventory}
-          >
-            <span className="nav-icon">📦</span>
-            Inventory
-          </button>
+        <button
+  type="button"
+  className={`manager-nav-item ${
+    activeTab === "inventory" ? "active" : ""
+  }`}
+  onClick={() => onTabChange("inventory")}
+>
+  <span className="nav-icon">📦</span>
+  Inventory
+</button>
 
 
           <button
@@ -392,11 +409,13 @@ function ManagerDashboard({
           MAIN
       ========================= */}
 
-      <main className="manager-main">
+    <main className="manager-main">
 
-        {/* HEADER */}
+  {activeTab === "dashboard" && (
+    <>
+      {/* HEADER */}
 
-        <header className="manager-header">
+      <header className="manager-header">
 
           <div>
 
@@ -945,16 +964,88 @@ function ManagerDashboard({
 
                 </div>
               )}
-
-            </section>
+               </section>
 
           </>
+
         )}
 
-      </main>
+      </>
 
-    </div>
+    )}
+
+    {activeTab === "orders" && (
+      <ManagerOrders
+        user={user}
+        embedded={true}
+        onBack={() => onTabChange("dashboard")}
+        onOpenSales={() => onTabChange("sales")}
+        onOpenStaff={() => onTabChange("staff")}
+        onLogout={onLogout}
+      />
+    )}
+
+
+{activeTab === "sales" && (
+  <ManagerSales
+    user={user}
+    embedded={true}
+    onBack={() => onTabChange("dashboard")}
+    onOpenOrders={() => onTabChange("orders")}
+    onOpenSales={() => onTabChange("menu")}
+    onOpenStaff={() => onTabChange("staff")}
+    onLogout={onLogout}
+  />
+)}
+
+    {activeTab === "staff" && (
+  <ManagerStaff
+    user={user}
+    embedded={true}
+    onBack={() => onTabChange("dashboard")}
+    onOpenOrders={() => onTabChange("orders")}
+    onOpenSales={() => onTabChange("sales")}
+    onLogout={onLogout}
+  />
+)}
+
+{activeTab === "menu" && (
+  <ManagerMenu
+    user={user}
+    embedded={true}
+    onBack={() => onTabChange("dashboard")}
+    onOpenOrders={() => onTabChange("orders")}
+    onOpenSales={() => onTabChange("sales")}
+    onOpenStaff={() => onTabChange("staff")}
+    onLogout={onLogout}
+  />
+)}
+
+{activeTab === "inventory" && (
+  <ManagerInventory
+    user={user}
+    embedded={true}
+    onBack={() => onTabChange("dashboard")}
+    onOpenOrders={() => onTabChange("orders")}
+    onOpenSales={() => onTabChange("sales")}
+    onOpenStaff={() => onTabChange("staff")}
+    onLogout={onLogout}
+  />
+)}
+
+{activeTab === "settings" && (
+  <RestaurantSettings
+    user={user}
+    embedded={true}
+    onBack={() => onTabChange("dashboard")}
+    onLogout={onLogout}
+  />
+)}
+
+  </main>
+</div>
   );
+
 }
 
 export default ManagerDashboard;

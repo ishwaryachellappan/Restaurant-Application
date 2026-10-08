@@ -9,6 +9,7 @@ function ManagerMenu({
   onOpenSales,
   onOpenStaff,
   onLogout,
+  embedded = false,
 }) {
 
     const { restaurantName, restaurantLogo } =
@@ -375,7 +376,7 @@ function ManagerMenu({
       {/* ========================================
           SIDEBAR
       ======================================== */}
-
+{!embedded && (
       <aside className="menu-sidebar">
 
        <div className="menu-brand">
@@ -472,6 +473,7 @@ function ManagerMenu({
         </div>
 
       </aside>
+      )}
 
       {/* ========================================
           MAIN

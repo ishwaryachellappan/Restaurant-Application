@@ -8,6 +8,7 @@ function ManagerOrders({
   onOpenSales,
   onOpenStaff,
   onLogout,
+  embedded = false,
 }) {
     const { restaurantName, restaurantLogo } = useRestaurantBranding();
 
@@ -193,12 +194,19 @@ function ManagerOrders({
     setDateFilter("ALL");
   };
 
-  return (
-    <div className="manager-orders-app">
+return (
+  <div
+    className={
+      embedded
+        ? "manager-orders-app manager-orders-embedded"
+        : "manager-orders-app"
+    }
+  >
 
-      {/* SIDEBAR */}
+     {/* SIDEBAR */}
 
-      <aside className="manager-orders-sidebar">
+{!embedded && (
+  <aside className="manager-orders-sidebar">
 
       <div className="manager-orders-brand">
 
@@ -295,6 +303,7 @@ function ManagerOrders({
         </div>
 
       </aside>
+      )}
 
       {/* MAIN */}
 

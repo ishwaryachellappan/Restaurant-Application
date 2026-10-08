@@ -25,6 +25,7 @@ function App() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [currentPage, setCurrentPage] = useState("dashboard");
+  const [managerTab, setManagerTab] = useState("dashboard");
   const [selectedTable, setSelectedTable] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -107,9 +108,10 @@ function App() {
         setCurrentPage("cashier");
       }
 
-      if (role === "MANAGER") {
-        setCurrentPage("manager");
-      }
+     if (role === "MANAGER") {
+  setManagerTab("dashboard");
+  setCurrentPage("manager");
+}
 
     } catch (error) {
       console.error("Login error:", error);
@@ -310,32 +312,16 @@ function App() {
     }
 
 
-    if (currentPage === "manager") {
-      return (
-        <ManagerDashboard
-          user={user}
-          onLogout={handleLogout}
-          onOpenOrders={() =>
-            setCurrentPage("manager-orders")
-          }
-          onOpenSales={() =>
-            setCurrentPage("manager-sales")
-          }
-          onOpenStaff={() =>
-            setCurrentPage("manager-staff")
-          }
-          onOpenMenu={() =>
-            setCurrentPage("manager-menu")
-          }
-          onOpenSettings={() =>
-            setCurrentPage("manager-settings")
-          }
-          onOpenInventory={() =>
-  setCurrentPage("manager-inventory")
+ if (currentPage === "manager") {
+  return (
+    <ManagerDashboard
+      user={user}
+      onLogout={handleLogout}
+      activeTab={managerTab}
+      onTabChange={setManagerTab}
+    />
+  );
 }
-        />
-      );
-    }
 
     if (currentPage === "manager-settings") {
       return (

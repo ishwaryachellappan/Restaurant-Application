@@ -8,6 +8,7 @@ function ManagerStaff({
   onLogout,
   onOpenOrders,
   onOpenSales,
+  embedded = false,
 }) {
   const { restaurantName, restaurantLogo } = useRestaurantBranding();
   const [staff, setStaff] = useState([]);
@@ -440,6 +441,7 @@ function ManagerStaff({
 
   return (
     <div className="staff-page">
+      {!embedded && (
       <aside className="staff-sidebar">
         <div className="staff-brand">
           <div className="staff-brand-icon">
@@ -519,7 +521,7 @@ function ManagerStaff({
           </button>
         </div>
       </aside>
-
+)}
       <main className="staff-main">
         <div className="staff-content">
           <div className="staff-top">

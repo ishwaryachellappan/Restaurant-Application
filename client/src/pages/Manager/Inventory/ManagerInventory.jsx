@@ -8,6 +8,7 @@ function ManagerInventory({
   onOpenSales,
   onOpenStaff,
   onLogout,
+  embedded = false,
 }) {
   const [items, setItems] = useState([]);
   const [movements, setMovements] = useState([]);
@@ -316,12 +317,18 @@ function ManagerInventory({
   // ==========================================
 
   return (
-    <div className="manager-inventory-page">
+  <div
+  className={
+    embedded
+      ? "manager-inventory-page manager-inventory-embedded"
+      : "manager-inventory-page"
+  }
+>
 
       {/* ======================================
           SIDEBAR
       ====================================== */}
-
+{!embedded && (
       <aside className="manager-inventory-sidebar">
 
         <div className="manager-inventory-brand">
@@ -401,7 +408,7 @@ function ManagerInventory({
         </div>
 
       </aside>
-
+)}
       {/* ======================================
           MAIN
       ====================================== */}

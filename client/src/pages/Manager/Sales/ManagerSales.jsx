@@ -7,6 +7,7 @@ function ManagerSales({
   onBack,
   onOrders,
   onLogout,
+  embedded = false,
 }) {
 
     const { restaurantName, restaurantLogo } =
@@ -245,10 +246,16 @@ function ManagerSales({
   };
 
   return (
-    <div className="manager-sales-app">
+<div
+  className={
+    embedded
+      ? "manager-sales-app manager-sales-embedded"
+      : "manager-sales-app"
+  }
+>
 
       {/* SIDEBAR */}
-
+{!embedded && (
       <aside className="manager-sales-sidebar">
 
         <div className="manager-sales-brand">
@@ -334,7 +341,7 @@ function ManagerSales({
         </div>
 
       </aside>
-
+)}
       {/* MAIN */}
 
       <main className="manager-sales-main">

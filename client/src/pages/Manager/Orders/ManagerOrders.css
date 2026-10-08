@@ -726,3 +726,19 @@
   font-weight: 800;
   color: #ffffff;
 }
+
+/* =========================================
+   EMBEDDED MANAGER CONTENT
+   ========================================= */
+
+.manager-orders-embedded {
+  width: 100%;
+  min-height: 100%;
+  display: block;
+}
+
+.manager-orders-embedded .manager-orders-main {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}

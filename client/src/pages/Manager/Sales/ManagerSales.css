@@ -813,3 +813,15 @@
   font-weight: 800;
   color: #ffffff;
 }
+
+.manager-sales-embedded {
+  width: 100%;
+  min-height: 100%;
+  display: block;
+}
+
+.manager-sales-embedded .manager-sales-main {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
