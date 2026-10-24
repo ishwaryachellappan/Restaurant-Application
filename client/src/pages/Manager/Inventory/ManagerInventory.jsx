@@ -23,7 +23,8 @@ function ManagerInventory({
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
-
+  const [showCurrentStock, setShowCurrentStock] = useState(true);
+  const [showStockMovements, setShowStockMovements] = useState(true);
   // ==========================================
   // LOAD INVENTORY
   // ==========================================
@@ -317,98 +318,98 @@ function ManagerInventory({
   // ==========================================
 
   return (
-  <div
-  className={
-    embedded
-      ? "manager-inventory-page manager-inventory-embedded"
-      : "manager-inventory-page"
-  }
->
+    <div
+      className={
+        embedded
+          ? "manager-inventory-page manager-inventory-embedded"
+          : "manager-inventory-page"
+      }
+    >
 
       {/* ======================================
           SIDEBAR
       ====================================== */}
-{!embedded && (
-      <aside className="manager-inventory-sidebar">
+      {!embedded && (
+        <aside className="manager-inventory-sidebar">
 
-        <div className="manager-inventory-brand">
+          <div className="manager-inventory-brand">
 
-          <div className="manager-inventory-brand-icon">
-            🍽
+            <div className="manager-inventory-brand-icon">
+              🍽
+            </div>
+
+            <div className="manager-inventory-brand-text">
+              <strong>
+                Restaurant
+              </strong>
+
+              <span>
+                MANAGEMENT
+              </span>
+            </div>
+
           </div>
 
-          <div className="manager-inventory-brand-text">
-            <strong>
-              Restaurant
-            </strong>
+          <div className="manager-inventory-sidebar-section">
 
-            <span>
+            <span className="manager-inventory-sidebar-title">
               MANAGEMENT
             </span>
+
+            <button
+              className="manager-inventory-nav-item"
+              onClick={onBack}
+            >
+              <span>▦</span>
+              Dashboard
+            </button>
+
+            <button
+              className="manager-inventory-nav-item"
+              onClick={onOpenOrders}
+            >
+              <span>▤</span>
+              Orders
+            </button>
+
+            <button
+              className="manager-inventory-nav-item"
+              onClick={onOpenSales}
+            >
+              <span>₹</span>
+              Sales & Reports
+            </button>
+
+            <button
+              className="manager-inventory-nav-item"
+              onClick={onOpenStaff}
+            >
+              <span>👥</span>
+              Staff
+            </button>
+
+            <button
+              className="manager-inventory-nav-item active"
+            >
+              <span>📦</span>
+              Inventory
+            </button>
+
           </div>
 
-        </div>
+          <div className="manager-inventory-sidebar-bottom">
 
-        <div className="manager-inventory-sidebar-section">
+            <button
+              className="manager-inventory-logout"
+              onClick={onLogout}
+            >
+              Logout
+            </button>
 
-          <span className="manager-inventory-sidebar-title">
-            MANAGEMENT
-          </span>
+          </div>
 
-          <button
-            className="manager-inventory-nav-item"
-            onClick={onBack}
-          >
-            <span>▦</span>
-            Dashboard
-          </button>
-
-          <button
-            className="manager-inventory-nav-item"
-            onClick={onOpenOrders}
-          >
-            <span>▤</span>
-            Orders
-          </button>
-
-          <button
-            className="manager-inventory-nav-item"
-            onClick={onOpenSales}
-          >
-            <span>₹</span>
-            Sales & Reports
-          </button>
-
-          <button
-            className="manager-inventory-nav-item"
-            onClick={onOpenStaff}
-          >
-            <span>👥</span>
-            Staff
-          </button>
-
-          <button
-            className="manager-inventory-nav-item active"
-          >
-            <span>📦</span>
-            Inventory
-          </button>
-
-        </div>
-
-        <div className="manager-inventory-sidebar-bottom">
-
-          <button
-            className="manager-inventory-logout"
-            onClick={onLogout}
-          >
-            Logout
-          </button>
-
-        </div>
-
-      </aside>
-)}
+        </aside>
+      )}
       {/* ======================================
           MAIN
       ====================================== */}
@@ -621,309 +622,335 @@ function ManagerInventory({
 
         <section className="manager-inventory-table-card">
 
+
           <div className="manager-inventory-section-header">
-
             <div>
-
-              <span>
-                INVENTORY
-              </span>
-
-              <h2>
-                Current Stock
-              </h2>
-
+              <span>INVENTORY</span>
+              <h2>Current Stock</h2>
             </div>
 
-            <strong>
-              {filteredItems.length}{" "}
-              {filteredItems.length === 1
-                ? "Item"
-                : "Items"}
-            </strong>
+            <div className="inventory-section-actions">
+              <strong>
+                {filteredItems.length}{" "}
+                {filteredItems.length === 1 ? "Item" : "Items"}
+              </strong>
 
+              <button
+                type="button"
+                className="inventory-collapse-button"
+                onClick={() =>
+                  setShowCurrentStock((previous) => !previous)
+                }
+                aria-expanded={showCurrentStock}
+                aria-label={
+                  showCurrentStock
+                    ? "Hide current stock"
+                    : "Show current stock"
+                }
+              >
+                {showCurrentStock ? "⌄" : "⌃"}
+              </button>
+            </div>
           </div>
 
-          {loading ? (
 
-            <div className="manager-inventory-message">
-              Loading inventory...
-            </div>
+          {showCurrentStock && (
+            <>
+              {loading ? (
 
-          ) : filteredItems.length === 0 ? (
+                <div className="manager-inventory-message">
+                  Loading inventory...
+                </div>
 
-            <div className="manager-inventory-message">
-              <div className="manager-inventory-empty-icon">
-                📦
-              </div>
+              ) : filteredItems.length === 0 ? (
 
-              <h3>
-                No Inventory Items
-              </h3>
+                <div className="manager-inventory-message">
+                  <div className="manager-inventory-empty-icon">
+                    📦
+                  </div>
 
-              <p>
-                No inventory items match the
-                selected filters.
-              </p>
+                  <h3>
+                    No Inventory Items
+                  </h3>
 
-            </div>
+                  <p>
+                    No inventory items match the
+                    selected filters.
+                  </p>
 
-          ) : (
+                </div>
 
-            <div className="manager-inventory-table-wrapper">
+              ) : (
 
-              <table className="manager-inventory-table">
+                <div className="manager-inventory-table-wrapper">
 
-                <thead>
+                  <table className="manager-inventory-table">
 
-                  <tr>
-                    <th>ITEM</th>
-                    <th>CATEGORY</th>
-                    <th>CURRENT STOCK</th>
-                    <th>MINIMUM</th>
-                    <th>MAXIMUM</th>
-                    <th>SUPPLIER</th>
-                    <th>STATUS</th>
-                    <th>ACTION</th>
-                  </tr>
+                    <thead>
 
-                </thead>
+                      <tr>
+                        <th>ITEM</th>
+                        <th>CATEGORY</th>
+                        <th>CURRENT STOCK</th>
+                        <th>MINIMUM</th>
+                        <th>MAXIMUM</th>
+                        <th>SUPPLIER</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
+                      </tr>
 
-                <tbody>
+                    </thead>
 
-                  {filteredItems.map((item) => (
+                    <tbody>
 
-                    <tr key={item._id}>
+                      {filteredItems.map((item) => (
 
-                      <td>
+                        <tr key={item._id}>
 
-                        <div className="manager-inventory-item-name">
+                          <td>
 
-                          <strong>
-                            {item.name}
-                          </strong>
+                            <div className="manager-inventory-item-name">
 
-                          {item.notes && (
-                            <small>
-                              {item.notes}
-                            </small>
-                          )}
+                              <strong>
+                                {item.name}
+                              </strong>
 
-                        </div>
+                              {item.notes && (
+                                <small>
+                                  {item.notes}
+                                </small>
+                              )}
 
-                      </td>
+                            </div>
 
-                      <td>
-                        {item.category || "-"}
-                      </td>
+                          </td>
 
-                      <td>
+                          <td>
+                            {item.category || "-"}
+                          </td>
 
-                        <strong>
-                          {Number(
-                            item.currentStock || 0
-                          ).toLocaleString(
-                            "en-IN"
-                          )}
-                        </strong>
+                          <td>
 
-                        <span className="manager-inventory-unit">
-                          {" "}
-                          {item.unit || ""}
-                        </span>
+                            <strong>
+                              {Number(
+                                item.currentStock || 0
+                              ).toLocaleString(
+                                "en-IN"
+                              )}
+                            </strong>
 
-                      </td>
+                            <span className="manager-inventory-unit">
+                              {" "}
+                              {item.unit || ""}
+                            </span>
 
-                      <td>
-                        {Number(
-                          item.minimumStock || 0
-                        )}{" "}
-                        {item.unit || ""}
-                      </td>
+                          </td>
 
-                      <td>
-                        {Number(
-                          item.maximumStock || 0
-                        )}{" "}
-                        {item.unit || ""}
-                      </td>
+                          <td>
+                            {Number(
+                              item.minimumStock || 0
+                            )}{" "}
+                            {item.unit || ""}
+                          </td>
 
-                      <td>
-                        {item.supplier || "-"}
-                      </td>
+                          <td>
+                            {Number(
+                              item.maximumStock || 0
+                            )}{" "}
+                            {item.unit || ""}
+                          </td>
 
-                      <td>
+                          <td>
+                            {item.supplier || "-"}
+                          </td>
 
-                        <span
-                          className={`manager-inventory-status ${getStatusClass(
-                            item.status
-                          )}`}
-                        >
-                          {getStatusLabel(
-                            item.status
-                          )}
-                        </span>
+                          <td>
 
-                      </td>
+                            <span
+                              className={`manager-inventory-status ${getStatusClass(
+                                item.status
+                              )}`}
+                            >
+                              {getStatusLabel(
+                                item.status
+                              )}
+                            </span>
 
-                      <td>
+                          </td>
 
-                        <button
-                          className="manager-inventory-history-button"
-                          onClick={() =>
-                            openHistory(item)
-                          }
-                        >
-                          View History
-                        </button>
+                          <td>
 
-                      </td>
+                            <button
+                              className="manager-inventory-history-button"
+                              onClick={() =>
+                                openHistory(item)
+                              }
+                            >
+                              View History
+                            </button>
 
-                    </tr>
+                          </td>
 
-                  ))}
+                        </tr>
 
-                </tbody>
+                      ))}
 
-              </table>
+                    </tbody>
 
-            </div>
+                  </table>
 
+                </div>
+
+
+              )}
+            </>
           )}
-
         </section>
 
         {/* RECENT MOVEMENTS */}
 
         <section className="manager-inventory-movement-card">
 
+
           <div className="manager-inventory-section-header">
-
             <div>
+              <span>STOCK ACTIVITY</span>
 
-              <span>
-                STOCK ACTIVITY
-              </span>
-
-              <h2>
-                Recent Stock Movements
-              </h2>
-
+              <h2>Recent Stock Movements</h2>
             </div>
 
-            <button
-              className="manager-inventory-small-refresh"
-              onClick={loadMovements}
-              disabled={historyLoading}
-            >
-              {historyLoading
-                ? "Loading..."
-                : "↻ Refresh"}
-            </button>
+            <div className="inventory-section-actions">
+              <button
+                type="button"
+                className="manager-inventory-small-refresh"
+                onClick={loadMovements}
+                disabled={historyLoading}
+              >
+                {historyLoading ? "Loading..." : "↻ Refresh"}
+              </button>
 
+              <button
+                type="button"
+                className="inventory-collapse-button"
+                onClick={() =>
+                  setShowStockMovements((previous) => !previous)
+                }
+                aria-expanded={showStockMovements}
+                aria-label={
+                  showStockMovements
+                    ? "Hide stock movements"
+                    : "Show stock movements"
+                }
+              >
+                {showStockMovements ? "⌄" : "⌃"}
+              </button>
+            </div>
           </div>
 
-          {historyLoading ? (
+          {showStockMovements && (
+            <>
+              {historyLoading ? (
 
-            <div className="manager-inventory-message">
-              Loading stock movements...
-            </div>
+                <div className="manager-inventory-message">
+                  Loading stock movements...
+                </div>
 
-          ) : movements.length === 0 ? (
+              ) : movements.length === 0 ? (
 
-            <div className="manager-inventory-message">
-              No stock movements recorded.
-            </div>
+                <div className="manager-inventory-message">
+                  No stock movements recorded.
+                </div>
 
-          ) : (
+              ) : (
 
-            <div className="manager-inventory-movement-table-wrapper">
+                <div className="manager-inventory-movement-table-wrapper">
 
-              <table className="manager-inventory-movement-table">
+                  <table className="manager-inventory-movement-table">
 
-                <thead>
+                    <thead>
 
-                  <tr>
-                    <th>DATE</th>
-                    <th>ITEM</th>
-                    <th>TYPE</th>
-                    <th>QUANTITY</th>
-                    <th>STOCK</th>
-                    <th>REASON</th>
-                    <th>PERFORMED BY</th>
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {movements
-                    .slice(0, 20)
-                    .map((movement) => (
-
-                      <tr key={movement._id}>
-
-                        <td>
-                          {formatDate(
-                            movement.createdAt
-                          )}
-                        </td>
-
-                        <td>
-                          <strong>
-                            {movement.itemName ||
-                              movement.name ||
-                              "-"}
-                          </strong>
-                        </td>
-
-                        <td>
-
-                          <span
-                            className={`manager-inventory-movement-type ${getMovementClass(
-                              movement.movementType
-                            )}`}
-                          >
-                            {getMovementLabel(
-                              movement.movementType
-                            )}
-                          </span>
-
-                        </td>
-
-                        <td>
-                          {movement.quantity ?? "-"}
-                        </td>
-
-                        <td>
-                          {movement.previousStock ??
-                            "-"}{" "}
-                          →{" "}
-                          {movement.newStock ??
-                            "-"}
-                        </td>
-
-                        <td>
-                          {movement.reason || "-"}
-                        </td>
-
-                        <td>
-                          {movement.performedBy ||
-                            "-"}
-                        </td>
-
+                      <tr>
+                        <th>DATE</th>
+                        <th>ITEM</th>
+                        <th>TYPE</th>
+                        <th>QUANTITY</th>
+                        <th>STOCK</th>
+                        <th>REASON</th>
+                        <th>PERFORMED BY</th>
                       </tr>
 
-                    ))}
+                    </thead>
 
-                </tbody>
+                    <tbody>
 
-              </table>
+                      {movements
+                        .slice(0, 20)
+                        .map((movement) => (
 
-            </div>
+                          <tr key={movement._id}>
 
+                            <td>
+                              {formatDate(
+                                movement.createdAt
+                              )}
+                            </td>
+
+                            <td>
+                              <strong>
+                                {movement.itemName ||
+                                  movement.name ||
+                                  "-"}
+                              </strong>
+                            </td>
+
+                            <td>
+
+                              <span
+                                className={`manager-inventory-movement-type ${getMovementClass(
+                                  movement.movementType
+                                )}`}
+                              >
+                                {getMovementLabel(
+                                  movement.movementType
+                                )}
+                              </span>
+
+                            </td>
+
+                            <td>
+                              {movement.quantity ?? "-"}
+                            </td>
+
+                            <td>
+                              {movement.previousStock ??
+                                "-"}{" "}
+                              →{" "}
+                              {movement.newStock ??
+                                "-"}
+                            </td>
+
+                            <td>
+                              {movement.reason || "-"}
+                            </td>
+
+                            <td>
+                              {movement.performedBy ||
+                                "-"}
+                            </td>
+
+                          </tr>
+
+                        ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              )}
+            </>
           )}
-
         </section>
 
       </main>

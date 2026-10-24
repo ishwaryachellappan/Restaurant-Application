@@ -758,3 +758,125 @@
   min-height: 100%;
   margin: 0;
 }
+
+
+/* Expand/collapse controls for inventory sections */
+.inventory-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: #172033;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inventory-section-toggle:hover {
+  color: #2458b8;
+}
+
+.inventory-section-toggle:focus-visible {
+  outline: 2px solid #8db5ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.inventory-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #e1e6ef;
+  border-radius: 7px;
+  background: #f8faff;
+  color: #344054;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.inventory-section-toggle:hover .inventory-toggle-icon {
+  border-color: #b9ccef;
+  background: #e8eef9;
+  color: #2458b8;
+}
+
+
+/* Collapsible inventory section headers */
+.inventory-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #182235;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inventory-section-toggle:hover {
+  color: #315eea;
+}
+
+.inventory-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border: 1px solid #d8e0eb;
+  border-radius: 9px;
+  background: #fff;
+  color: #273449;
+  font-size: 19px;
+}
+
+.inventory-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inventory-collapse-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid #d8e0eb;
+  border-radius: 9px;
+  background: #fff;
+  color: #273449;
+  font-size: 19px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.inventory-collapse-button:hover {
+  background: #f0f5ff;
+  border-color: #a9bff5;
+}
+
+.inventory-collapse-button:focus-visible {
+  outline: 2px solid #8db5ff;
+  outline-offset: 2px;
+}
+

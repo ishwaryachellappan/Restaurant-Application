@@ -11,7 +11,7 @@ import ManagerSales from "./Sales/ManagerSales";
 import ManagerStaff from "./Staff/ManagerStaff";
 import ManagerMenu from "./Menu/ManagerMenu";
 import ManagerInventory from "./Inventory/ManagerInventory";
-
+import ManagerCategories from "./Menu/ManagerCategories";
 function ManagerDashboard({
   user,
   onLogout,
@@ -33,6 +33,12 @@ function ManagerDashboard({
     restaurantName,
     restaurantLogo,
   } = useRestaurantBranding();
+  const [menuExpanded, setMenuExpanded] = useState(
+    activeTab === "menu" || activeTab === "categories"
+  );
+  const [inventoryExpanded, setInventoryExpanded] = useState(
+  activeTab === "inventory"
+);
 
   const loadDashboard = async () => {
     try {
@@ -291,80 +297,101 @@ function ManagerDashboard({
             MANAGEMENT
           </span>
 
-       <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "dashboard" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("dashboard")}
->
+          <button
+            type="button"
+            className={`manager-nav-item ${activeTab === "dashboard" ? "active" : ""
+              }`}
+            onClick={() => onTabChange("dashboard")}
+          >
             <span>▦</span>
             Dashboard
           </button>
 
-        <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "orders" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("orders")}
->
-  <span>▤</span>
-  Orders
-</button>
+          <button
+            type="button"
+            className={`manager-nav-item ${activeTab === "orders" ? "active" : ""
+              }`}
+            onClick={() => onTabChange("orders")}
+          >
+            <span>▤</span>
+            Orders
+          </button>
 
-         <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "sales" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("sales")}
->
-  <span>₹</span>
-  Sales & Reports
-</button>
+          <button
+            type="button"
+            className={`manager-nav-item ${activeTab === "sales" ? "active" : ""
+              }`}
+            onClick={() => onTabChange("sales")}
+          >
+            <span>₹</span>
+            Sales & Reports
+          </button>
 
-         <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "staff" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("staff")}
->
-  👥
-  <span>Staff</span>
-</button>
+          <button
+            type="button"
+            className={`manager-nav-item ${activeTab === "staff" ? "active" : ""
+              }`}
+            onClick={() => onTabChange("staff")}
+          >
+            👥
+            <span>Staff</span>
+          </button>
 
-       <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "menu" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("menu")}
->
-  <span>🍽️</span>
-  Menu Management
-</button>
 
-        <button
-  type="button"
-  className={`manager-nav-item ${
-    activeTab === "inventory" ? "active" : ""
-  }`}
-  onClick={() => onTabChange("inventory")}
->
-  <span className="nav-icon">📦</span>
-  Inventory
-</button>
+          <div className="manager-menu-nav">
+            <button
+              type="button"
+              className={`manager-nav-item ${activeTab === "menu" || activeTab === "categories"
+                ? "active"
+                : ""
+                }`}
+              onClick={() => setMenuExpanded((previous) => !previous)}
+            >
+              <span>🍽️</span>
+              <span className="manager-menu-nav-label">
+                Menu Management
+              </span>
+              <span className="manager-menu-chevron">
+                {menuExpanded ? "▾" : "▸"}
+              </span>
+            </button>
+
+            {menuExpanded && (
+              <div className="manager-submenu">
+                <button
+                  type="button"
+                  className={`manager-subnav-item ${activeTab === "menu" ? "active" : ""
+                    }`}
+                  onClick={() => onTabChange("menu")}
+                >
+                  Menu Items
+                </button>
+
+                <button
+                  type="button"
+                  className={`manager-subnav-item ${activeTab === "categories" ? "active" : ""
+                    }`}
+                  onClick={() => onTabChange("categories")}
+                >
+                  Categories
+                </button>
+              </div>
+            )}
+          </div>
 
 
           <button
-            className="manager-nav-item"
-            onClick={loadDashboard}
+            type="button"
+            className={`manager-nav-item ${activeTab === "inventory" ? "active" : ""
+              }`}
+            onClick={() => onTabChange("inventory")}
           >
-            <span>↻</span>
-            Refresh Data
+            <span className="nav-icon">📦</span>
+            Inventory
           </button>
+
+
+         
 
         </div>
 
@@ -409,641 +436,645 @@ function ManagerDashboard({
           MAIN
       ========================= */}
 
-    <main className="manager-main">
+      <main className="manager-main">
 
-  {activeTab === "dashboard" && (
-    <>
-      {/* HEADER */}
+        {activeTab === "dashboard" && (
+          <>
+            {/* HEADER */}
 
-      <header className="manager-header">
+            <header className="manager-header">
 
-          <div>
+              <div>
 
-            <div className="manager-breadcrumb">
-              POS /{" "}
-              <strong>Management</strong>
-            </div>
+                <div className="manager-breadcrumb">
+                  POS /{" "}
+                  <strong>Management</strong>
+                </div>
 
-            <h1>
-              Manager Dashboard
-            </h1>
+                <h1>
+                  Manager Dashboard
+                </h1>
 
-            <p>
-              Monitor restaurant operations and
-              sales activity.
-            </p>
+                <p>
+                  Monitor restaurant operations and
+                  sales activity.
+                </p>
 
-            <div className="manager-date-filter">
+                <div className="manager-date-filter">
 
-              <button
-                type="button"
-                className={
-                  dateFilter === "today"
-                    ? "active"
-                    : ""
-                }
-                onClick={() => {
-                  setDateFilter("today");
-                  setCustomDate("");
-                }}
-              >
-                Today
-              </button>
-
-              <button
-                type="button"
-                className={
-                  dateFilter === "yesterday"
-                    ? "active"
-                    : ""
-                }
-                onClick={() => {
-                  setDateFilter("yesterday");
-                  setCustomDate("");
-                }}
-              >
-                Yesterday
-              </button>
-
-              <button
-                type="button"
-                className={`manager-custom-date ${dateFilter === "custom"
-                  ? "active"
-                  : ""
-                  }`}
-                onClick={() => {
-                  if (dateInputRef.current) {
-                    if (
-                      typeof dateInputRef.current
-                        .showPicker === "function"
-                    ) {
-                      dateInputRef.current.showPicker();
-                    } else {
-                      dateInputRef.current.click();
+                  <button
+                    type="button"
+                    className={
+                      dateFilter === "today"
+                        ? "active"
+                        : ""
                     }
-                  }
-                }}
-              >
-                <span className="manager-calendar-icon">
-                  📅
-                </span>
+                    onClick={() => {
+                      setDateFilter("today");
+                      setCustomDate("");
+                    }}
+                  >
+                    Today
+                  </button>
 
-                <span className="manager-custom-date-text">
-                  {customDate
-                    ? new Date(
-                      `${customDate}T00:00:00`
-                    ).toLocaleDateString(
-                      "en-IN",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
+                  <button
+                    type="button"
+                    className={
+                      dateFilter === "yesterday"
+                        ? "active"
+                        : ""
+                    }
+                    onClick={() => {
+                      setDateFilter("yesterday");
+                      setCustomDate("");
+                    }}
+                  >
+                    Yesterday
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`manager-custom-date ${dateFilter === "custom"
+                      ? "active"
+                      : ""
+                      }`}
+                    onClick={() => {
+                      if (dateInputRef.current) {
+                        if (
+                          typeof dateInputRef.current
+                            .showPicker === "function"
+                        ) {
+                          dateInputRef.current.showPicker();
+                        } else {
+                          dateInputRef.current.click();
+                        }
                       }
-                    )
-                    : "Select date"}
-                </span>
+                    }}
+                  >
+                    <span className="manager-calendar-icon">
+                      📅
+                    </span>
 
-                <input
-                  ref={dateInputRef}
-                  type="date"
-                  value={customDate}
-                  onChange={(event) => {
-                    const selectedDate =
-                      event.target.value;
+                    <span className="manager-custom-date-text">
+                      {customDate
+                        ? new Date(
+                          `${customDate}T00:00:00`
+                        ).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          }
+                        )
+                        : "Select date"}
+                    </span>
 
-                    if (!selectedDate) {
-                      return;
-                    }
+                    <input
+                      ref={dateInputRef}
+                      type="date"
+                      value={customDate}
+                      onChange={(event) => {
+                        const selectedDate =
+                          event.target.value;
 
-                    setCustomDate(selectedDate);
-                    setDateFilter("custom");
-                  }}
-                  className="manager-hidden-date-input"
-                  aria-label="Select custom date"
-                />
-              </button>
+                        if (!selectedDate) {
+                          return;
+                        }
 
-            </div>
+                        setCustomDate(selectedDate);
+                        setDateFilter("custom");
+                      }}
+                      className="manager-hidden-date-input"
+                      aria-label="Select custom date"
+                    />
+                  </button>
 
-          </div>
+                </div>
 
-          <div className="manager-header-actions">
+              </div>
 
-            <div className="manager-system-status">
-              <span></span>
-              System Online
-            </div>
+              <div className="manager-header-actions">
 
-            <button
-              className="manager-refresh"
-              onClick={loadDashboard}
-              disabled={loading}
-            >
-              ↻ Refresh
-            </button>
+                <div className="manager-system-status">
+                  <span></span>
+                  System Online
+                </div>
 
-          </div>
+                <button
+                  className="manager-refresh"
+                  onClick={loadDashboard}
+                  disabled={loading}
+                >
+                  ↻ Refresh
+                </button>
 
-        </header>
+              </div>
 
-        {/* ERROR */}
+            </header>
 
-        {!loading && error && (
-          <div className="manager-error">
-            <strong>
-              Dashboard data unavailable
-            </strong>
+            {/* ERROR */}
 
-            <span>{error}</span>
+            {!loading && error && (
+              <div className="manager-error">
+                <strong>
+                  Dashboard data unavailable
+                </strong>
 
-            <button onClick={loadDashboard}>
-              Try Again
-            </button>
-          </div>
-        )}
+                <span>{error}</span>
 
-        {/* =========================
+                <button onClick={loadDashboard}>
+                  Try Again
+                </button>
+              </div>
+            )}
+
+            {/* =========================
             KPI CARDS
         ========================= */}
 
-        {!error && (
-          <>
+            {!error && (
+              <>
 
-            <section className="manager-kpis">
+                <section className="manager-kpis">
 
-              <div className="manager-kpi-card">
+                  <div className="manager-kpi-card">
 
-                <div className="manager-kpi-icon revenue">
-                  ₹
-                </div>
+                    <div className="manager-kpi-icon revenue">
+                      ₹
+                    </div>
 
-                <div>
-                  <span>Revenue</span>
+                    <div>
+                      <span>Revenue</span>
 
-                  <strong>
-                    ₹
-                    {totalRevenue.toFixed(2)}
-                  </strong>
+                      <strong>
+                        ₹
+                        {totalRevenue.toFixed(2)}
+                      </strong>
 
-                  <small>
-                    Completed payments
-                  </small>
-                </div>
+                      <small>
+                        Completed payments
+                      </small>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div className="manager-kpi-card">
+                  <div className="manager-kpi-card">
 
-                <div className="manager-kpi-icon orders">
-                  #
-                </div>
+                    <div className="manager-kpi-icon orders">
+                      #
+                    </div>
 
-                <div>
-                  <span>Total Orders</span>
+                    <div>
+                      <span>Total Orders</span>
 
-                  <strong>
-                    {totalOrders}
-                  </strong>
+                      <strong>
+                        {totalOrders}
+                      </strong>
 
-                  <small>
-                    All recorded orders
-                  </small>
-                </div>
+                      <small>
+                        All recorded orders
+                      </small>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div className="manager-kpi-card">
+                  <div className="manager-kpi-card">
 
-                <div className="manager-kpi-icon active">
-                  ●
-                </div>
+                    <div className="manager-kpi-icon active">
+                      ●
+                    </div>
 
-                <div>
-                  <span>Active Orders</span>
+                    <div>
+                      <span>Active Orders</span>
 
-                  <strong>
-                    {activeOrders}
-                  </strong>
+                      <strong>
+                        {activeOrders}
+                      </strong>
 
-                  <small>
-                    In restaurant workflow
-                  </small>
-                </div>
+                      <small>
+                        In restaurant workflow
+                      </small>
+                    </div>
 
-              </div>
+                  </div>
 
-              <div className="manager-kpi-card">
+                  <div className="manager-kpi-card">
 
-                <div className="manager-kpi-icon tables">
-                  ▦
-                </div>
+                    <div className="manager-kpi-icon tables">
+                      ▦
+                    </div>
 
-                <div>
-                  <span>Tables Occupied</span>
+                    <div>
+                      <span>Tables Occupied</span>
 
-                  <strong>
-                    {occupiedTables}
-                    <small className="manager-kpi-inline">
-                      {" "}
-                      / {tables.length}
-                    </small>
-                  </strong>
+                      <strong>
+                        {occupiedTables}
+                        <small className="manager-kpi-inline">
+                          {" "}
+                          / {tables.length}
+                        </small>
+                      </strong>
 
-                  <small>
-                    {availableTables} available
-                  </small>
+                      <small>
+                        {availableTables} available
+                      </small>
 
-                </div>
+                    </div>
 
-              </div>
+                  </div>
 
-            </section>
+                </section>
 
-            {/* =========================
+                {/* =========================
                 OPERATIONS
             ========================= */}
 
-            <section className="manager-operation-grid">
+                <section className="manager-operation-grid">
 
-              {/* TABLE STATUS */}
+                  {/* TABLE STATUS */}
 
-              <div className="manager-panel">
+                  <div className="manager-panel">
 
-                <div className="manager-panel-header">
+                    <div className="manager-panel-header">
 
-                  <div>
-                    <span>
-                      FLOOR
-                    </span>
+                      <div>
+                        <span>
+                          FLOOR
+                        </span>
 
-                    <h2>
-                      Table Status
-                    </h2>
-                  </div>
+                        <h2>
+                          Table Status
+                        </h2>
+                      </div>
 
-                  <span className="manager-panel-count">
-                    {occupiedTables}/{tables.length}
-                  </span>
-
-                </div>
-
-                <div className="manager-table-summary">
-
-                  <div className="table-summary-item">
-                    <span className="table-dot available"></span>
-                    <strong>
-                      {availableTables}
-                    </strong>
-                    <small>
-                      Available
-                    </small>
-                  </div>
-
-                  <div className="table-summary-item">
-                    <span className="table-dot occupied"></span>
-                    <strong>
-                      {occupiedTables}
-                    </strong>
-                    <small>
-                      Occupied
-                    </small>
-                  </div>
-
-                </div>
-
-                <div className="manager-table-grid">
-
-                  {tables.map((table) => (
-                    <div
-                      key={table._id}
-                      className={`manager-table ${table.status ===
-                        "OCCUPIED"
-                        ? "occupied"
-                        : "available"
-                        }`}
-                    >
-                      <strong>
-                        {table.tableNumber}
-                      </strong>
-
-                      <span>
-                        {table.status ===
-                          "OCCUPIED"
-                          ? "Busy"
-                          : "Free"}
+                      <span className="manager-panel-count">
+                        {occupiedTables}/{tables.length}
                       </span>
+
                     </div>
-                  ))}
 
-                </div>
+                    <div className="manager-table-summary">
 
-              </div>
-
-              {/* KITCHEN */}
-
-              <div className="manager-panel">
-
-                <div className="manager-panel-header">
-
-                  <div>
-                    <span>
-                      KITCHEN
-                    </span>
-
-                    <h2>
-                      Kitchen Status
-                    </h2>
-                  </div>
-
-                  <span className="manager-panel-count">
-                    {kitchenOrders.length}
-                  </span>
-
-                </div>
-
-                <div className="manager-kitchen-summary">
-
-                  <div className="kitchen-status-card preparing">
-
-                    <span>
-                      PREPARING
-                    </span>
-
-                    <strong>
-                      {kitchenPreparing}
-                    </strong>
-
-                  </div>
-
-                  <div className="kitchen-status-card ready">
-
-                    <span>
-                      READY
-                    </span>
-
-                    <strong>
-                      {kitchenReady}
-                    </strong>
-
-                  </div>
-
-                </div>
-
-                <div className="manager-kitchen-message">
-
-                  {kitchenOrders.length === 0 ? (
-                    <>
-                      <span className="kitchen-check">
-                        ✓
-                      </span>
-
-                      <div>
+                      <div className="table-summary-item">
+                        <span className="table-dot available"></span>
                         <strong>
-                          Kitchen queue clear
+                          {availableTables}
                         </strong>
-
                         <small>
-                          No active kitchen orders.
+                          Available
                         </small>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <span className="kitchen-alert">
-                        !
-                      </span>
 
-                      <div>
+                      <div className="table-summary-item">
+                        <span className="table-dot occupied"></span>
                         <strong>
-                          {kitchenOrders.length} active
-                          order
-                          {kitchenOrders.length !==
-                            1
-                            ? "s"
-                            : ""}
+                          {occupiedTables}
                         </strong>
-
                         <small>
-                          Orders are currently being
-                          processed.
+                          Occupied
                         </small>
                       </div>
-                    </>
-                  )}
 
-                </div>
+                    </div>
 
-              </div>
+                    <div className="manager-table-grid">
 
-            </section>
+                      {tables.map((table) => (
+                        <div
+                          key={table._id}
+                          className={`manager-table ${table.status ===
+                            "OCCUPIED"
+                            ? "occupied"
+                            : "available"
+                            }`}
+                        >
+                          <strong>
+                            {table.tableNumber}
+                          </strong>
 
-            {/* =========================
+                          <span>
+                            {table.status ===
+                              "OCCUPIED"
+                              ? "Busy"
+                              : "Free"}
+                          </span>
+                        </div>
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                  {/* KITCHEN */}
+
+                  <div className="manager-panel">
+
+                    <div className="manager-panel-header">
+
+                      <div>
+                        <span>
+                          KITCHEN
+                        </span>
+
+                        <h2>
+                          Kitchen Status
+                        </h2>
+                      </div>
+
+                      <span className="manager-panel-count">
+                        {kitchenOrders.length}
+                      </span>
+
+                    </div>
+
+                    <div className="manager-kitchen-summary">
+
+                      <div className="kitchen-status-card preparing">
+
+                        <span>
+                          PREPARING
+                        </span>
+
+                        <strong>
+                          {kitchenPreparing}
+                        </strong>
+
+                      </div>
+
+                      <div className="kitchen-status-card ready">
+
+                        <span>
+                          READY
+                        </span>
+
+                        <strong>
+                          {kitchenReady}
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                    <div className="manager-kitchen-message">
+
+                      {kitchenOrders.length === 0 ? (
+                        <>
+                          <span className="kitchen-check">
+                            ✓
+                          </span>
+
+                          <div>
+                            <strong>
+                              Kitchen queue clear
+                            </strong>
+
+                            <small>
+                              No active kitchen orders.
+                            </small>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span className="kitchen-alert">
+                            !
+                          </span>
+
+                          <div>
+                            <strong>
+                              {kitchenOrders.length} active
+                              order
+                              {kitchenOrders.length !==
+                                1
+                                ? "s"
+                                : ""}
+                            </strong>
+
+                            <small>
+                              Orders are currently being
+                              processed.
+                            </small>
+                          </div>
+                        </>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                </section>
+
+                {/* =========================
                 ORDER OVERVIEW
             ========================= */}
 
-            <section className="manager-orders-panel">
+                <section className="manager-orders-panel">
 
-              <div className="manager-panel-header">
+                  <div className="manager-panel-header">
 
-                <div>
-                  <span>
-                    ORDERS
-                  </span>
+                    <div>
+                      <span>
+                        ORDERS
+                      </span>
 
-                  <h2>
-                    Recent Orders
-                  </h2>
+                      <h2>
+                        Recent Orders
+                      </h2>
 
-                  <span className="manager-selected-date">
-                    {dateFilter === "today"
-                      ? "Today"
-                      : dateFilter === "yesterday"
-                        ? "Yesterday"
-                        : customDate
-                          ? new Date(
-                            `${customDate}T00:00:00`
-                          ).toLocaleDateString(
-                            "en-IN",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            }
-                          )
-                          : "Select a date"}
-                  </span>
+                      <span className="manager-selected-date">
+                        {dateFilter === "today"
+                          ? "Today"
+                          : dateFilter === "yesterday"
+                            ? "Yesterday"
+                            : customDate
+                              ? new Date(
+                                `${customDate}T00:00:00`
+                              ).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )
+                              : "Select a date"}
+                      </span>
 
-                </div>
+                    </div>
 
-                <div className="manager-order-stats">
+                    <div className="manager-order-stats">
 
-                  <span>
-                    {pendingPaymentOrders} ready for
-                    payment
-                  </span>
+                      <span>
+                        {pendingPaymentOrders} ready for
+                        payment
+                      </span>
 
-                  <span>
-                    {completedOrders} completed
-                  </span>
+                      <span>
+                        {completedOrders} completed
+                      </span>
 
-                </div>
-
-              </div>
-
-              {loading ? (
-                <div className="manager-loading">
-                  Loading dashboard...
-                </div>
-              ) : recentOrders.length === 0 ? (
-                <div className="manager-no-orders">
-                  No orders recorded for this date.
-                </div>
-              ) : (
-                <div className="manager-orders-table">
-
-                  <div className="manager-order-row manager-order-heading">
-
-                    <span>ORDER</span>
-                    <span>TABLE</span>
-                    <span>WAITER</span>
-                    <span>AMOUNT</span>
-                    <span>STATUS</span>
-                    <span>TIME</span>
+                    </div>
 
                   </div>
 
-                  {recentOrders.map(
-                    (order) => (
-                      <div
-                        className="manager-order-row"
-                        key={order._id}
-                      >
+                  {loading ? (
+                    <div className="manager-loading">
+                      Loading dashboard...
+                    </div>
+                  ) : recentOrders.length === 0 ? (
+                    <div className="manager-no-orders">
+                      No orders recorded for this date.
+                    </div>
+                  ) : (
+                    <div className="manager-orders-table">
 
-                        <strong>
-                          {order.orderNumber}
-                        </strong>
+                      <div className="manager-order-row manager-order-heading">
 
-                        <span>
-                          Table{" "}
-                          {order.tableNumber}
-                        </span>
-
-                        <span>
-                          {order.waiterName ||
-                            "-"}
-                        </span>
-
-                        <strong>
-                          ₹
-                          {Number(
-                            order.total || 0
-                          ).toFixed(2)}
-                        </strong>
-
-                        <span
-                          className={`manager-order-status ${getStatusClass(
-                            order.status
-                          )}`}
-                        >
-                          {order.status
-                            ?.replaceAll(
-                              "_",
-                              " "
-                            )}
-                        </span>
-
-                        <span>
-                          {formatDate(
-                            order.createdAt
-                          )}
-                        </span>
+                        <span>ORDER</span>
+                        <span>TABLE</span>
+                        <span>WAITER</span>
+                        <span>AMOUNT</span>
+                        <span>STATUS</span>
+                        <span>TIME</span>
 
                       </div>
-                    )
-                  )}
 
-                </div>
-              )}
-               </section>
+                      {recentOrders.map(
+                        (order) => (
+                          <div
+                            className="manager-order-row"
+                            key={order._id}
+                          >
+
+                            <strong>
+                              {order.orderNumber}
+                            </strong>
+
+                            <span>
+                              Table{" "}
+                              {order.tableNumber}
+                            </span>
+
+                            <span>
+                              {order.waiterName ||
+                                "-"}
+                            </span>
+
+                            <strong>
+                              ₹
+                              {Number(
+                                order.total || 0
+                              ).toFixed(2)}
+                            </strong>
+
+                            <span
+                              className={`manager-order-status ${getStatusClass(
+                                order.status
+                              )}`}
+                            >
+                              {order.status
+                                ?.replaceAll(
+                                  "_",
+                                  " "
+                                )}
+                            </span>
+
+                            <span>
+                              {formatDate(
+                                order.createdAt
+                              )}
+                            </span>
+
+                          </div>
+                        )
+                      )}
+
+                    </div>
+                  )}
+                </section>
+
+              </>
+
+            )}
 
           </>
 
         )}
 
-      </>
-
-    )}
-
-    {activeTab === "orders" && (
-      <ManagerOrders
-        user={user}
-        embedded={true}
-        onBack={() => onTabChange("dashboard")}
-        onOpenSales={() => onTabChange("sales")}
-        onOpenStaff={() => onTabChange("staff")}
-        onLogout={onLogout}
-      />
-    )}
+        {activeTab === "orders" && (
+          <ManagerOrders
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onOpenSales={() => onTabChange("sales")}
+            onOpenStaff={() => onTabChange("staff")}
+            onLogout={onLogout}
+          />
+        )}
 
 
-{activeTab === "sales" && (
-  <ManagerSales
-    user={user}
-    embedded={true}
-    onBack={() => onTabChange("dashboard")}
-    onOpenOrders={() => onTabChange("orders")}
-    onOpenSales={() => onTabChange("menu")}
-    onOpenStaff={() => onTabChange("staff")}
-    onLogout={onLogout}
-  />
-)}
+        {activeTab === "sales" && (
+          <ManagerSales
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onOpenOrders={() => onTabChange("orders")}
+            onOpenSales={() => onTabChange("menu")}
+            onOpenStaff={() => onTabChange("staff")}
+            onLogout={onLogout}
+          />
+        )}
 
-    {activeTab === "staff" && (
-  <ManagerStaff
-    user={user}
-    embedded={true}
-    onBack={() => onTabChange("dashboard")}
-    onOpenOrders={() => onTabChange("orders")}
-    onOpenSales={() => onTabChange("sales")}
-    onLogout={onLogout}
-  />
-)}
+        {activeTab === "staff" && (
+          <ManagerStaff
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onOpenOrders={() => onTabChange("orders")}
+            onOpenSales={() => onTabChange("sales")}
+            onLogout={onLogout}
+          />
+        )}
 
-{activeTab === "menu" && (
-  <ManagerMenu
-    user={user}
-    embedded={true}
-    onBack={() => onTabChange("dashboard")}
-    onOpenOrders={() => onTabChange("orders")}
-    onOpenSales={() => onTabChange("sales")}
-    onOpenStaff={() => onTabChange("staff")}
-    onLogout={onLogout}
-  />
-)}
+        {activeTab === "menu" && (
+          <ManagerMenu
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onOpenOrders={() => onTabChange("orders")}
+            onOpenSales={() => onTabChange("sales")}
+            onOpenStaff={() => onTabChange("staff")}
+            onLogout={onLogout}
+          />
+        )}
 
-{activeTab === "inventory" && (
-  <ManagerInventory
-    user={user}
-    embedded={true}
-    onBack={() => onTabChange("dashboard")}
-    onOpenOrders={() => onTabChange("orders")}
-    onOpenSales={() => onTabChange("sales")}
-    onOpenStaff={() => onTabChange("staff")}
-    onLogout={onLogout}
-  />
-)}
+        {activeTab === "categories" && (
+          <ManagerCategories />
+        )}
 
-{activeTab === "settings" && (
-  <RestaurantSettings
-    user={user}
-    embedded={true}
-    onBack={() => onTabChange("dashboard")}
-    onLogout={onLogout}
-  />
-)}
+        {activeTab === "inventory" && (
+          <ManagerInventory
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onOpenOrders={() => onTabChange("orders")}
+            onOpenSales={() => onTabChange("sales")}
+            onOpenStaff={() => onTabChange("staff")}
+            onLogout={onLogout}
+          />
+        )}
 
-  </main>
-</div>
+        {activeTab === "settings" && (
+          <RestaurantSettings
+            user={user}
+            embedded={true}
+            onBack={() => onTabChange("dashboard")}
+            onLogout={onLogout}
+          />
+        )}
+
+      </main>
+    </div>
   );
 
 }

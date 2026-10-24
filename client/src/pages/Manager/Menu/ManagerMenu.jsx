@@ -12,7 +12,7 @@ function ManagerMenu({
   embedded = false,
 }) {
 
-    const { restaurantName, restaurantLogo } =
+  const { restaurantName, restaurantLogo } =
     useRestaurantBranding();
 
   const [items, setItems] = useState([]);
@@ -28,6 +28,8 @@ function ManagerMenu({
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  const [menuCategories, setMenuCategories] = useState([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -71,6 +73,32 @@ function ManagerMenu({
   useEffect(() => {
     loadMenu();
   }, []);
+
+
+
+const loadCategories = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:5000/api/menu/categories"
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to load categories."
+      );
+    }
+
+    setMenuCategories(data.categories || []);
+  } catch (error) {
+    console.error("Load categories error:", error);
+  }
+};
+
+useEffect(() => {
+  loadCategories();
+}, []);
 
   // ==========================================
   // CATEGORIES
@@ -241,7 +269,7 @@ function ManagerMenu({
 
       alert(
         error.message ||
-          "Unable to save menu item."
+        "Unable to save menu item."
       );
     } finally {
       setSaving(false);
@@ -272,7 +300,7 @@ function ManagerMenu({
       if (!response.ok || !data.success) {
         throw new Error(
           data.message ||
-            "Unable to update availability."
+          "Unable to update availability."
         );
       }
 
@@ -291,7 +319,7 @@ function ManagerMenu({
 
       alert(
         error.message ||
-          "Unable to update availability."
+        "Unable to update availability."
       );
     }
   };
@@ -322,7 +350,7 @@ function ManagerMenu({
       if (!response.ok || !data.success) {
         throw new Error(
           data.message ||
-            "Unable to delete menu item."
+          "Unable to delete menu item."
         );
       }
 
@@ -340,7 +368,7 @@ function ManagerMenu({
 
       alert(
         error.message ||
-          "Unable to delete menu item."
+        "Unable to delete menu item."
       );
     }
   };
@@ -376,103 +404,103 @@ function ManagerMenu({
       {/* ========================================
           SIDEBAR
       ======================================== */}
-{!embedded && (
-      <aside className="menu-sidebar">
+      {!embedded && (
+        <aside className="menu-sidebar">
 
-       <div className="menu-brand">
-  <div className="menu-brand-icon">
-    {restaurantLogo ? (
-      <img
-        src={restaurantLogo}
-        alt={restaurantName}
-      />
-    ) : (
-      "🍽️"
-    )}
-  </div>
-
-  <div>
-    <h2>{restaurantName}</h2>
-  </div>
-</div>
-
-        <div className="menu-sidebar-title">
-          MANAGEMENT
-        </div>
-
-        <button
-          className="menu-nav-item"
-          onClick={onBack}
-          type="button"
-        >
-          <span>▦</span>
-          Dashboard
-        </button>
-
-        <button
-          className="menu-nav-item"
-          onClick={onOpenOrders}
-          type="button"
-        >
-          <span>▤</span>
-          Orders
-        </button>
-
-        <button
-          className="menu-nav-item"
-          onClick={onOpenSales}
-          type="button"
-        >
-          <span>₹</span>
-          Sales & Reports
-        </button>
-
-        <button
-          className="menu-nav-item"
-          onClick={onOpenStaff}
-          type="button"
-        >
-          <span>👥</span>
-          Staff
-        </button>
-
-        <button
-          className="menu-nav-item menu-nav-active"
-          type="button"
-        >
-          <span>🍽️</span>
-          Menu Management
-        </button>
-
-        <div className="menu-sidebar-footer">
-
-          <div className="menu-user">
-            <div className="menu-user-avatar">
-              {getInitial(user?.name)}
+          <div className="menu-brand">
+            <div className="menu-brand-icon">
+              {restaurantLogo ? (
+                <img
+                  src={restaurantLogo}
+                  alt={restaurantName}
+                />
+              ) : (
+                "🍽️"
+              )}
             </div>
 
-            <div className="menu-user-info">
-              <strong>
-                {user?.name}
-              </strong>
-
-              <span>Manager</span>
+            <div>
+              <h2>{restaurantName}</h2>
             </div>
+          </div>
 
-            <div className="menu-online-dot" />
+          <div className="menu-sidebar-title">
+            MANAGEMENT
           </div>
 
           <button
-            className="menu-logout"
-            onClick={onLogout}
+            className="menu-nav-item"
+            onClick={onBack}
             type="button"
           >
-            ↪ Logout
+            <span>▦</span>
+            Dashboard
           </button>
 
-        </div>
+          <button
+            className="menu-nav-item"
+            onClick={onOpenOrders}
+            type="button"
+          >
+            <span>▤</span>
+            Orders
+          </button>
 
-      </aside>
+          <button
+            className="menu-nav-item"
+            onClick={onOpenSales}
+            type="button"
+          >
+            <span>₹</span>
+            Sales & Reports
+          </button>
+
+          <button
+            className="menu-nav-item"
+            onClick={onOpenStaff}
+            type="button"
+          >
+            <span>👥</span>
+            Staff
+          </button>
+
+          <button
+            className="menu-nav-item menu-nav-active"
+            type="button"
+          >
+            <span>🍽️</span>
+            Menu Management
+          </button>
+
+          <div className="menu-sidebar-footer">
+
+            <div className="menu-user">
+              <div className="menu-user-avatar">
+                {getInitial(user?.name)}
+              </div>
+
+              <div className="menu-user-info">
+                <strong>
+                  {user?.name}
+                </strong>
+
+                <span>Manager</span>
+              </div>
+
+              <div className="menu-online-dot" />
+            </div>
+
+            <button
+              className="menu-logout"
+              onClick={onLogout}
+              type="button"
+            >
+              ↪ Logout
+            </button>
+
+          </div>
+
+        </aside>
       )}
 
       {/* ========================================
@@ -744,7 +772,7 @@ function ManagerMenu({
 
                               <div className="menu-item-icon">
                                 {item.foodType ===
-                                "NON_VEG"
+                                  "NON_VEG"
                                   ? "🍗"
                                   : "🥬"}
                               </div>
@@ -781,15 +809,14 @@ function ManagerMenu({
 
                           <td>
                             <span
-                              className={`menu-food-type ${
-                                item.foodType ===
-                                "NON_VEG"
+                              className={`menu-food-type ${item.foodType ===
+                                  "NON_VEG"
                                   ? "non-veg"
                                   : "veg"
-                              }`}
+                                }`}
                             >
                               {item.foodType ===
-                              "NON_VEG"
+                                "NON_VEG"
                                 ? "Non-Veg"
                                 : "Veg"}
                             </span>
@@ -797,11 +824,10 @@ function ManagerMenu({
 
                           <td>
                             <button
-                              className={`menu-status ${
-                                item.available
+                              className={`menu-status ${item.available
                                   ? "available"
                                   : "unavailable"
-                              }`}
+                                }`}
                               onClick={() =>
                                 toggleAvailability(
                                   item
@@ -935,6 +961,7 @@ function ManagerMenu({
                   />
                 </div>
 
+               
 <div className="menu-form-group">
   <label htmlFor="menu-category">Category</label>
 
@@ -951,12 +978,15 @@ function ManagerMenu({
     required
   >
     <option value="">Select Category</option>
-    <option value="main course">Main Course</option>
-    <option value="starters">Starters</option>
-    <option value="salads">Salads</option>
-    <option value="juice">Juice</option>
+
+    {menuCategories.map((category) => (
+      <option key={category._id} value={category.name}>
+        {category.name}
+      </option>
+    ))}
   </select>
 </div>
+
 
 
               </div>
@@ -1078,8 +1108,8 @@ function ManagerMenu({
                 {saving
                   ? "Saving..."
                   : editingItem
-                  ? "Save Changes"
-                  : "Create Item"}
+                    ? "Save Changes"
+                    : "Create Item"}
               </button>
 
             </div>
