@@ -72,28 +72,23 @@ router.get("/payments", async (req, res) => {
 // ------------------------------------------
 
 
+
 router.patch("/orders/:id/pay", async (req, res) => {
   try {
     const { paymentMethod } = req.body;
 
     // Validate payment method
-    const allowedMethods = [
-      "CASH",
-      "CARD",
-      "UPI",
-    ];
+    const allowedMethods = ["CASH", "CARD", "UPI"];
 
     if (!allowedMethods.includes(paymentMethod)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Invalid payment method. Use CASH, CARD or UPI.",
+        message: "Invalid payment method. Use CASH, CARD or UPI.",
       });
     }
 
-    const order = await Order.findById(
-      req.params.id
-    );
+    // Find the order
+    const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({
@@ -102,38 +97,38 @@ router.patch("/orders/:id/pay", async (req, res) => {
       });
     }
 
+    // Only READY orders can be paid
     if (order.status !== "READY") {
       return res.status(400).json({
         success: false,
-        message:
-          "Only READY orders can be paid.",
+        message: "Only READY orders can be paid.",
       });
     }
 
-    // Complete payment
-    // Complete payment
-order.status = "COMPLETED";
-order.paymentMethod = paymentMethod;
-order.paidAt = new Date();
+    // Get cashier details safely.
+    // These values are available when authentication middleware
+    // attaches the logged-in user to req.user.
+    const cashierId = req.user?._id || req.user?.id || null;
+    const cashierName = req.user?.name || "";
 
-order.cashierId = cashierId || null;
-order.cashierName = cashierName || "";
+    // Complete payment
+    order.status = "COMPLETED";
+    order.paymentMethod = paymentMethod;
+    order.paidAt = new Date();
+    order.cashierId = cashierId;
+    order.cashierName = cashierName;
 
     await order.save();
 
     // Release the table
-    await Table.findByIdAndUpdate(
-      order.tableId,
-      {
-        status: "AVAILABLE",
-        currentOrder: null,
-      }
-    );
+    await Table.findByIdAndUpdate(order.tableId, {
+      status: "AVAILABLE",
+      currentOrder: null,
+    });
 
-    res.json({
+    return res.json({
       success: true,
-      message:
-        `Payment completed successfully using ${paymentMethod}.`,
+      message: `Payment completed successfully using ${paymentMethod}.`,
       order: {
         id: order._id,
         orderNumber: order.orderNumber,
@@ -141,18 +136,16 @@ order.cashierName = cashierName || "";
         paymentMethod: order.paymentMethod,
         paidAt: order.paidAt,
         total: order.total,
+        cashierId: order.cashierId,
+        cashierName: order.cashierName,
       },
     });
   } catch (error) {
-    console.error(
-      "Cashier payment error:",
-      error
-    );
+    console.error("Cashier payment error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message:
-        "Unable to complete payment.",
+      message: "Unable to complete payment.",
     });
   }
 });

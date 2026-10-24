@@ -217,7 +217,7 @@ function PaymentHistory({
   </div>
 
   <div>
-    <h1>{restaurantName}</h1>
+    <h1 className="text-gray-900 font-bold" >{restaurantName}</h1>
 
     <span>
       Payment History
