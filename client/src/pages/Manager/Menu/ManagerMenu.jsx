@@ -935,25 +935,29 @@ function ManagerMenu({
                   />
                 </div>
 
-                <div className="menu-form-group">
-                  <label>
-                    Category
-                  </label>
+<div className="menu-form-group">
+  <label htmlFor="menu-category">Category</label>
 
-                  <input
-                    type="text"
-                    placeholder="Biryani"
-                    value={form.category}
-                    onChange={(event) =>
-                      setForm({
-                        ...form,
-                        category:
-                          event.target.value,
-                      })
-                    }
-                    disabled={saving}
-                  />
-                </div>
+  <select
+    id="menu-category"
+    value={form.category}
+    onChange={(event) =>
+      setForm((prev) => ({
+        ...prev,
+        category: event.target.value,
+      }))
+    }
+    disabled={saving}
+    required
+  >
+    <option value="">Select Category</option>
+    <option value="main course">Main Course</option>
+    <option value="starters">Starters</option>
+    <option value="salads">Salads</option>
+    <option value="juice">Juice</option>
+  </select>
+</div>
+
 
               </div>
 
