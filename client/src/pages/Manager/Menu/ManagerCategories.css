@@ -255,3 +255,52 @@
     flex-direction: column;
   }
 }
+
+
+/* Fix invisible headings in Category Management */
+.manager-category-panel-heading h2 {
+  color: #172033 !important;
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* Make the page title visible */
+.manager-categories-header h1 {
+  color: #172033 !important;
+  font-size: 28px;
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* Keep descriptive text readable */
+.manager-category-panel-heading p,
+.manager-categories-header p {
+  color: #667085;
+  opacity: 1;
+}
+
+/* Category form labels */
+.manager-category-panel form label {
+  color: #344054;
+  font-weight: 600;
+}
+
+/* Ensure cards have a solid white background */
+.manager-category-panel {
+  background-color: #ffffff;
+}
+
+/* Improve heading spacing */
+.manager-category-panel-heading {
+  margin-bottom: 22px;
+}
+
+.manager-category-panel-heading h2 {
+  margin: 0;
+}
+
+.manager-category-panel-heading p {
+  margin-top: 8px;
+}
+
